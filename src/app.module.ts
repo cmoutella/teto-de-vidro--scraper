@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { PropertyCollectionModule } from './modules/property/property-collection.module';
+import { UsersModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PropertyCollectionModule } from './modules/property/property-collection
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
+    UsersModule,
     PropertyCollectionModule,
   ],
   controllers: [AppController],
