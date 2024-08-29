@@ -6,7 +6,9 @@ import { InterfaceProperty } from '../schemas/models/property.interface';
 export class PropertyService {
   constructor(private readonly propertyRepository: PropertyRepository) {}
 
-  async createProperty(newProperty: InterfaceProperty): Promise<void> {
+  async createProperty(
+    newProperty: InterfaceProperty,
+  ): Promise<InterfaceProperty> {
     return await this.propertyRepository.createProperty(newProperty);
   }
 
@@ -17,20 +19,20 @@ export class PropertyService {
     return await this.propertyRepository.getAllProperties(page, limit);
   }
 
-  async getAllPropertiesByAddress(
-    address: string,
+  async getAllPropertiesByMainAddress(
+    mainAddressId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]> {
-    return await this.propertyRepository.getAllPropertiesByAddress(
-      address,
+    return await this.propertyRepository.getAllPropertiesByMainAddress(
+      mainAddressId,
       page,
       limit,
     );
   }
 
   async getOneProperty(id: string): Promise<InterfaceProperty> {
-    const property = await this.propertyRepository.getOneProperty(id);
+    const property = await this.propertyRepository.getOnePropertyById(id);
 
     if (!property) throw new NotFoundException('Imóvel não encontrado');
     return property;

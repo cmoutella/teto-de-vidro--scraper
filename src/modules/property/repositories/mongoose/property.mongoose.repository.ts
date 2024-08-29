@@ -10,10 +10,15 @@ export class PropertyMongooseRepository implements PropertyRepository {
     @InjectModel(Property.name) private propertyModel: Model<Property>,
   ) {}
 
-  async createProperty(newProperty: InterfaceProperty): Promise<void> {
+  async createProperty(newProperty: InterfaceProperty): Promise<Property> {
     const createProperty = new this.propertyModel(newProperty);
 
-    await createProperty.save();
+    const property = await createProperty.save();
+
+    if (!property) return null;
+    const { _id, ...data } = property;
+
+    return { id: _id.toString(), ...data };
   }
 
   async getAllProperties(
@@ -25,22 +30,30 @@ export class PropertyMongooseRepository implements PropertyRepository {
     return await this.propertyModel.find().skip(offset).limit(limit).exec();
   }
 
-  async getAllPropertiesByAddress(
-    keyword: string,
+  async getAllPropertiesByMainAddress(
+    mainAddressId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
   ): Promise<InterfaceProperty[]> {
     const offset = (page - 1) * limit;
 
     // TODO
-    return await this.propertyModel
-      .find({ keyWords: keyword })
+    const foundProperties = await this.propertyModel
+      .find({ mainAddressId: mainAddressId })
       .skip(offset)
       .limit(limit)
       .exec();
+
+    const properties = foundProperties.map((prop) => {
+      const { _id, ...data } = prop;
+
+      return { id: _id.toString(), ...data };
+    });
+
+    return properties;
   }
 
-  async getOneProperty(id: string): Promise<InterfaceProperty> {
+  async getOnePropertyById(id: string): Promise<InterfaceProperty> {
     return await this.propertyModel.findById(id).exec();
   }
 
