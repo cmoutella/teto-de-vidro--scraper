@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { LotCollectionModule } from './modules/lot/lot-collection.module';
 import { UsersModule } from './modules/user/user.module';
 import { PropertyCollectionModule } from './modules/property/property-collection.module';
+import { AddressModule } from './modules/address/address-collection.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PropertyCollectionModule } from './modules/property/property-collection
     UsersModule,
     LotCollectionModule,
     PropertyCollectionModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
