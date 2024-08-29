@@ -19,7 +19,7 @@ export class User implements InterfaceUser {
   @Prop()
   gender: 'male' | 'female' | 'neutral';
   @Prop()
-  birthDate: Date;
+  birthDate: string;
   @Prop()
   email: string;
 }

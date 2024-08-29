@@ -5,7 +5,7 @@ export interface InterfaceUser {
   password: string;
   profession?: string;
   gender: 'male' | 'female' | 'neutral';
-  birthDate: Date;
+  birthDate: string;
   email: string;
 }
 

@@ -47,8 +47,11 @@ export class UserMongooseRepository implements UserRepository {
   }
 
   async getByEmail(email: string): Promise<InterfaceUser | null> {
-    const { _id, ...userData } = await this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email }).exec();
 
+    if (!user) return null;
+
+    const { _id, ...userData } = user;
     const data = {
       id: _id.toString(),
       ...userData,

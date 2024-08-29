@@ -15,6 +15,7 @@ import { UserService } from '../services/user.service';
 
 import { z } from 'zod';
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe';
+import { EncryptPasswordPipe } from '../pipe/password.pipe';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -24,7 +25,7 @@ const createUserSchema = z.object({
   password: z.string(),
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),
-  birthDate: z.date(),
+  birthDate: z.string(),
   email: z.string(),
 });
 
@@ -35,6 +36,7 @@ type CreateUser = z.infer<typeof createUserSchema>;
 export class UsersController {
   constructor(private readonly userService: UserService) {}
 
+  @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
   @Post()
   async createUser(
