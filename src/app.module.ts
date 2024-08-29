@@ -5,8 +5,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { PropertyCollectionModule } from './modules/property/property-collection.module';
+import { LotCollectionModule } from './modules/lot/lot-collection.module';
 import { UsersModule } from './modules/user/user.module';
+import { PropertyCollectionModule } from './modules/property/property-collection.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from './modules/user/user.module';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     UsersModule,
+    LotCollectionModule,
     PropertyCollectionModule,
   ],
   controllers: [AppController],
