@@ -16,9 +16,8 @@ export class PropertyMongooseRepository implements PropertyRepository {
     await createProperty.save();
 
     if (!createProperty) return null;
-    const { _id, ...data } = createProperty;
 
-    return { id: _id.toString(), ...data };
+    return createProperty.toObject();
   }
 
   async getAllProperties(
@@ -37,20 +36,13 @@ export class PropertyMongooseRepository implements PropertyRepository {
   ): Promise<InterfaceProperty[]> {
     const offset = (page - 1) * limit;
 
-    // TODO
     const foundProperties = await this.propertyModel
       .find({ mainAddressId: mainAddressId })
       .skip(offset)
       .limit(limit)
       .exec();
 
-    const properties = foundProperties.map((prop) => {
-      const { _id, ...data } = prop;
-
-      return { id: _id.toString(), ...data };
-    });
-
-    return properties;
+    return foundProperties.map((prop) => prop.toObject());
   }
 
   async getOnePropertyById(id: string): Promise<InterfaceProperty> {

@@ -81,10 +81,16 @@ export class AddressService {
 
     const lotId = foundLots[0].id;
 
+    if (!lotId) {
+      throw new BadRequestException(
+        'Não foi possível criar esse endereço no momento',
+      );
+    }
+
     const foundProperties =
       await this.propertyRepository.getAllPropertiesByMainAddress(lotId);
 
-    if (foundProperties) {
+    if (foundProperties && foundProperties.length >= 1) {
       const foundProperty = foundProperties.find(
         (prop) => prop.number === address.propertyNumber,
       );

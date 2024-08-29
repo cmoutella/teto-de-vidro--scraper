@@ -16,16 +16,7 @@ export class LotMongooseRepository implements LotRepository {
 
     await createLot.save();
 
-    if (!createLot) return null;
-    const { _id, ...data } = createLot;
-
-    return { id: _id.toString(), ...data };
-  }
-
-  async getAllLots(page = 1, limit = DEFAULT_LIMIT): Promise<InterfaceLot[]> {
-    const offset = (page - 1) * limit;
-
-    return await this.lotModel.find().skip(offset).limit(limit).exec();
+    return createLot.toObject();
   }
 
   async getAllLotsByAddress(
@@ -45,11 +36,17 @@ export class LotMongooseRepository implements LotRepository {
     }
 
     // TODO
-    return await this.lotModel
+    const foundLots = await this.lotModel
       .find({ ...searchBy })
       .skip(offset)
       .limit(limit)
       .exec();
+
+    return foundLots.map((lot) => {
+      const { _id, ...data } = lot;
+
+      return { id: _id.toString(), ...data };
+    });
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {

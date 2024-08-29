@@ -13,10 +13,6 @@ export class LotService {
     return await this.lotRepository.createLot(newLot);
   }
 
-  async getAllLots(page?: number, limit?: number): Promise<InterfaceLot[]> {
-    return await this.lotRepository.getAllLots(page, limit);
-  }
-
   async getAllLotsByAddress(
     addressParams: InterfaceSearchLot,
     page?: number,

@@ -78,11 +78,6 @@ export class LotController {
     });
   }
 
-  @Get()
-  async getAllLots(page?: number, limit?: number) {
-    return await this.lotService.getAllLots(page, limit);
-  }
-
   @Get('/search/:address')
   async getAllLotsByAddress(@Param('address') address: InterfaceSearchLot) {
     return await this.lotService.getAllLotsByAddress(address);
