@@ -3,10 +3,22 @@ export interface InterfaceLot {
   name?: string;
   address: string;
   number: string;
-  postalCode: string;
+  postalCode?: string;
   neighborhood: string;
   city: string;
   province: string;
   country: string;
-  convenience: string[];
+  convenience?: string[];
+}
+
+export interface InterfaceSearchLot {
+  name?: string;
+  address: string;
+  number?: string;
+  postalCode?: string;
+  neighborhood?: string;
+  city: string;
+  province: string;
+  country: string;
+  convenience?: string[];
 }

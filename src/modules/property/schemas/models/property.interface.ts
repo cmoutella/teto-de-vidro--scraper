@@ -2,7 +2,7 @@
 export interface InterfaceProperty {
   id?: string;
   mainAddressId: string;
-  block: string;
+  block?: string;
   number: string;
   size?: number;
   rooms?: number;

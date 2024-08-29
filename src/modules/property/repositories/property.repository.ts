@@ -6,15 +6,17 @@ export abstract class PropertyRepository {
     limit?: number,
   ): Promise<InterfaceProperty[]>;
 
-  abstract getAllPropertiesByAddress(
-    address: string,
+  abstract getAllPropertiesByMainAddress(
+    mainAddressId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]>;
 
-  abstract getOneProperty(id: string): Promise<InterfaceProperty>;
+  abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
 
-  abstract createProperty(newPost: InterfaceProperty): Promise<void>;
+  abstract createProperty(
+    newProperty: InterfaceProperty,
+  ): Promise<InterfaceProperty>;
 
   abstract updateProperty(
     id: string,

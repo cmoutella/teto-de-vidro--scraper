@@ -55,7 +55,7 @@ export class PropertyController {
 
   @UsePipes(new ZodValidationPipe(createPropertySchema))
   @Post()
-  async createPost(
+  async createProperty(
     @Body()
     {
       block,
@@ -87,13 +87,13 @@ export class PropertyController {
   }
 
   @Get()
-  async getAllPosts(page?: number, limit?: number) {
+  async getAllProperties(page?: number, limit?: number) {
     return await this.propertyService.getAllProperties(page, limit);
   }
 
-  @Get('/search/:address')
-  async getAllPostsByAddress(@Param('address') address: string) {
-    return await this.propertyService.getAllPropertiesByAddress(address);
+  @Get('/search/:addressId')
+  async getAllPropertiesByMainAddress(@Param('addressId') addressId: string) {
+    return await this.propertyService.getAllPropertiesByMainAddress(addressId);
   }
 
   @Get(':id')
