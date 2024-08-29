@@ -9,6 +9,7 @@ import { LotCollectionModule } from './modules/lot/lot-collection.module';
 import { UsersModule } from './modules/user/user.module';
 import { PropertyCollectionModule } from './modules/property/property-collection.module';
 import { AddressModule } from './modules/address/address-collection.module';
+import { HuntCollectionModule } from './modules/hunt/hunt-collection.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AddressModule } from './modules/address/address-collection.module';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     UsersModule,
+    HuntCollectionModule,
     LotCollectionModule,
     PropertyCollectionModule,
     AddressModule,
