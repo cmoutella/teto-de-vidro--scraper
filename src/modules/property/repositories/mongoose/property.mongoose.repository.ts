@@ -13,10 +13,10 @@ export class PropertyMongooseRepository implements PropertyRepository {
   async createProperty(newProperty: InterfaceProperty): Promise<Property> {
     const createProperty = new this.propertyModel(newProperty);
 
-    const property = await createProperty.save();
+    await createProperty.save();
 
-    if (!property) return null;
-    const { _id, ...data } = property;
+    if (!createProperty) return null;
+    const { _id, ...data } = createProperty;
 
     return { id: _id.toString(), ...data };
   }

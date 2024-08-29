@@ -14,10 +14,10 @@ export class LotMongooseRepository implements LotRepository {
   async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
     const createLot = new this.lotModel(newLot);
 
-    const lot = await createLot.save();
+    await createLot.save();
 
-    if (!lot) return null;
-    const { _id, ...data } = lot;
+    if (!createLot) return null;
+    const { _id, ...data } = createLot;
 
     return { id: _id.toString(), ...data };
   }

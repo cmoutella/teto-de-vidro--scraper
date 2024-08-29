@@ -55,6 +55,22 @@ export class AddressService {
           'Não foi possível criar esse endereço no momento',
         );
       }
+
+      const property = this.propertyRepository.createProperty({
+        mainAddressId: lot.id,
+        number: address.propertyNumber,
+        block: address.block ?? null,
+        size: address.size ?? null,
+        rooms: address.rooms ?? null,
+        bathrooms: address.bathrooms ?? null,
+        is_front: address.is_front ?? null,
+        sun: address.sun ?? null,
+        parking: address.parking ?? null,
+        condoPricing: address.condoPricing ?? null,
+        convenience: address.propertyConvenience ?? null,
+      });
+
+      return property;
     }
 
     if (foundLots && foundLots.length >= 2) {

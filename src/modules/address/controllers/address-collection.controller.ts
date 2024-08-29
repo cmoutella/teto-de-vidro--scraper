@@ -72,7 +72,7 @@ export class AddressController {
       propertyConvenience,
     }: CreateAddress,
   ) {
-    await this.addressService.createAddress({
+    return await this.addressService.createAddress({
       lotName,
       address,
       lotNumber,
