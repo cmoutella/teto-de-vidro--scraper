@@ -20,6 +20,7 @@ const PROPERTY_SUN_LIGHT = ['morning', 'afternoon', 'none'] as const;
 const createPropertySchema = z.object({
   block: z.string(),
   number: z.string(),
+  mainAddressId: z.string(),
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),
@@ -67,6 +68,7 @@ export class PropertyController {
       sun,
       condoPricing,
       convenience,
+      mainAddressId,
     }: CreateProperty,
   ) {
     await this.propertyService.createProperty({
@@ -80,6 +82,7 @@ export class PropertyController {
       sun,
       condoPricing,
       convenience,
+      mainAddressId,
     });
   }
 

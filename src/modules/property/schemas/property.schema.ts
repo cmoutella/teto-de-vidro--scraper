@@ -9,6 +9,8 @@ export class Property implements InterfaceProperty {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string;
   @Prop()
+  mainAddressId: string;
+  @Prop()
   block: string;
   @Prop()
   number: string;

@@ -1,6 +1,7 @@
 // TODO connect to Lot in address
 export interface InterfaceProperty {
   id?: string;
+  mainAddressId: string;
   block: string;
   number: string;
   size?: number;
