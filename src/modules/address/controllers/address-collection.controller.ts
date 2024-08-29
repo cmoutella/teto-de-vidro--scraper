@@ -18,12 +18,11 @@ import { AddressService } from '../services/address-collection.service';
 const Address_SUN_LIGHT = ['morning', 'afternoon', 'none'] as const;
 
 const createAddressSchema = z.object({
-  block: z.string(),
+  block: z.string().optional(),
   address: z.string(),
   lotName: z.string().optional(),
   lotNumber: z.string(),
   postalCode: z.string().optional(),
-  cep: z.string().optional(),
   city: z.string(),
   neighborhood: z.string(),
   province: z.string(),
