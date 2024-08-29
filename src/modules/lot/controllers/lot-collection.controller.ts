@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { LotService } from '../services/lot-collection.service';
+import { InterfaceSearchLot } from '../schemas/models/lot.interface';
 
 const createLotSchema = z.object({
   name: z.string().optional(),
@@ -83,7 +84,7 @@ export class LotController {
   }
 
   @Get('/search/:address')
-  async getAllLotsByAddress(@Param('address') address: string) {
+  async getAllLotsByAddress(@Param('address') address: InterfaceSearchLot) {
     return await this.lotService.getAllLotsByAddress(address);
   }
 

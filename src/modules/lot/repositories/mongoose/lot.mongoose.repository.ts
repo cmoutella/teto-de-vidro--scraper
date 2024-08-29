@@ -3,15 +3,23 @@ import { Model } from 'mongoose';
 import { DEFAULT_LIMIT } from '../../../../shared/default/pagination';
 import { Lot } from '../../schemas/lot.schema';
 import { LotRepository } from '../lot.repository';
-import { InterfaceLot } from '../../schemas/models/lot.interface';
+import {
+  InterfaceLot,
+  InterfaceSearchLot,
+} from '../../schemas/models/lot.interface';
 
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
 
-  async createLot(newLot: InterfaceLot): Promise<void> {
+  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
     const createLot = new this.lotModel(newLot);
 
-    await createLot.save();
+    const lot = await createLot.save();
+
+    if (!lot) return null;
+    const { _id, ...data } = lot;
+
+    return { id: _id.toString(), ...data };
   }
 
   async getAllLots(page = 1, limit = DEFAULT_LIMIT): Promise<InterfaceLot[]> {
@@ -21,15 +29,24 @@ export class LotMongooseRepository implements LotRepository {
   }
 
   async getAllLotsByAddress(
-    keyword: string,
+    searchBy: InterfaceSearchLot,
     page = 1,
     limit = DEFAULT_LIMIT,
   ): Promise<InterfaceLot[]> {
     const offset = (page - 1) * limit;
 
+    if (
+      !searchBy.address ||
+      !searchBy.city ||
+      !searchBy.province ||
+      !searchBy.country
+    ) {
+      return [];
+    }
+
     // TODO
     return await this.lotModel
-      .find({ keyWords: keyword })
+      .find({ ...searchBy })
       .skip(offset)
       .limit(limit)
       .exec();

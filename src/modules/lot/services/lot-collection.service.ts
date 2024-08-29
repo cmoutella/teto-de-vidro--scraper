@@ -1,12 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { LotRepository } from '../repositories/lot.repository';
-import { InterfaceLot } from '../schemas/models/lot.interface';
+import {
+  InterfaceLot,
+  InterfaceSearchLot,
+} from '../schemas/models/lot.interface';
 
 @Injectable()
 export class LotService {
   constructor(private readonly lotRepository: LotRepository) {}
 
-  async createLot(newLot: InterfaceLot): Promise<void> {
+  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
     return await this.lotRepository.createLot(newLot);
   }
 
@@ -15,11 +18,15 @@ export class LotService {
   }
 
   async getAllLotsByAddress(
-    address: string,
+    addressParams: InterfaceSearchLot,
     page?: number,
     limit?: number,
   ): Promise<InterfaceLot[]> {
-    return await this.lotRepository.getAllLotsByAddress(address, page, limit);
+    return await this.lotRepository.getAllLotsByAddress(
+      addressParams,
+      page,
+      limit,
+    );
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {
