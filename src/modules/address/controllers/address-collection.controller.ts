@@ -1,11 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
-  Param,
   Post,
-  Put,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -14,8 +10,7 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { AddressService } from '../services/address-collection.service';
-
-const Address_SUN_LIGHT = ['morning', 'afternoon', 'none'] as const;
+import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
 
 const createAddressSchema = z.object({
   block: z.string().optional(),
@@ -34,7 +29,7 @@ const createAddressSchema = z.object({
   bathrooms: z.number().optional(),
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
-  sun: z.enum(Address_SUN_LIGHT).optional(),
+  sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
   propertyConvenience: z.string().optional(),
 });
