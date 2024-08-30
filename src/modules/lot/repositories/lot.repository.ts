@@ -12,7 +12,7 @@ export abstract class LotRepository {
 
   abstract getOneLot(id: string): Promise<InterfaceLot>;
 
-  abstract createLot(newPost: InterfaceLot): Promise<InterfaceLot | null>;
+  abstract createLot(newLot: InterfaceLot): Promise<InterfaceLot | null>;
 
   abstract updateLot(id: string, data: Partial<InterfaceLot>): Promise<void>;
 

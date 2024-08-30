@@ -49,7 +49,7 @@ const updatePropertySchema = z.object({
 type UpdateProperty = z.infer<typeof updatePropertySchema>;
 
 @UseInterceptors(LoggingInterceptor)
-@Controller('posts')
+@Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
@@ -58,6 +58,7 @@ export class PropertyController {
   async createProperty(
     @Body()
     {
+      mainAddressId,
       block,
       number,
       size,
@@ -68,10 +69,10 @@ export class PropertyController {
       sun,
       condoPricing,
       convenience,
-      mainAddressId,
     }: CreateProperty,
   ) {
     await this.propertyService.createProperty({
+      mainAddressId,
       block,
       number,
       size,
@@ -82,7 +83,6 @@ export class PropertyController {
       sun,
       condoPricing,
       convenience,
-      mainAddressId,
     });
   }
 
@@ -97,7 +97,7 @@ export class PropertyController {
   }
 
   @Get(':id')
-  async getOnePost(@Param('id') id: string) {
+  async getOneProperty(@Param('id') id: string) {
     return await this.propertyService.getOneProperty(id);
   }
 
@@ -111,7 +111,7 @@ export class PropertyController {
   }
 
   @Delete(':id')
-  async deletePost(@Param('id') id: string) {
+  async deleteProperty(@Param('id') id: string) {
     await this.propertyService.deleteProperty(id);
   }
 }
