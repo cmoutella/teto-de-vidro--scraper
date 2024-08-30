@@ -10,6 +10,7 @@ import { UsersModule } from './modules/user/user.module';
 import { PropertyCollectionModule } from './modules/property/property-collection.module';
 import { AddressModule } from './modules/address/address-collection.module';
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module';
+import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { HuntCollectionModule } from './modules/hunt/hunt-collection.module';
     HuntCollectionModule,
     LotCollectionModule,
     PropertyCollectionModule,
+    TargetPropertyCollectionModule,
     AddressModule,
   ],
   controllers: [AppController],
