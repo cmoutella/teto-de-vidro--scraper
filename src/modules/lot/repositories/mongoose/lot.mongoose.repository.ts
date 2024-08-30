@@ -27,7 +27,7 @@ export class LotMongooseRepository implements LotRepository {
     const offset = (page - 1) * limit;
 
     if (
-      !searchBy.address ||
+      !searchBy.street ||
       !searchBy.city ||
       !searchBy.province ||
       !searchBy.country

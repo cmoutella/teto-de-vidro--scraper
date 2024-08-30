@@ -13,7 +13,7 @@ export class AddressService {
 
   async createAddress(address: InterfaceAddress): Promise<InterfaceProperty> {
     if (
-      !address.address ||
+      !address.street ||
       !address.lotNumber ||
       !address.city ||
       !address.province ||
@@ -31,7 +31,7 @@ export class AddressService {
     }
 
     const foundLots = await this.lotRepository.getAllLotsByAddress({
-      address: address.address,
+      street: address.street,
       city: address.city,
       province: address.province,
       country: address.country,
@@ -40,7 +40,7 @@ export class AddressService {
 
     if (!foundLots || foundLots.length <= 0) {
       const lot = await this.lotRepository.createLot({
-        address: address.address,
+        street: address.street,
         city: address.city,
         province: address.province,
         country: address.country,

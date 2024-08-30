@@ -1,7 +1,7 @@
 export interface InterfaceLot {
   id?: string;
   name?: string;
-  address: string;
+  street: string;
   number: string;
   postalCode?: string;
   neighborhood: string;
@@ -13,7 +13,7 @@ export interface InterfaceLot {
 
 export interface InterfaceSearchLot {
   name?: string;
-  address: string;
+  street: string;
   number?: string;
   postalCode?: string;
   neighborhood?: string;

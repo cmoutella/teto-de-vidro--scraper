@@ -1,7 +1,6 @@
-// TODO connect to Lot in address
 export interface InterfaceAddress {
   lotName?: string;
-  address: string;
+  street: string;
   lotNumber: string;
   postalCode?: string;
   neighborhood: string;

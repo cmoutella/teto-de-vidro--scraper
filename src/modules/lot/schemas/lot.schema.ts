@@ -9,7 +9,7 @@ export class Lot implements InterfaceLot {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string;
   @Prop()
-  address: string;
+  street: string;
   @Prop()
   number: string;
   @Prop()

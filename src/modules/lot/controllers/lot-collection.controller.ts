@@ -18,7 +18,7 @@ import { InterfaceSearchLot } from '../schemas/models/lot.interface';
 
 const createLotSchema = z.object({
   name: z.string().optional(),
-  address: z.string(),
+  street: z.string(),
   number: z.string(),
   postalCode: z.string().optional(),
   neighborhood: z.string().optional(),
@@ -32,7 +32,7 @@ type CreateLot = z.infer<typeof createLotSchema>;
 
 const updateLotSchema = z.object({
   name: z.string().optional(),
-  address: z.string(),
+  street: z.string(),
   number: z.string(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
@@ -45,7 +45,7 @@ const updateLotSchema = z.object({
 type UpdateLot = z.infer<typeof updateLotSchema>;
 
 @UseInterceptors(LoggingInterceptor)
-@Controller('lots')
+@Controller('lot')
 export class LotController {
   constructor(private readonly lotService: LotService) {}
 
@@ -55,7 +55,7 @@ export class LotController {
     @Body()
     {
       name,
-      address,
+      street,
       number,
       postalCode,
       neighborhood,
@@ -67,7 +67,7 @@ export class LotController {
   ) {
     await this.lotService.createLot({
       name,
-      address,
+      street,
       number,
       postalCode,
       neighborhood,

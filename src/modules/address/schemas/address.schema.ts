@@ -7,7 +7,7 @@ export type PropertyDocument = HydratedDocument<Address>;
 @Schema()
 export class Address implements InterfaceAddress {
   @Prop()
-  address: string;
+  street: string;
   @Prop()
   lotNumber: string;
   @Prop()

@@ -14,7 +14,7 @@ import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
 
 const createAddressSchema = z.object({
   block: z.string().optional(),
-  address: z.string(),
+  street: z.string(),
   lotName: z.string().optional(),
   lotNumber: z.string(),
   postalCode: z.string().optional(),
@@ -47,7 +47,7 @@ export class AddressController {
     @Body()
     {
       lotName,
-      address,
+      street,
       lotNumber,
       postalCode,
       neighborhood,
@@ -69,7 +69,7 @@ export class AddressController {
   ) {
     return await this.addressService.createAddress({
       lotName,
-      address,
+      street,
       lotNumber,
       postalCode,
       neighborhood,
