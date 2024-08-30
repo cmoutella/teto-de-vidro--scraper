@@ -18,6 +18,10 @@ export class HuntService {
     return await this.huntRepository.getAllHuntsByUser(userId, page, limit);
   }
 
+  async addTargetToHunt(huntId: string, targetId: string): Promise<void> {
+    return await this.huntRepository.addTargetToHunt(huntId, targetId);
+  }
+
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
     const Hunt = await this.huntRepository.getOneHuntById(id);
 

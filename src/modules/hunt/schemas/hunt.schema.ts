@@ -16,6 +16,8 @@ export class Hunt implements InterfaceHunt {
   @Prop()
   invitedUsers: string[];
   @Prop()
+  targets: string[];
+  @Prop()
   isActive: boolean;
   @Prop()
   movingExpected?: string;

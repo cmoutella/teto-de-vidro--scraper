@@ -8,4 +8,5 @@ export interface InterfaceHunt {
   isActive?: boolean;
   livingPeople?: number;
   livingPets?: number;
+  targets: string[];
 }

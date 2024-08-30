@@ -13,5 +13,7 @@ export abstract class HuntRepository {
 
   abstract updateHunt(id: string, data: Partial<InterfaceHunt>): Promise<void>;
 
+  abstract addTargetToHunt(huntId: string, targetId: string): Promise<void>;
+
   abstract deleteHunt(id: string): Promise<void>;
 }

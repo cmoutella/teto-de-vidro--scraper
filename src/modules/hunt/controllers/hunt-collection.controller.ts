@@ -40,8 +40,15 @@ const updateHuntSchema = z.object({
 
 type UpdateHunt = z.infer<typeof updateHuntSchema>;
 
+const addTargetToHunt = z.object({
+  targetId: z.string(),
+  huntId: z.string(),
+});
+
+type NewTarget = z.infer<typeof addTargetToHunt>;
+
 @UseInterceptors(LoggingInterceptor)
-@Controller('Hunts')
+@Controller('hunt')
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
@@ -67,12 +74,21 @@ export class HuntController {
       livingPets,
       movingExpected,
       type,
+      targets: [],
     });
   }
 
   @Get('/search/:userId')
   async getAllHuntsByUser(@Param('userId') userId: string) {
     return await this.huntService.getAllHuntsByUser(userId);
+  }
+
+  @Post('new-target')
+  async addTargetToHunt(
+    @Body(new ZodValidationPipe(addTargetToHunt))
+    { huntId, targetId }: NewTarget,
+  ) {
+    return await this.huntService.addTargetToHunt(huntId, targetId);
   }
 
   @Get(':id')
