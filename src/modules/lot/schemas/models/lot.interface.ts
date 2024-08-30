@@ -12,7 +12,6 @@ export interface InterfaceLot {
 }
 
 export interface InterfaceSearchLot {
-  name?: string;
   street: string;
   number?: string;
   postalCode?: string;
@@ -20,5 +19,4 @@ export interface InterfaceSearchLot {
   city: string;
   province: string;
   country: string;
-  convenience?: string[];
 }

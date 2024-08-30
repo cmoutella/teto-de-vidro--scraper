@@ -43,7 +43,7 @@ const updatePropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  convenience: z.string().optional(),
+  convenience: z.array(z.string()).optional(),
 });
 
 type UpdateProperty = z.infer<typeof updatePropertySchema>;

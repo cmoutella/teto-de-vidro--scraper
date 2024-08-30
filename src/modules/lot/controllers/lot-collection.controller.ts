@@ -44,6 +44,20 @@ const updateLotSchema = z.object({
 
 type UpdateLot = z.infer<typeof updateLotSchema>;
 
+const searchLotSchema = z.object({
+  number: z.string().optional(),
+  postalCode: z.string().optional(),
+  street: z.string(),
+  city: z.string(),
+  neighborhood: z.string().optional(),
+  province: z.string(),
+  country: z.string(),
+  page: z.number().optional(),
+  limit: z.number().optional(),
+});
+
+type SearchLot = z.infer<typeof searchLotSchema>;
+
 @UseInterceptors(LoggingInterceptor)
 @Controller('lot')
 export class LotController {
@@ -78,9 +92,17 @@ export class LotController {
     });
   }
 
-  @Get('/search/:address')
-  async getAllLotsByAddress(@Param('address') address: InterfaceSearchLot) {
-    return await this.lotService.getAllLotsByAddress(address);
+  @Post('/search')
+  async getAllLotsByAddress(
+    @Body(new ZodValidationPipe(searchLotSchema))
+    params: SearchLot,
+  ) {
+    const { page, limit, ...searchParams } = params;
+    return await this.lotService.getAllLotsByAddress(
+      searchParams as InterfaceSearchLot,
+      page,
+      limit,
+    );
   }
 
   @Get(':id')
