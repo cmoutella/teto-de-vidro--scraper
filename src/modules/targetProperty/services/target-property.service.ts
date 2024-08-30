@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TargetPropertyRepository } from '../repositories/target-property.repository';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
 
@@ -11,6 +15,12 @@ export class TargetPropertyService {
   async createTargetProperty(
     newProperty: InterfaceTargetProperty,
   ): Promise<InterfaceTargetProperty> {
+    if (!newProperty.huntId) {
+      throw new BadRequestException(
+        'Um imóvel de interesse deve estar associado a uma busca',
+      );
+    }
+
     return await this.targetPropertyRepository.createTargetProperty(
       newProperty,
     );

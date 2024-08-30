@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { HuntRepository } from '../repositories/hunt.repository';
 import { InterfaceHunt } from '../schemas/models/hunt.interface';
 
@@ -7,6 +11,12 @@ export class HuntService {
   constructor(private readonly huntRepository: HuntRepository) {}
 
   async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null> {
+    if (!newHunt.creatorId) {
+      throw new BadRequestException(
+        'É necessário um usuário para criar uma hunt',
+      );
+    }
+
     return await this.huntRepository.createHunt(newHunt);
   }
 
