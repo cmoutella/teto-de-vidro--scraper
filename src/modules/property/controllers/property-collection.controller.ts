@@ -86,18 +86,13 @@ export class PropertyController {
     });
   }
 
-  @Get()
-  async getAllProperties(page?: number, limit?: number) {
-    return await this.propertyService.getAllProperties(page, limit);
-  }
-
   @Get('/search/:addressId')
   async getAllPropertiesByMainAddress(@Param('addressId') addressId: string) {
     return await this.propertyService.getAllPropertiesByMainAddress(addressId);
   }
 
   @Get(':id')
-  async getOneProperty(@Param('id') id: string) {
+  async getOnePropertyById(@Param('id') id: string) {
     return await this.propertyService.getOneProperty(id);
   }
 
