@@ -11,5 +11,5 @@ export interface InterfaceProperty {
   is_front?: boolean;
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
-  convenience?: string;
+  convenience: string[];
 }

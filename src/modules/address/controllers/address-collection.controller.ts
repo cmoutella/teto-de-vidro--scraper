@@ -22,7 +22,7 @@ const createAddressSchema = z.object({
   neighborhood: z.string(),
   province: z.string(),
   country: z.string(),
-  lotConvenience: z.string().optional(),
+  lotConvenience: z.array(z.string()).optional(),
   propertyNumber: z.string(),
   size: z.number().optional(),
   rooms: z.number().optional(),
@@ -31,7 +31,7 @@ const createAddressSchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.string().optional(),
+  propertyConvenience: z.array(z.string()).optional(),
 });
 
 type CreateAddress = z.infer<typeof createAddressSchema>;
@@ -76,7 +76,7 @@ export class AddressController {
       city,
       province,
       country,
-      lotConvenience,
+      lotConvenience: lotConvenience ?? [],
       block,
       propertyNumber,
       size,
@@ -86,7 +86,7 @@ export class AddressController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
+      propertyConvenience: propertyConvenience ?? [],
     });
   }
 }

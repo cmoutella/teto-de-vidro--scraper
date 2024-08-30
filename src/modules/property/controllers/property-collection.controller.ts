@@ -28,7 +28,7 @@ const createPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  convenience: z.string().optional(),
+  convenience: z.array(z.string()).optional(),
 });
 
 type CreateProperty = z.infer<typeof createPropertySchema>;
@@ -82,7 +82,7 @@ export class PropertyController {
       is_front,
       sun,
       condoPricing,
-      convenience,
+      convenience: convenience ?? [],
     });
   }
 

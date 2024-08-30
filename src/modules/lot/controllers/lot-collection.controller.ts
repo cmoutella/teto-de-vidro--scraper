@@ -74,7 +74,7 @@ export class LotController {
       city,
       province,
       country,
-      convenience,
+      convenience: convenience ?? [],
     });
   }
 

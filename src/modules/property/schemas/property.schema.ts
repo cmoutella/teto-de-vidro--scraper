@@ -29,7 +29,7 @@ export class Property implements InterfaceProperty {
   @Prop()
   condoPricing: number;
   @Prop()
-  convenience: string;
+  convenience: string[];
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

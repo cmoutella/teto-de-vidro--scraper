@@ -7,7 +7,7 @@ export interface InterfaceAddress {
   city: string;
   province: string;
   country: string;
-  lotConvenience?: string;
+  lotConvenience?: string[];
   block?: string;
   propertyNumber?: string;
   size?: number;
@@ -17,5 +17,5 @@ export interface InterfaceAddress {
   is_front?: boolean;
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
-  propertyConvenience?: string;
+  propertyConvenience?: string[];
 }
