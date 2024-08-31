@@ -9,42 +9,37 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { z } from 'zod';
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
-import { AddressService } from '../services/address-collection.service';
-
-const Address_SUN_LIGHT = ['morning', 'afternoon', 'none'] as const;
-
-const createAddressSchema = z.object({
-  block: z.string().optional(),
-  address: z.string(),
-  lotName: z.string().optional(),
-  lotNumber: z.string(),
-  postalCode: z.string().optional(),
-  city: z.string(),
-  neighborhood: z.string(),
-  province: z.string(),
-  country: z.string(),
-  lotConvenience: z.string().optional(),
-  propertyNumber: z.string(),
-  size: z.number().optional(),
-  rooms: z.number().optional(),
-  bathrooms: z.number().optional(),
-  parking: z.number().optional(),
-  is_front: z.boolean().optional(),
-  sun: z.enum(Address_SUN_LIGHT).optional(),
-  condoPricing: z.number().optional(),
-  propertyConvenience: z.string().optional(),
-});
-
-type CreateAddress = z.infer<typeof createAddressSchema>;
+import { AddressService } from '../services/address.service';
+import {
+  CreateAddress,
+  createAddressSchema,
+} from '../validation/schemas/address';
+import { LotService } from '../services/lot-collection.service';
+import {
+  CreateLot,
+  createLotSchema,
+  UpdateLot,
+  updateLotSchema,
+} from '../validation/schemas/lot';
+import { PropertyService } from '../services/property-collection.service';
+import {
+  CreateProperty,
+  createPropertySchema,
+  UpdateProperty,
+  updatePropertySchema,
+} from '../validation/schemas/property';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
 export class AddressController {
-  constructor(private readonly addressService: AddressService) {}
+  constructor(
+    private readonly addressService: AddressService,
+    private readonly lotService: LotService,
+    private readonly propertyService: PropertyService,
+  ) {}
 
   @UsePipes(new ZodValidationPipe(createAddressSchema))
   @Post()
@@ -52,7 +47,7 @@ export class AddressController {
     @Body()
     {
       lotName,
-      address,
+      street,
       lotNumber,
       postalCode,
       neighborhood,
@@ -74,7 +69,35 @@ export class AddressController {
   ) {
     return await this.addressService.createAddress({
       lotName,
-      address,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      lotConvenience: lotConvenience ?? [],
+      block,
+      propertyNumber,
+      size,
+      rooms,
+      bathrooms,
+      parking,
+      is_front,
+      sun,
+      condoPricing,
+      propertyConvenience: propertyConvenience ?? [],
+    });
+  }
+
+  // Lot subroutes
+  @UsePipes(new ZodValidationPipe(createLotSchema))
+  @Post('/lot')
+  async createLot(
+    @Body()
+    {
+      lotName,
+      street,
       lotNumber,
       postalCode,
       neighborhood,
@@ -82,6 +105,47 @@ export class AddressController {
       province,
       country,
       lotConvenience,
+    }: CreateLot,
+  ) {
+    await this.lotService.createLot({
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      lotConvenience: lotConvenience ?? [],
+    });
+  }
+
+  @Get('/lot/:lotId')
+  async getLotById(@Param('id') id: string) {
+    return await this.lotService.getOneLot(id);
+  }
+
+  @Put('/lot/:id')
+  async updateLot(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateLotSchema))
+    updateData: UpdateLot,
+  ) {
+    return await this.lotService.updateLot(id, updateData);
+  }
+
+  @Delete('/lot/:id')
+  async deleteLot(@Param('id') id: string) {
+    await this.lotService.deleteLot(id);
+  }
+
+  // Property subroutes
+  @UsePipes(new ZodValidationPipe(createPropertySchema))
+  @Post('/property')
+  async createProperty(
+    @Body()
+    {
+      mainAddressId,
       block,
       propertyNumber,
       size,
@@ -92,6 +156,39 @@ export class AddressController {
       sun,
       condoPricing,
       propertyConvenience,
+    }: CreateProperty,
+  ) {
+    await this.propertyService.createProperty({
+      mainAddressId,
+      block,
+      propertyNumber,
+      size,
+      rooms,
+      bathrooms,
+      parking,
+      is_front,
+      sun,
+      condoPricing,
+      propertyConvenience: propertyConvenience ?? [],
     });
+  }
+
+  @Get(':id')
+  async getOnePropertyById(@Param('id') id: string) {
+    return await this.propertyService.getOneProperty(id);
+  }
+
+  @Put('/property/:id')
+  async updateProperty(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updatePropertySchema))
+    updateData: UpdateProperty,
+  ) {
+    return await this.propertyService.updateProperty(id, updateData);
+  }
+
+  @Delete('/property/:id')
+  async deleteProperty(@Param('id') id: string) {
+    await this.propertyService.deleteProperty(id);
   }
 }

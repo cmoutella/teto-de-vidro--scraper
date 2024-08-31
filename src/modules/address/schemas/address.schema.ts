@@ -7,7 +7,7 @@ export type PropertyDocument = HydratedDocument<Address>;
 @Schema()
 export class Address implements InterfaceAddress {
   @Prop()
-  address: string;
+  street: string;
   @Prop()
   lotNumber: string;
   @Prop()
@@ -21,11 +21,11 @@ export class Address implements InterfaceAddress {
   @Prop()
   country: string;
   @Prop()
-  lotConvenience: string;
+  lotConvenience: string[];
   @Prop()
   block: string;
   @Prop()
-  number: string;
+  propertyNumber: string;
   @Prop()
   size: number;
   @Prop()
@@ -41,7 +41,7 @@ export class Address implements InterfaceAddress {
   @Prop()
   condoPricing: number;
   @Prop()
-  convenience: string;
+  propertyConvenience: string[];
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);
