@@ -2,18 +2,18 @@ export interface InterfaceLot {
   id?: string;
   name?: string;
   street: string;
-  number: string;
+  lotNumber: string;
   postalCode?: string;
   neighborhood: string;
   city: string;
   province: string;
   country: string;
-  convenience?: string[];
+  lotConvenience?: string[];
 }
 
 export interface InterfaceSearchLot {
   street: string;
-  number?: string;
+  lotNumber?: string;
   postalCode?: string;
   neighborhood?: string;
   city: string;

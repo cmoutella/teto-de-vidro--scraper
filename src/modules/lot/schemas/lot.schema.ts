@@ -11,7 +11,7 @@ export class Lot implements InterfaceLot {
   @Prop()
   street: string;
   @Prop()
-  number: string;
+  lotNumber: string;
   @Prop()
   postalCode: string;
   @Prop()
@@ -23,7 +23,7 @@ export class Lot implements InterfaceLot {
   @Prop()
   country: string;
   @Prop()
-  convenience: string[];
+  lotConvenience: string[];
 }
 
 export const LotSchema = SchemaFactory.createForClass(Lot);

@@ -19,13 +19,13 @@ import { InterfaceSearchLot } from '../schemas/models/lot.interface';
 const createLotSchema = z.object({
   name: z.string().optional(),
   street: z.string(),
-  number: z.string(),
+  lotNumber: z.string(),
   postalCode: z.string().optional(),
   neighborhood: z.string().optional(),
   city: z.string().optional(),
   province: z.string().optional(),
   country: z.string().optional(),
-  convenience: z.array(z.string()).optional(),
+  lotConvenience: z.array(z.string()).optional(),
 });
 
 type CreateLot = z.infer<typeof createLotSchema>;
@@ -33,19 +33,19 @@ type CreateLot = z.infer<typeof createLotSchema>;
 const updateLotSchema = z.object({
   name: z.string().optional(),
   street: z.string(),
-  number: z.string(),
+  lotNumber: z.string(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
   neighborhood: z.string().optional(),
   province: z.string().optional(),
   country: z.string().optional(),
-  convenience: z.array(z.string()).optional(),
+  lotConvenience: z.array(z.string()).optional(),
 });
 
 type UpdateLot = z.infer<typeof updateLotSchema>;
 
 const searchLotSchema = z.object({
-  number: z.string().optional(),
+  lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
   street: z.string(),
   city: z.string(),
@@ -70,25 +70,25 @@ export class LotController {
     {
       name,
       street,
-      number,
+      lotNumber,
       postalCode,
       neighborhood,
       city,
       province,
       country,
-      convenience,
+      lotConvenience,
     }: CreateLot,
   ) {
     await this.lotService.createLot({
       name,
       street,
-      number,
+      lotNumber,
       postalCode,
       neighborhood,
       city,
       province,
       country,
-      convenience: convenience ?? [],
+      lotConvenience: lotConvenience ?? [],
     });
   }
 
