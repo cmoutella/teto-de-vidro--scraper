@@ -19,7 +19,7 @@ const PROPERTY_SUN_LIGHT = ['morning', 'afternoon', 'none'] as const;
 
 const createPropertySchema = z.object({
   block: z.string(),
-  number: z.string(),
+  propetyNumber: z.string(),
   mainAddressId: z.string(),
   size: z.number().optional(),
   rooms: z.number().optional(),
@@ -28,14 +28,14 @@ const createPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  convenience: z.array(z.string()).optional(),
+  propetyConvenience: z.array(z.string()).optional(),
 });
 
 type CreateProperty = z.infer<typeof createPropertySchema>;
 
 const updatePropertySchema = z.object({
   block: z.string().optional(),
-  number: z.string().optional(),
+  propetyNumber: z.string().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),
@@ -43,7 +43,7 @@ const updatePropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  convenience: z.array(z.string()).optional(),
+  propetyConvenience: z.array(z.string()).optional(),
 });
 
 type UpdateProperty = z.infer<typeof updatePropertySchema>;
@@ -60,7 +60,7 @@ export class PropertyController {
     {
       mainAddressId,
       block,
-      number,
+      propetyNumber,
       size,
       rooms,
       bathrooms,
@@ -68,13 +68,13 @@ export class PropertyController {
       is_front,
       sun,
       condoPricing,
-      convenience,
+      propetyConvenience,
     }: CreateProperty,
   ) {
     await this.propertyService.createProperty({
       mainAddressId,
       block,
-      number,
+      propetyNumber,
       size,
       rooms,
       bathrooms,
@@ -82,7 +82,7 @@ export class PropertyController {
       is_front,
       sun,
       condoPricing,
-      convenience: convenience ?? [],
+      propetyConvenience: propetyConvenience ?? [],
     });
   }
 

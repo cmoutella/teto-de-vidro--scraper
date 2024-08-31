@@ -3,7 +3,7 @@ export interface InterfaceProperty {
   id?: string;
   mainAddressId: string;
   block?: string;
-  number: string;
+  propetyNumber: string;
   size?: number;
   rooms?: number;
   bathrooms?: number;
@@ -11,5 +11,5 @@ export interface InterfaceProperty {
   is_front?: boolean;
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
-  convenience: string[];
+  propetyConvenience?: string[];
 }
