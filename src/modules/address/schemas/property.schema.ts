@@ -13,7 +13,7 @@ export class Property implements InterfaceProperty {
   @Prop()
   block: string;
   @Prop()
-  propetyNumber: string;
+  propertyNumber: string;
   @Prop()
   size: number;
   @Prop()
@@ -29,7 +29,7 @@ export class Property implements InterfaceProperty {
   @Prop()
   condoPricing: number;
   @Prop()
-  propetyConvenience: string[];
+  propertyConvenience: string[];
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

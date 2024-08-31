@@ -1,9 +1,8 @@
-// TODO connect to Lot in address
 export interface InterfaceProperty {
   id?: string;
   mainAddressId: string;
   block?: string;
-  propetyNumber: string;
+  propertyNumber: string;
   size?: number;
   rooms?: number;
   bathrooms?: number;
@@ -11,5 +10,5 @@ export interface InterfaceProperty {
   is_front?: boolean;
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
-  propetyConvenience?: string[];
+  propertyConvenience?: string[];
 }

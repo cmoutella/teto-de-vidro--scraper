@@ -25,7 +25,7 @@ export class Address implements InterfaceAddress {
   @Prop()
   block: string;
   @Prop()
-  number: string;
+  propertyNumber: string;
   @Prop()
   size: number;
   @Prop()
@@ -41,7 +41,7 @@ export class Address implements InterfaceAddress {
   @Prop()
   condoPricing: number;
   @Prop()
-  convenience: string[];
+  propertyConvenience: string[];
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);

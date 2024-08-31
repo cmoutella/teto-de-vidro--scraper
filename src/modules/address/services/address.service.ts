@@ -79,7 +79,7 @@ export class AddressService {
 
     if (foundProperties && foundProperties.length >= 1) {
       const foundProperty = foundProperties.find(
-        (prop) => prop.propetyNumber === address.propertyNumber,
+        (prop) => prop.propertyNumber === address.propertyNumber,
       );
 
       if (foundProperty) {
@@ -89,7 +89,7 @@ export class AddressService {
 
     const property = this.propertyRepository.createProperty({
       mainAddressId: lotId,
-      propetyNumber: address.propertyNumber,
+      propertyNumber: address.propertyNumber,
       block: address.block ?? null,
       size: address.size ?? null,
       rooms: address.rooms ?? null,
@@ -98,7 +98,7 @@ export class AddressService {
       sun: address.sun ?? null,
       parking: address.parking ?? null,
       condoPricing: address.condoPricing ?? null,
-      propetyConvenience: address.propertyConvenience ?? null,
+      propertyConvenience: address.propertyConvenience ?? null,
     });
 
     return property;
