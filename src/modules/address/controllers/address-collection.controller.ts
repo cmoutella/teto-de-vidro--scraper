@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
-import { AddressService } from '../services/address-collection.service';
+import { AddressService } from '../services/address.service';
 import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
 
 const createAddressSchema = z.object({

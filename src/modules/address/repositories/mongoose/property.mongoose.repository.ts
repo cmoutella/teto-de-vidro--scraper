@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DEFAULT_LIMIT } from '../../../../shared/default/pagination';
-import { Property } from '../../schemas/property.schema';
 import { PropertyRepository } from '../property.repository';
+import { Property } from '../../schemas/property.schema';
 import { InterfaceProperty } from '../../schemas/models/property.interface';
 
 export class PropertyMongooseRepository implements PropertyRepository {

@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AddressService } from './services/address-collection.service';
+import { AddressService } from './services/address.service';
 import { AddressController } from './controllers/address-collection.controller';
-import { LotRepository } from '../lot/repositories/lot.repository';
-import { LotMongooseRepository } from '../lot/repositories/mongoose/lot.mongoose.repository';
-import { PropertyRepository } from '../property/repositories/property.repository';
-import { PropertyMongooseRepository } from '../property/repositories/mongoose/property.mongoose.repository';
-import { Lot, LotSchema } from '../lot/schemas/lot.schema';
-import { Property, PropertySchema } from '../property/schemas/property.schema';
+import { PropertyRepository } from './repositories/property.repository';
+import { Property, PropertySchema } from './schemas/property.schema';
+import { Lot, LotSchema } from './schemas/lot.schema';
+import { LotRepository } from './repositories/lot.repository';
+import { LotMongooseRepository } from './repositories/mongoose/lot.mongoose.repository';
+import { PropertyMongooseRepository } from './repositories/mongoose/property.mongoose.repository';
+import { LotService } from './services/lot-collection.service';
+import { PropertyService } from './services/property-collection.service';
+import { LotController } from './controllers/lot-collection.controller';
+import { PropertyController } from './controllers/property-collection.controller';
 
 @Module({
   imports: [
@@ -25,8 +29,10 @@ import { Property, PropertySchema } from '../property/schemas/property.schema';
       provide: PropertyRepository,
       useClass: PropertyMongooseRepository,
     },
+    LotService,
+    PropertyService,
     AddressService,
   ],
-  controllers: [AddressController],
+  controllers: [AddressController, LotController, PropertyController],
 })
 export class AddressModule {}

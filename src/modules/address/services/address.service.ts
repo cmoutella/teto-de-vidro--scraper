@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InterfaceAddress } from '../schemas/models/address.interface';
-import { LotRepository } from 'src/modules/lot/repositories/lot.repository';
-import { PropertyRepository } from 'src/modules/property/repositories/property.repository';
-import { InterfaceProperty } from 'src/modules/property/schemas/models/property.interface';
+import { LotRepository } from '../repositories/lot.repository';
+import { PropertyRepository } from '../repositories/property.repository';
+import { InterfaceProperty } from '../schemas/models/property.interface';
 
 @Injectable()
 export class AddressService {
@@ -24,18 +24,13 @@ export class AddressService {
       );
     }
 
-    if (!address.propertyNumber) {
-      throw new BadRequestException(
-        'Sem complemento não é possível completar o endereço, use 0 para endereços sem complemento',
-      );
-    }
-
+    let lotId: string | null = null;
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
       province: address.province,
       country: address.country,
-      number: address.lotNumber,
+      lotNumber: address.lotNumber,
     });
 
     if (!foundLots || foundLots.length <= 0) {
@@ -44,7 +39,7 @@ export class AddressService {
         city: address.city,
         province: address.province,
         country: address.country,
-        number: address.lotNumber,
+        lotNumber: address.lotNumber,
         neighborhood: address.neighborhood,
         name: address.lotName ?? '',
         postalCode: address.postalCode ?? '',
@@ -56,34 +51,26 @@ export class AddressService {
         );
       }
 
-      const property = this.propertyRepository.createProperty({
-        mainAddressId: lot.id,
-        number: address.propertyNumber,
-        block: address.block ?? null,
-        size: address.size ?? null,
-        rooms: address.rooms ?? null,
-        bathrooms: address.bathrooms ?? null,
-        is_front: address.is_front ?? null,
-        sun: address.sun ?? null,
-        parking: address.parking ?? null,
-        condoPricing: address.condoPricing ?? null,
-        convenience: address.propertyConvenience ?? null,
-      });
-
-      return property;
+      lotId = lot.id;
     }
 
     if (foundLots && foundLots.length >= 2) {
       throw new BadRequestException(
         'Não foi possível criar esse endereço no momento',
       );
+    } else {
+      lotId = foundLots[0].id;
     }
-
-    const lotId = foundLots[0].id;
 
     if (!lotId) {
       throw new BadRequestException(
         'Não foi possível criar esse endereço no momento',
+      );
+    }
+
+    if (!address.propertyNumber) {
+      throw new BadRequestException(
+        'Sem complemento não é possível completar o endereço, use 0 para endereços sem complemento',
       );
     }
 
@@ -92,7 +79,7 @@ export class AddressService {
 
     if (foundProperties && foundProperties.length >= 1) {
       const foundProperty = foundProperties.find(
-        (prop) => prop.number === address.propertyNumber,
+        (prop) => prop.propetyNumber === address.propertyNumber,
       );
 
       if (foundProperty) {
@@ -102,7 +89,7 @@ export class AddressService {
 
     const property = this.propertyRepository.createProperty({
       mainAddressId: lotId,
-      number: address.propertyNumber,
+      propetyNumber: address.propertyNumber,
       block: address.block ?? null,
       size: address.size ?? null,
       rooms: address.rooms ?? null,
@@ -111,7 +98,7 @@ export class AddressService {
       sun: address.sun ?? null,
       parking: address.parking ?? null,
       condoPricing: address.condoPricing ?? null,
-      convenience: address.propertyConvenience ?? null,
+      propetyConvenience: address.propertyConvenience ?? null,
     });
 
     return property;

@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DEFAULT_LIMIT } from '../../../../shared/default/pagination';
-import { Lot } from '../../schemas/lot.schema';
 import { LotRepository } from '../lot.repository';
+import { Lot } from '../../schemas/lot.schema';
 import {
   InterfaceLot,
   InterfaceSearchLot,

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PropertyRepository } from '../repositories/property.repository';
-import { InterfaceProperty } from '../schemas/models/property.interface';
+import { PropertyRepository } from '../../address/repositories/property.repository';
+import { InterfaceProperty } from '../../address/schemas/models/property.interface';
 
 @Injectable()
 export class PropertyService {
