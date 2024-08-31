@@ -10,8 +10,6 @@ import { LotMongooseRepository } from './repositories/mongoose/lot.mongoose.repo
 import { PropertyMongooseRepository } from './repositories/mongoose/property.mongoose.repository';
 import { LotService } from './services/lot-collection.service';
 import { PropertyService } from './services/property-collection.service';
-import { LotController } from './controllers/lot-collection.controller';
-import { PropertyController } from './controllers/property-collection.controller';
 
 @Module({
   imports: [
@@ -33,6 +31,6 @@ import { PropertyController } from './controllers/property-collection.controller
     PropertyService,
     AddressService,
   ],
-  controllers: [AddressController, LotController, PropertyController],
+  controllers: [AddressController],
 })
 export class AddressModule {}
