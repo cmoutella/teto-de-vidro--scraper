@@ -1,8 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InterfaceAddress } from '../schemas/models/address.interface';
+import {
+  InterfaceAddress,
+  InterfaceSearchAddress,
+} from '../schemas/models/address.interface';
 import { LotRepository } from '../repositories/lot.repository';
 import { PropertyRepository } from '../repositories/property.repository';
 import { InterfaceProperty } from '../schemas/models/property.interface';
+import { InterfaceLot } from '../schemas/models/lot.interface';
 
 @Injectable()
 export class AddressService {
@@ -102,5 +106,79 @@ export class AddressService {
     });
 
     return property;
+  }
+
+  async findByAddress(
+    address: InterfaceSearchAddress,
+  ): Promise<{ lot?: InterfaceLot[]; property?: InterfaceProperty[] }> {
+    if (
+      !address.street ||
+      !address.lotNumber ||
+      !address.city ||
+      !address.province ||
+      !address.country
+    ) {
+      throw new BadRequestException(
+        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
+      );
+    }
+
+    const foundLots = await this.lotRepository.getAllLotsByAddress({
+      street: address.street,
+      city: address.city,
+      province: address.province,
+      country: address.country,
+      lotNumber: address.lotNumber,
+    });
+
+    if (!foundLots || foundLots.length <= 0) {
+      return { lot: [], property: [] };
+    }
+
+    let properties: InterfaceProperty[] = [];
+    if (foundLots.length === 1) {
+      const foundProperties =
+        await this.propertyRepository.getAllPropertiesByMainAddress(
+          foundLots[0].id,
+        );
+
+      if (address.propertyNumber) {
+        const property = foundProperties.find(
+          (property) => property.propertyNumber === address.propertyNumber,
+        );
+
+        properties = [property];
+      } else {
+        properties = foundProperties;
+      }
+    }
+
+    return { lot: foundLots ?? [], property: properties };
+  }
+
+  async findLotsByAddress(
+    address: InterfaceSearchAddress,
+  ): Promise<InterfaceLot[]> {
+    if (
+      !address.street ||
+      !address.lotNumber ||
+      !address.city ||
+      !address.province ||
+      !address.country
+    ) {
+      throw new BadRequestException(
+        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
+      );
+    }
+
+    const foundLots = await this.lotRepository.getAllLotsByAddress({
+      street: address.street,
+      city: address.city,
+      province: address.province,
+      country: address.country,
+      lotNumber: address.lotNumber,
+    });
+
+    return foundLots;
   }
 }

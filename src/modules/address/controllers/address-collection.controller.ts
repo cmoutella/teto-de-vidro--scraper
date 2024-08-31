@@ -16,6 +16,8 @@ import { AddressService } from '../services/address.service';
 import {
   CreateAddress,
   createAddressSchema,
+  SearchAddress,
+  searchAddressSchema,
 } from '../validation/schemas/address';
 import { LotService } from '../services/lot-collection.service';
 import {
@@ -87,6 +89,68 @@ export class AddressController {
       sun,
       condoPricing,
       propertyConvenience: propertyConvenience ?? [],
+    });
+  }
+
+  @UsePipes(new ZodValidationPipe(searchAddressSchema))
+  @Post('/search')
+  async searchByAddress(
+    @Body()
+    {
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      block,
+      propertyNumber,
+    }: SearchAddress,
+  ) {
+    return await this.addressService.findByAddress({
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      block,
+      propertyNumber,
+    });
+  }
+
+  @UsePipes(new ZodValidationPipe(searchAddressSchema))
+  @Post('/lots')
+  async getLotsByAddress(
+    @Body()
+    {
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      block,
+      propertyNumber,
+    }: SearchAddress,
+  ) {
+    return await this.addressService.findLotsByAddress({
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      province,
+      country,
+      block,
+      propertyNumber,
     });
   }
 
