@@ -1,6 +1,6 @@
 export interface InterfaceLot {
   id?: string;
-  name?: string;
+  lotName?: string;
   street: string;
   lotNumber: string;
   postalCode?: string;

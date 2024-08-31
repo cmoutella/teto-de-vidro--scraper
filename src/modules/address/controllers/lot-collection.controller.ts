@@ -17,7 +17,7 @@ import { LotService } from '../services/lot-collection.service';
 import { InterfaceSearchLot } from '../schemas/models/lot.interface';
 
 const createLotSchema = z.object({
-  name: z.string().optional(),
+  lotName: z.string().optional(),
   street: z.string(),
   lotNumber: z.string(),
   postalCode: z.string().optional(),
@@ -31,7 +31,7 @@ const createLotSchema = z.object({
 type CreateLot = z.infer<typeof createLotSchema>;
 
 const updateLotSchema = z.object({
-  name: z.string().optional(),
+  lotName: z.string().optional(),
   street: z.string(),
   lotNumber: z.string(),
   postalCode: z.string().optional(),
@@ -68,7 +68,7 @@ export class LotController {
   async createLot(
     @Body()
     {
-      name,
+      lotName,
       street,
       lotNumber,
       postalCode,
@@ -80,7 +80,7 @@ export class LotController {
     }: CreateLot,
   ) {
     await this.lotService.createLot({
-      name,
+      lotName,
       street,
       lotNumber,
       postalCode,

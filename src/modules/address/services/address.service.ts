@@ -41,7 +41,7 @@ export class AddressService {
         country: address.country,
         lotNumber: address.lotNumber,
         neighborhood: address.neighborhood,
-        name: address.lotName ?? '',
+        lotName: address.lotName ?? '',
         postalCode: address.postalCode ?? '',
       });
 
