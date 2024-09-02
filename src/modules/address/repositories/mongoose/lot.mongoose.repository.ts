@@ -16,7 +16,9 @@ export class LotMongooseRepository implements LotRepository {
 
     await createLot.save();
 
-    return createLot.toObject();
+    const { _id, ...data } = createLot;
+
+    return { id: _id.toString(), ...data };
   }
 
   async getAllLotsByAddress(

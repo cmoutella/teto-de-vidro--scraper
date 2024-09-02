@@ -15,9 +15,9 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
     await createProperty.save();
 
-    if (!createProperty) return null;
+    const { _id, ...data } = createProperty;
 
-    return createProperty.toObject();
+    return { id: _id.toString(), ...data };
   }
 
   async getAllPropertiesByMainAddress(

@@ -56,11 +56,9 @@ export class AddressService {
       }
 
       lotId = lot.id;
-    }
-
-    if (foundLots && foundLots.length >= 2) {
+    } else if (foundLots && foundLots.length >= 2) {
       throw new BadRequestException(
-        'Não foi possível criar esse endereço no momento',
+        'Não foi possível criar esse endereço no momento, lote duplicado.',
       );
     } else {
       lotId = foundLots[0].id;
@@ -68,7 +66,7 @@ export class AddressService {
 
     if (!lotId) {
       throw new BadRequestException(
-        'Não foi possível criar esse endereço no momento',
+        'Não foi possível criar esse endereço no momento.',
       );
     }
 
