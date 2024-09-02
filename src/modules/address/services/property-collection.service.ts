@@ -12,13 +12,6 @@ export class PropertyService {
     return await this.propertyRepository.createProperty(newProperty);
   }
 
-  async getAllProperties(
-    page?: number,
-    limit?: number,
-  ): Promise<InterfaceProperty[]> {
-    return await this.propertyRepository.getAllProperties(page, limit);
-  }
-
   async getAllPropertiesByMainAddress(
     mainAddressId: string,
     page?: number,

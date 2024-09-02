@@ -14,6 +14,7 @@ export interface InterfaceLot {
 export interface InterfaceSearchLot {
   street: string;
   lotNumber?: string;
+  block?: string;
   postalCode?: string;
   neighborhood?: string;
   city: string;

@@ -20,15 +20,6 @@ export class PropertyMongooseRepository implements PropertyRepository {
     return createProperty.toObject();
   }
 
-  async getAllProperties(
-    page = 1,
-    limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceProperty[]> {
-    const offset = (page - 1) * limit;
-
-    return await this.propertyModel.find().skip(offset).limit(limit).exec();
-  }
-
   async getAllPropertiesByMainAddress(
     mainAddressId: string,
     page = 1,

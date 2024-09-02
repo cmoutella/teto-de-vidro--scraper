@@ -1,30 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PropertyRepository } from '../../repositories/property.repository';
-import { PropertyMongooseRepository } from '../../repositories/mongoose/property.mongoose.repository';
 import { PropertyService } from '../../services/property-collection.service';
 import { AddressController } from '../address-collection.controller';
 import { LotRepository } from '../../repositories/lot.repository';
-import { LotMongooseRepository } from '../../repositories/mongoose/lot.mongoose.repository';
 import { LotService } from '../../services/lot-collection.service';
 import { AddressService } from '../../services/address.service';
-import { mockCreateAddress101 } from './__mock__';
+import { mockCreateAddress101, mockLot, mockProperty } from './__mock__';
 
 describe('Address Controller', () => {
+  let app: TestingModule;
   let controller: AddressController;
-  const lotsIds: string[] = [];
-  const propertiesIds: string[] = [];
+  let addressService: AddressService;
+  let propertyService: PropertyService;
+  let lotService: LotService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       controllers: [AddressController],
       providers: [
         {
           provide: PropertyRepository,
-          useClass: PropertyMongooseRepository,
+          useValue: {
+            getAllPropertiesByMainAddress: jest
+              .fn()
+              .mockResolvedValue([mockProperty]),
+            createProperty: jest.fn().mockResolvedValue(mockProperty),
+            getOnePropertyById: jest.fn().mockResolvedValue(mockProperty),
+            updateProperty: jest.fn().mockResolvedValue(mockProperty),
+            deleteProperty: jest.fn().mockImplementation(),
+          },
         },
         {
           provide: LotRepository,
-          useClass: LotMongooseRepository,
+          useValue: {
+            getAllLotsByAddress: jest.fn().mockResolvedValue([mockLot]),
+            createLot: jest.fn().mockResolvedValue(mockLot),
+            getOneLot: jest.fn().mockResolvedValue(mockLot),
+            updateLot: jest.fn().mockResolvedValue(mockLot),
+            deleteLot: jest.fn().mockImplementation(),
+          },
         },
         PropertyService,
         LotService,
@@ -33,57 +47,76 @@ describe('Address Controller', () => {
     }).compile();
 
     controller = app.get<AddressController>(AddressController);
+
+    addressService = await app.get<AddressService>(AddressService);
+    propertyService = await app.get<PropertyService>(PropertyService);
+    lotService = await app.get<LotService>(LotService);
   });
 
-  describe('createAddress', async () => {
+  it('[createAddress] should call address service', async () => {
+    const spyOnAddressService = jest.spyOn(addressService, 'createAddress');
+    await controller.createAddress(mockCreateAddress101);
+
+    expect(spyOnAddressService).toHaveBeenCalled();
+  });
+
+  it('[createAddress] should return a created or found property', async () => {
     const createdAddress1 =
       await controller.createAddress(mockCreateAddress101);
 
-    it('should return a property', () => {
-      expect(createdAddress1).toBeTruthy();
+    expect(createdAddress1.propertyNumber).toBe(
+      mockCreateAddress101.propertyNumber,
+    );
+  });
+
+  it.skip('[searchByAddress] should call address service', () => {
+    // TODO
+  });
+
+  it.skip('[searchByAddress] should return a list of lots and a list of properties', () => {
+    // TODO
+  });
+
+  it('[findLotsByAddress] should call lots service', async () => {
+    const spyOnLotsService = jest.spyOn(lotService, 'getAllLotsByAddress');
+    await controller.findLotsByAddress({
+      country: mockLot.country,
+      city: mockLot.city,
+      neighborhood: mockLot.neighborhood,
+      province: mockLot.province,
+      street: mockLot.street,
     });
 
-    it('should create or find property', () => {
-      const returnedObjectKeys = Object(createdAddress1).keys();
+    expect(spyOnLotsService).toHaveBeenCalled();
+  });
 
-      lotsIds.push(createdAddress1.mainAddressId);
-      propertiesIds.push(createdAddress1.id);
-
-      expect(returnedObjectKeys).toContain('mainAddressId');
+  it('[findLotsByAddress] should return a list of lots for the given address', async () => {
+    const foundLots = await controller.findLotsByAddress({
+      country: mockLot.country,
+      city: mockLot.city,
+      neighborhood: mockLot.neighborhood,
+      province: mockLot.province,
+      street: mockLot.street,
     });
+
+    expect(foundLots.length).toBeGreaterThanOrEqual(1);
   });
 
-  describe('searchByAddress', () => {
-    // TODO
+  it('[getPropertiesByMainAddressId] should call property service', async () => {
+    const spyOnPropertyService = jest.spyOn(
+      propertyService,
+      'getAllPropertiesByMainAddress',
+    );
+    await controller.getPropertiesByMainAddress(mockProperty.mainAddressId);
+
+    expect(spyOnPropertyService).toHaveBeenCalled();
   });
 
-  describe('getLotsByAddress', () => {
-    it('should find lots for the address details received', async () => {
-      const found = await controller.getLotsByAddress({
-        street: mockCreateAddress101.street,
-        province: mockCreateAddress101.province,
-        city: mockCreateAddress101.city,
-        country: mockCreateAddress101.country,
-        neighborhood: mockCreateAddress101.neighborhood,
-      });
+  it('[getPropertiesByMainAddressId] should return a list of properties for the given main address Id', async () => {
+    const foundProperties = await controller.getPropertiesByMainAddress(
+      mockProperty.mainAddressId,
+    );
 
-      console.log(found);
-
-      found.forEach((lot) => lotsIds.push(lot.id ?? ''));
-
-      expect(found.length).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  describe.skip('getPropertiesByMainAddressId', () => {
-    // TODO
-  });
-
-  describe.skip('deleteLot', () => {
-    // TODO
-  });
-
-  describe.skip('deleteProperty', () => {
-    // TODO
+    expect(foundProperties.length).toBeGreaterThanOrEqual(1);
   });
 });
