@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DEFAULT_LIMIT } from '../../../../shared/default/pagination';
+import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { TargetPropertyRepository } from '../target-property.repository';
 import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';
 import { TargetProperty } from '../../schemas/target-property.schema';

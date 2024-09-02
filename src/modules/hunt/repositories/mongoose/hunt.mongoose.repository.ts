@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DEFAULT_LIMIT } from '../../../../shared/default/pagination';
-import { Hunt } from '../../schemas/hunt.schema';
+import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { HuntRepository } from '../hunt.repository';
+import { Hunt } from '../../schemas/hunt.schema';
 import { InterfaceHunt } from '../../schemas/models/hunt.interface';
 
 export class HuntMongooseRepository implements HuntRepository {
