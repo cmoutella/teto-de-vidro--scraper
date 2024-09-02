@@ -18,6 +18,6 @@ RUN npm i -g pnpm
 
 RUN pnpm build
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["node", "./dist/main"]
