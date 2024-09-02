@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PropertyRepository } from '../../repositories/property.repository';
 import { PropertyService } from '../../services/property-collection.service';
-import { AddressController } from '../address-collection.controller';
+import { AddressController } from '../address.controller';
 import { LotRepository } from '../../repositories/lot.repository';
 import { LotService } from '../../services/lot-collection.service';
 import { AddressService } from '../../services/address.service';

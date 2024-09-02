@@ -2,17 +2,17 @@ import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
 import { z } from 'zod';
 
 export const createAddressSchema = z.object({
-  block: z.string().optional(),
   street: z.string(),
-  lotName: z.string().optional(),
   lotNumber: z.string(),
+  lotName: z.string().optional(),
   postalCode: z.string().optional(),
-  city: z.string(),
   neighborhood: z.string(),
+  city: z.string(),
   province: z.string(),
   country: z.string(),
   lotConvenience: z.array(z.string()).optional(),
   propertyNumber: z.string(),
+  block: z.string().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),

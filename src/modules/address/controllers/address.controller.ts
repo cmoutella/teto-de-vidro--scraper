@@ -10,8 +10,8 @@ import {
   UsePipes,
 } from '@nestjs/common';
 
-import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
-import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
+import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor';
+import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe';
 import { AddressService } from '../services/address.service';
 import {
   CreateAddress,
