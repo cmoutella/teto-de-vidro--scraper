@@ -125,10 +125,9 @@ export class AddressController {
 
   @UsePipes(new ZodValidationPipe(searchAddressSchema))
   @Post('/lots')
-  async getLotsByAddress(
+  async findLotsByAddress(
     @Body()
     {
-      lotName,
       street,
       lotNumber,
       postalCode,
@@ -137,11 +136,9 @@ export class AddressController {
       province,
       country,
       block,
-      propertyNumber,
     }: SearchAddress,
   ) {
-    return await this.addressService.findLotsByAddress({
-      lotName,
+    return await this.lotService.getAllLotsByAddress({
       street,
       lotNumber,
       postalCode,
@@ -150,7 +147,6 @@ export class AddressController {
       province,
       country,
       block,
-      propertyNumber,
     });
   }
 
@@ -242,7 +238,12 @@ export class AddressController {
     return await this.propertyService.getOneProperty(id);
   }
 
-  @Put('/property/:id')
+  @Get('/main-address/:lotId')
+  async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
+    return await this.propertyService.getAllPropertiesByMainAddress(lotId);
+  }
+
+  @Put(':id')
   async updateProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePropertySchema))

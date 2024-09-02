@@ -161,7 +161,6 @@ export class AddressService {
   ): Promise<InterfaceLot[]> {
     if (
       !address.street ||
-      !address.lotNumber ||
       !address.city ||
       !address.province ||
       !address.country
@@ -176,7 +175,6 @@ export class AddressService {
       city: address.city,
       province: address.province,
       country: address.country,
-      lotNumber: address.lotNumber,
     });
 
     return foundLots;
