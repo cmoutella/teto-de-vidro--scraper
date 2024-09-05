@@ -9,6 +9,7 @@ import { UsersModule } from './modules/user/user.module';
 import { AddressModule } from './modules/address/address.module';
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module';
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,6 +18,11 @@ import { TargetPropertyCollectionModule } from './modules/targetProperty/target-
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     UsersModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '15d' },
+    }),
     HuntCollectionModule,
     TargetPropertyCollectionModule,
     AddressModule,

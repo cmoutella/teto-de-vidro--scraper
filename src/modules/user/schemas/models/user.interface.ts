@@ -9,5 +9,10 @@ export interface InterfaceUser {
   email: string;
 }
 
+export interface UserCredentials {
+  email: string;
+  password: string;
+}
+
 // returned on public routes
 export type PublicInterfaceUser = Omit<InterfaceUser, 'password'>;
