@@ -25,7 +25,7 @@ export class UserMongooseRepository implements UserRepository {
       .then((res) =>
         res.map((user) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { password, _id, ...userData } = user;
+          const { password, _id, ...userData } = user.toObject();
           return { id: _id.toString(), ...userData };
         }),
       );
@@ -47,11 +47,11 @@ export class UserMongooseRepository implements UserRepository {
   }
 
   async getByEmail(email: string): Promise<InterfaceUser | null> {
-    const user = await this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email: email }).exec();
 
     if (!user) return null;
 
-    const { _id, ...userData } = user;
+    const { _id, ...userData } = user.toObject();
     const data = {
       id: _id.toString(),
       ...userData,

@@ -8,14 +8,20 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-
-import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
-import { InterfaceUser } from '../schemas/models/user.interface';
-import { UserService } from '../services/user.service';
-
+import { JwtService } from '@nestjs/jwt';
+import { compare } from 'bcryptjs';
 import { z } from 'zod';
+
+import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe';
 import { EncryptPasswordPipe } from '../pipe/password.pipe';
+
+import {
+  InterfaceUser,
+  UserCredentials,
+} from '../schemas/models/user.interface';
+import { UserService } from '../services/user.service';
+import { addDays } from 'date-fns';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -34,7 +40,10 @@ type CreateUser = z.infer<typeof createUserSchema>;
 @UseInterceptors(LoggingInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
@@ -76,6 +85,29 @@ export class UsersController {
       ...data,
     };
     return user;
+  }
+
+  @Post('/login')
+  async authUser(@Body() credentials: UserCredentials) {
+    const { email, password } = credentials;
+
+    const foundUser = await this.userService.getByEmail(email);
+    const passwordMatch = await compare(password, foundUser.password);
+
+    if (!passwordMatch) throw new Error('Username or password is wrong');
+
+    const authDate = new Date();
+    const token = await this.jwtService.sign({ email: email });
+    const tokenExpiration = addDays(authDate, 15);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...otherData } = foundUser;
+
+    return {
+      token: token,
+      user: otherData,
+      expireAt: tokenExpiration.toISOString(),
+    };
   }
 
   @Delete(':id')
