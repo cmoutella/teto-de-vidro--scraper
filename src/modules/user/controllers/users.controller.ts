@@ -100,9 +100,12 @@ export class UsersController {
     const token = await this.jwtService.sign({ email: email });
     const tokenExpiration = addDays(authDate, 15);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...otherData } = foundUser;
+
     return {
       token: token,
-      userId: foundUser.id,
+      user: otherData,
       expireAt: tokenExpiration.toISOString(),
     };
   }
