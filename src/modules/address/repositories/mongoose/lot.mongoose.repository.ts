@@ -39,13 +39,19 @@ export class LotMongooseRepository implements LotRepository {
 
     // TODO
     const foundLots = await this.lotModel
-      .find({ ...searchBy })
+      .find({
+        street: searchBy.street,
+        city: searchBy.city,
+        country: searchBy.country,
+        province: searchBy.province,
+      })
       .skip(offset)
       .limit(limit)
       .exec();
 
     return foundLots.map((lot) => {
-      const { _id, ...data } = lot;
+      const lotObj = lot.toObject();
+      const { _id, ...data } = lotObj;
 
       return { id: _id.toString(), ...data };
     });

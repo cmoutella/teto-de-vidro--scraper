@@ -23,6 +23,8 @@ import { LotService } from '../services/lot-collection.service';
 import {
   CreateLot,
   createLotSchema,
+  SearchLots,
+  searchLotsSchema,
   UpdateLot,
   updateLotSchema,
 } from '../validation/schemas/lot';
@@ -123,7 +125,7 @@ export class AddressController {
     });
   }
 
-  @UsePipes(new ZodValidationPipe(searchAddressSchema))
+  @UsePipes(new ZodValidationPipe(searchLotsSchema))
   @Post('/lots')
   async findLotsByAddress(
     @Body()
@@ -136,7 +138,7 @@ export class AddressController {
       province,
       country,
       block,
-    }: SearchAddress,
+    }: SearchLots,
   ) {
     return await this.lotService.getAllLotsByAddress({
       street,

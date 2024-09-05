@@ -27,3 +27,18 @@ export const updateLotSchema = z.object({
 });
 
 export type UpdateLot = z.infer<typeof updateLotSchema>;
+
+export const searchLotsSchema = z.object({
+  street: z.string(),
+  city: z.string(),
+  neighborhood: z.string().optional(),
+  province: z.string(),
+  country: z.string(),
+  block: z.string().optional(),
+  lotName: z.string().optional(),
+  lotNumber: z.string().optional(),
+  postalCode: z.string().optional(),
+  propertyNumber: z.string().optional(),
+});
+
+export type SearchLots = z.infer<typeof searchLotsSchema>;
