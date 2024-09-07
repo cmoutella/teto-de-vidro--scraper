@@ -22,6 +22,8 @@ const createHuntSchema = z.object({
   invitedUsers: z.array(z.string()).optional(),
   title: z.string().optional(),
   movingExpected: z.string().optional(),
+  minBudget: z.number().optional(),
+  maxBudget: z.number().optional(),
   livingPeople: z.number().optional(),
   livingPets: z.number().optional(),
   type: z.enum(CONTRACT_TYPE).optional(),
@@ -33,6 +35,8 @@ const updateHuntSchema = z.object({
   invitedUsers: z.array(z.string()).optional(),
   title: z.string().optional(),
   movingExpected: z.string().optional(),
+  minBudget: z.number().optional(),
+  maxBudget: z.number().optional(),
   livingPeople: z.number().optional(),
   livingPets: z.number().optional(),
   type: z.enum(CONTRACT_TYPE).optional(),
@@ -64,15 +68,19 @@ export class HuntController {
       livingPets,
       movingExpected,
       type,
+      minBudget,
+      maxBudget
     }: CreateHunt,
   ) {
-    await this.huntService.createHunt({
+    return await this.huntService.createHunt({
       title,
       creatorId,
       invitedUsers,
       livingPeople,
       livingPets,
       movingExpected,
+      minBudget,
+      maxBudget
       type,
       targets: [],
     });
