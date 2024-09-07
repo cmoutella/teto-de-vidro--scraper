@@ -69,7 +69,7 @@ export class HuntController {
       movingExpected,
       type,
       minBudget,
-      maxBudget
+      maxBudget,
     }: CreateHunt,
   ) {
     return await this.huntService.createHunt({
@@ -80,13 +80,13 @@ export class HuntController {
       livingPets,
       movingExpected,
       minBudget,
-      maxBudget
+      maxBudget,
       type,
       targets: [],
     });
   }
 
-  @Get('/search/:userId')
+  @Get('search/:userId')
   async getAllHuntsByUser(@Param('userId') userId: string) {
     return await this.huntService.getAllHuntsByUser(userId);
   }
