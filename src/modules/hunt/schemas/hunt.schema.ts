@@ -14,9 +14,13 @@ export class Hunt implements InterfaceHunt {
   @Prop()
   creatorId: string;
   @Prop()
-  invitedUsers: string[];
+  minBudget?: number;
+  @Prop()
+  maxBudget?: number;
   @Prop()
   targets: string[];
+  @Prop()
+  invitedUsers?: string[];
   @Prop()
   isActive: boolean;
   @Prop()

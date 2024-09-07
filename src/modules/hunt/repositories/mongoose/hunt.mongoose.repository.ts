@@ -13,7 +13,9 @@ export class HuntMongooseRepository implements HuntRepository {
 
     await createHunt.save();
 
-    return createHunt.toObject();
+    const { _id, ...data } = createHunt.toObject();
+
+    return { id: _id, ...data } as InterfaceHunt;
   }
 
   async getAllHuntsByUser(
