@@ -22,7 +22,12 @@ import {
 } from '../schemas/models/user.interface';
 import { UserService } from '../services/user.service';
 import { addDays } from 'date-fns';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '../schemas/user.schema';
+import {
+  CreateUserFailureException,
+  CreateUserSuccess,
+} from '../schemas/endpoints/createUser';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -50,6 +55,21 @@ export class UsersController {
   // @ApiBearerAuth()
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
+  @ApiOperation({ summary: 'Cria um novo usuário' })
+  @ApiBody({
+    type: User,
+    description: 'Data needed to create new user',
+  })
+  @ApiResponse({
+    type: CreateUserSuccess,
+    status: 201,
+    description: 'Usuário criado com sucesso',
+  })
+  @ApiResponse({
+    type: CreateUserFailureException,
+    status: 409,
+    description: 'Nome de usuário já existe',
+  })
   @Post()
   async createUser(
     @Body()
