@@ -12,10 +12,16 @@ export class UserMongooseRepository implements UserRepository {
 
   async createUser(newUser: InterfaceUser): Promise<PublicInterfaceUser> {
     const createUser = new this.userModel(newUser);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, _id, ...userData } = await createUser.save();
+    const createdUser = await createUser.save();
 
-    return { id: _id.toString(), ...userData };
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      password: _password,
+      _id: id,
+      ...otherData
+    } = createdUser.toObject();
+
+    return { id, ...otherData };
   }
 
   async getAllUsers(): Promise<Omit<InterfaceUser, 'password'>[]> {
