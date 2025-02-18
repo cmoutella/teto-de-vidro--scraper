@@ -28,6 +28,7 @@ import {
   CreateUserFailureException,
   CreateUserSuccess,
 } from '../schemas/endpoints/createUser';
+import { GetAllUsersSuccess } from '../schemas/endpoints/getUsers';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -94,6 +95,12 @@ export class UsersController {
     });
   }
 
+  @ApiOperation({ summary: 'Busca por todos os usuários' })
+  @ApiResponse({
+    type: GetAllUsersSuccess,
+    status: 200,
+    description: 'Usuários encontrados com sucesso',
+  })
   @Get()
   async getAllUsers() {
     return await this.userService.getAllUsers();
