@@ -22,6 +22,7 @@ import {
 } from '../schemas/models/user.interface';
 import { UserService } from '../services/user.service';
 import { addDays } from 'date-fns';
+import { ApiTags } from '@nestjs/swagger';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -37,6 +38,7 @@ const createUserSchema = z.object({
 
 type CreateUser = z.infer<typeof createUserSchema>;
 
+@ApiTags('user')
 @UseInterceptors(LoggingInterceptor)
 @Controller('users')
 export class UsersController {
@@ -45,6 +47,7 @@ export class UsersController {
     private jwtService: JwtService,
   ) {}
 
+  // @ApiBearerAuth()
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
   @Post()

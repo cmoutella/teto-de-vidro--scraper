@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './shared/filters/http-exception-filter';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
@@ -11,6 +12,15 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
+
+  const config = new DocumentBuilder()
+    .setTitle('Teto de Vidro - API')
+    .setDescription('Descrição dos endpoints disponíveis no projeto')
+    .setVersion('1.0')
+    .addTag('glassRoof')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(Number(process.env.PORT) || 3000);
 }

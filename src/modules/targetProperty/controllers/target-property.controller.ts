@@ -15,6 +15,7 @@ import { LoggingInterceptor } from '../../../shared/interceptors/logging.interce
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { TargetPropertyService } from '../services/target-property.service';
 import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 const HUNTING_STAGE = [
   'new',
@@ -99,6 +100,7 @@ const updateTargetPropertySchema = z.object({
 
 type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>;
 
+@ApiTags('targetProperty')
 @UseInterceptors(LoggingInterceptor)
 @Controller('target-property')
 export class TargetPropertyController {
@@ -106,6 +108,7 @@ export class TargetPropertyController {
 
   @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
+  @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
   async createTargetProperty(
     @Body()
     {
@@ -171,16 +174,19 @@ export class TargetPropertyController {
   }
 
   @Get('/search/:huntId')
+  @ApiOperation({ summary: 'Busca todos os imóvel targets de uma caçada' })
   async getAllTargetsByHunt(@Param('huntId') huntId: string) {
     return await this.targetPropertyService.getAllTargetsByHunt(huntId);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Busca um imóvel target por id' })
   async getOneTargetProperty(@Param('id') id: string) {
     return await this.targetPropertyService.getOneTargetById(id);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualiza um imóvel target' })
   async updateTargetProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
@@ -193,6 +199,7 @@ export class TargetPropertyController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Deleção de um imóvel target' })
   async deleteTargetProperty(@Param('id') id: string) {
     await this.targetPropertyService.deleteTargetProperty(id);
   }

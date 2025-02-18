@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -51,6 +52,7 @@ const addTargetToHunt = z.object({
 
 type NewTarget = z.infer<typeof addTargetToHunt>;
 
+@ApiTags('hunt')
 @UseInterceptors(LoggingInterceptor)
 @Controller('hunt')
 export class HuntController {
@@ -58,6 +60,7 @@ export class HuntController {
 
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
+  @ApiOperation({ summary: 'Iniciar uma nova caça por imóvel' })
   async createHunt(
     @Body()
     {
@@ -87,11 +90,13 @@ export class HuntController {
   }
 
   @Get('search/:userId')
+  @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
   async getAllHuntsByUser(@Param('userId') userId: string) {
     return await this.huntService.getAllHuntsByUser(userId);
   }
 
   @Post('new-target')
+  @ApiOperation({ summary: 'Adiciona um imóvel target à uma caçada' })
   async addTargetToHunt(
     @Body(new ZodValidationPipe(addTargetToHunt))
     { huntId, targetId }: NewTarget,
@@ -100,11 +105,13 @@ export class HuntController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Busca de caçada por id' })
   async getOneHuntById(@Param('id') id: string) {
     return await this.huntService.getOneHuntById(id);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualização de uma caçada' })
   async updateHunt(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateHuntSchema))
@@ -114,6 +121,7 @@ export class HuntController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Deleção de uma caçada' })
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
   }
