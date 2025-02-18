@@ -22,7 +22,17 @@ import {
 } from '../schemas/models/user.interface';
 import { UserService } from '../services/user.service';
 import { addDays } from 'date-fns';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '../schemas/user.schema';
+import {
+  CreateUserFailureException,
+  CreateUserSuccess,
+} from '../schemas/endpoints/createUser';
+import {
+  GetAllUsersSuccess,
+  GetOneUserSuccess,
+} from '../schemas/endpoints/getUsers';
+import { DeleteUserSuccess } from '../schemas/endpoints/deleteUser';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -50,6 +60,21 @@ export class UsersController {
   // @ApiBearerAuth()
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
+  @ApiOperation({ summary: 'Cria um novo usuário' })
+  @ApiBody({
+    type: User,
+    description: 'Data needed to create new user',
+  })
+  @ApiResponse({
+    type: CreateUserSuccess,
+    status: 201,
+    description: 'Usuário criado com sucesso',
+  })
+  @ApiResponse({
+    type: CreateUserFailureException,
+    status: 409,
+    description: 'Nome de usuário já existe',
+  })
   @Post()
   async createUser(
     @Body()
@@ -74,11 +99,23 @@ export class UsersController {
     });
   }
 
+  @ApiOperation({ summary: 'Busca por todos os usuários' })
+  @ApiResponse({
+    type: GetAllUsersSuccess,
+    status: 200,
+    description: 'Usuários encontrados com sucesso',
+  })
   @Get()
   async getAllUsers() {
     return await this.userService.getAllUsers();
   }
 
+  @ApiOperation({ summary: 'Busca usuários por id' })
+  @ApiResponse({
+    type: GetOneUserSuccess,
+    status: 200,
+    description: 'Usuário encontrado com sucesso',
+  })
   @Get('/:id')
   async getById(@Param('id') id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,6 +127,18 @@ export class UsersController {
     return user;
   }
 
+  @ApiOperation({ summary: 'Deleta um usuário por id' })
+  @ApiResponse({
+    type: DeleteUserSuccess,
+    status: 200,
+    description: 'Usuário deletado com sucesso',
+  })
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    await this.userService.deleteUser(id);
+  }
+
+  // levar login para outra controller
   @Post('/login')
   async authUser(@Body() credentials: UserCredentials) {
     const { email, password } = credentials;
@@ -111,10 +160,5 @@ export class UsersController {
       user: otherData,
       expireAt: tokenExpiration.toISOString(),
     };
-  }
-
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    await this.userService.deleteUser(id);
   }
 }
