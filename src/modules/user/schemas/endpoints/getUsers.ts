@@ -11,3 +11,13 @@ export class GetAllUsersSuccess {
   @Prop()
   data: PublicUserSchema;
 }
+
+@Schema()
+export class GetOneUserSuccess {
+  @ApiProperty({ default: 200 })
+  @Prop()
+  status: number;
+  @ApiProperty()
+  @Prop()
+  data: PublicUserSchema;
+}

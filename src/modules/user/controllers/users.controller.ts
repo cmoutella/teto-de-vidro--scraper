@@ -28,7 +28,11 @@ import {
   CreateUserFailureException,
   CreateUserSuccess,
 } from '../schemas/endpoints/createUser';
-import { GetAllUsersSuccess } from '../schemas/endpoints/getUsers';
+import {
+  GetAllUsersSuccess,
+  GetOneUserSuccess,
+} from '../schemas/endpoints/getUsers';
+import { DeleteUserSuccess } from '../schemas/endpoints/deleteUser';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -106,6 +110,12 @@ export class UsersController {
     return await this.userService.getAllUsers();
   }
 
+  @ApiOperation({ summary: 'Busca usuários por id' })
+  @ApiResponse({
+    type: GetOneUserSuccess,
+    status: 200,
+    description: 'Usuário encontrado com sucesso',
+  })
   @Get('/:id')
   async getById(@Param('id') id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -117,6 +127,18 @@ export class UsersController {
     return user;
   }
 
+  @ApiOperation({ summary: 'Deleta um usuário por id' })
+  @ApiResponse({
+    type: DeleteUserSuccess,
+    status: 200,
+    description: 'Usuário deletado com sucesso',
+  })
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    await this.userService.deleteUser(id);
+  }
+
+  // levar login para outra controller
   @Post('/login')
   async authUser(@Body() credentials: UserCredentials) {
     const { email, password } = credentials;
@@ -138,10 +160,5 @@ export class UsersController {
       user: otherData,
       expireAt: tokenExpiration.toISOString(),
     };
-  }
-
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    await this.userService.deleteUser(id);
   }
 }
