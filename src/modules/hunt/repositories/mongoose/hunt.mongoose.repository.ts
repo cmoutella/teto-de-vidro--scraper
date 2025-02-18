@@ -31,7 +31,11 @@ export class HuntMongooseRepository implements HuntRepository {
       .limit(limit)
       .exec();
 
-    return foundHunts.map((hunt) => hunt.toObject());
+    return foundHunts.map((hunt) => {
+      const { _id: id, __v, ...otherData } = hunt.toObject();
+
+      return { id: id.toString(), ...otherData };
+    });
   }
 
   async addTargetToHunt(huntId: string, targetId: string): Promise<void> {
@@ -48,10 +52,21 @@ export class HuntMongooseRepository implements HuntRepository {
   }
 
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
-    return await this.huntModel.findById(id).exec();
+    const found = await this.huntModel.findById(id).exec();
+
+    if (!found) {
+      return null;
+    }
+
+    const { _id, __v, ...otherData } = found.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
-  async updateHunt(id: string, data: Partial<InterfaceHunt>): Promise<void> {
+  async updateHunt(
+    id: string,
+    data: Partial<InterfaceHunt>,
+  ): Promise<InterfaceHunt> {
     const foundHunt = this.huntModel.findById(id).exec();
 
     if (!foundHunt) {
@@ -61,6 +76,8 @@ export class HuntMongooseRepository implements HuntRepository {
     await this.huntModel
       .updateOne({ _id: id }, { ...foundHunt, ...data })
       .exec();
+
+    return await this.getOneHuntById(id);
   }
 
   async deleteHunt(id: string): Promise<void> {

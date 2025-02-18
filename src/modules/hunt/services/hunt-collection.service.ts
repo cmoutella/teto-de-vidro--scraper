@@ -39,7 +39,10 @@ export class HuntService {
     return Hunt;
   }
 
-  async updateHunt(id: string, data: Partial<InterfaceHunt>): Promise<void> {
+  async updateHunt(
+    id: string,
+    data: Partial<InterfaceHunt>,
+  ): Promise<InterfaceHunt> {
     return await this.huntRepository.updateHunt(id, data);
   }
 

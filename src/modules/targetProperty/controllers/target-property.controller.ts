@@ -171,6 +171,7 @@ export class TargetPropertyController {
       condoPricing,
       propertyConvenience,
     });
+    // deveria após criar adicionar a informação também na hunt
   }
 
   @Get('/search/:huntId')

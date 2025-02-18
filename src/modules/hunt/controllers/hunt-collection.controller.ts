@@ -14,7 +14,18 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Hunt } from '../schemas/hunt.schema';
+import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
+import {
+  FindHuntByIdSuccess,
+  FindHuntsByIdUserSuccess,
+} from '../schemas/endpoints/getHunts';
+import { DeleteHuntSuccess } from '../schemas/endpoints/deleteHunt';
+import {
+  UpdateHuntBody,
+  UpdateHuntSuccess,
+} from '../schemas/endpoints/updateHunt';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -58,9 +69,18 @@ type NewTarget = z.infer<typeof addTargetToHunt>;
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
+  @ApiOperation({ summary: 'Cria uma caça por imóvel' })
+  @ApiBody({
+    type: Hunt,
+    description: 'Dados necessários para criação da hunt',
+  })
+  @ApiResponse({
+    type: CreateHuntSuccess,
+    status: 201,
+    description: 'Hunt criada com sucesso',
+  })
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
-  @ApiOperation({ summary: 'TODO | Iniciar uma nova caça por imóvel' })
   async createHunt(
     @Body()
     {
@@ -89,8 +109,43 @@ export class HuntController {
     });
   }
 
+  @ApiOperation({ summary: 'Busca de caçada por id' })
+  @ApiResponse({
+    type: FindHuntByIdSuccess,
+    status: 200,
+    description: 'Hunt encontrada com sucesso',
+  })
+  @Get(':id')
+  async getOneHuntById(@Param('id') id: string) {
+    return await this.huntService.getOneHuntById(id);
+  }
+
+  @ApiOperation({ summary: 'Atualização de uma caçada' })
+  @ApiBody({
+    type: UpdateHuntBody,
+    description: 'Dados para atualização de uma caçada',
+  })
+  @ApiResponse({
+    type: UpdateHuntSuccess,
+    status: 200,
+    description: 'Sucesso na atualização da Hunt',
+  })
+  @Put(':id')
+  async updateHunt(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateHuntSchema))
+    updateData: UpdateHunt,
+  ) {
+    return await this.huntService.updateHunt(id, updateData);
+  }
+
+  @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
+  @ApiResponse({
+    type: FindHuntsByIdUserSuccess,
+    status: 200,
+    description: 'Hunts do usuário encontradas com sucesso',
+  })
   @Get('search/:userId')
-  @ApiOperation({ summary: 'TODO | Busca todas as caçadas de um usuário' })
   async getAllHuntsByUser(@Param('userId') userId: string) {
     return await this.huntService.getAllHuntsByUser(userId);
   }
@@ -101,27 +156,18 @@ export class HuntController {
     @Body(new ZodValidationPipe(addTargetToHunt))
     { huntId, targetId }: NewTarget,
   ) {
+    // deveria verificar se existe uma hunt com essa id
+    // isso talvez devesse acontecer na controller do targetProperty
     return await this.huntService.addTargetToHunt(huntId, targetId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'TODO | Busca de caçada por id' })
-  async getOneHuntById(@Param('id') id: string) {
-    return await this.huntService.getOneHuntById(id);
-  }
-
-  @Put(':id')
-  @ApiOperation({ summary: 'TODO | Atualização de uma caçada' })
-  async updateHunt(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateHuntSchema))
-    updateData: UpdateHunt,
-  ) {
-    return await this.huntService.updateHunt(id, updateData);
-  }
-
+  @ApiOperation({ summary: 'Deleção de uma caçada' })
+  @ApiResponse({
+    type: DeleteHuntSuccess,
+    status: 200,
+    description: 'Hunt deletada com sucesso',
+  })
   @Delete(':id')
-  @ApiOperation({ summary: 'TODO | Deleção de uma caçada' })
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
   }
