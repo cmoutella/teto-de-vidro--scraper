@@ -60,7 +60,7 @@ export class HuntController {
 
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
-  @ApiOperation({ summary: 'Iniciar uma nova caça por imóvel' })
+  @ApiOperation({ summary: 'TODO | Iniciar uma nova caça por imóvel' })
   async createHunt(
     @Body()
     {
@@ -90,13 +90,13 @@ export class HuntController {
   }
 
   @Get('search/:userId')
-  @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
+  @ApiOperation({ summary: 'TODO | Busca todas as caçadas de um usuário' })
   async getAllHuntsByUser(@Param('userId') userId: string) {
     return await this.huntService.getAllHuntsByUser(userId);
   }
 
   @Post('new-target')
-  @ApiOperation({ summary: 'Adiciona um imóvel target à uma caçada' })
+  @ApiOperation({ summary: 'TODO | Adiciona um imóvel target à uma caçada' })
   async addTargetToHunt(
     @Body(new ZodValidationPipe(addTargetToHunt))
     { huntId, targetId }: NewTarget,
@@ -105,13 +105,13 @@ export class HuntController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Busca de caçada por id' })
+  @ApiOperation({ summary: 'TODO | Busca de caçada por id' })
   async getOneHuntById(@Param('id') id: string) {
     return await this.huntService.getOneHuntById(id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualização de uma caçada' })
+  @ApiOperation({ summary: 'TODO | Atualização de uma caçada' })
   async updateHunt(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateHuntSchema))
@@ -121,7 +121,7 @@ export class HuntController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Deleção de uma caçada' })
+  @ApiOperation({ summary: 'TODO | Deleção de uma caçada' })
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
   }

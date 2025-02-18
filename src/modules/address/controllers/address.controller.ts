@@ -49,7 +49,7 @@ export class AddressController {
 
   @UsePipes(new ZodValidationPipe(createAddressSchema))
   @Post()
-  @ApiOperation({ summary: 'Cria um novo endereço' })
+  @ApiOperation({ summary: 'TODO | Cria um novo endereço' })
   async createAddress(
     @Body()
     {
@@ -99,7 +99,7 @@ export class AddressController {
 
   @UsePipes(new ZodValidationPipe(searchAddressSchema))
   @Post('/search')
-  @ApiOperation({ summary: 'Busca por um endereço' })
+  @ApiOperation({ summary: 'TODO | Busca por um endereço' })
   async searchByAddress(
     @Body()
     {
@@ -131,7 +131,7 @@ export class AddressController {
 
   @UsePipes(new ZodValidationPipe(searchLotsSchema))
   @Post('/lots')
-  @ApiOperation({ summary: 'Buscar por lotes a partir de um endereço' })
+  @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
   async findLotsByAddress(
     @Body()
     {
@@ -160,7 +160,7 @@ export class AddressController {
   // Lot subroutes
   @UsePipes(new ZodValidationPipe(createLotSchema))
   @Post('/lot')
-  @ApiOperation({ summary: 'Criação de lotes' })
+  @ApiOperation({ summary: 'TODO | Criação de lotes' })
   async createLot(
     @Body()
     {
@@ -189,13 +189,13 @@ export class AddressController {
   }
 
   @Get('/lot/:lotId')
-  @ApiOperation({ summary: 'Buscar por lote por id' })
+  @ApiOperation({ summary: 'TODO | Buscar por lote por id' })
   async getLotById(@Param('id') id: string) {
     return await this.lotService.getOneLot(id);
   }
 
   @Put('/lot/:id')
-  @ApiOperation({ summary: 'Atualizar um lote' })
+  @ApiOperation({ summary: 'TODO | Atualizar um lote' })
   async updateLot(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateLotSchema))
@@ -205,7 +205,7 @@ export class AddressController {
   }
 
   @Delete('/lot/:id')
-  @ApiOperation({ summary: 'Deleção de lote' })
+  @ApiOperation({ summary: 'TODO | Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
     await this.lotService.deleteLot(id);
   }
@@ -213,7 +213,7 @@ export class AddressController {
   // Property subroutes
   @UsePipes(new ZodValidationPipe(createPropertySchema))
   @Post('/property')
-  @ApiOperation({ summary: 'Cria uma propriedade' })
+  @ApiOperation({ summary: 'TODO | Cria uma propriedade' })
   async createProperty(
     @Body()
     {
@@ -246,19 +246,21 @@ export class AddressController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Busca uma pripridade por id' })
+  @ApiOperation({ summary: 'TODO | Busca uma pripridade por id' })
   async getOnePropertyById(@Param('id') id: string) {
     return await this.propertyService.getOneProperty(id);
   }
 
   @Get('/main-address/:lotId')
-  @ApiOperation({ summary: 'Busca propriedades a partir de um endereço' })
+  @ApiOperation({
+    summary: 'TODO | Busca propriedades a partir de um endereço',
+  })
   async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
     return await this.propertyService.getAllPropertiesByMainAddress(lotId);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualiza uma pripridade' })
+  @ApiOperation({ summary: 'TODO | Atualiza uma pripridade' })
   async updateProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePropertySchema))
@@ -268,7 +270,7 @@ export class AddressController {
   }
 
   @Delete('/property/:id')
-  @ApiOperation({ summary: 'Deleta uma pripridade' })
+  @ApiOperation({ summary: 'TODO | Deleta uma pripridade' })
   async deleteProperty(@Param('id') id: string) {
     await this.propertyService.deleteProperty(id);
   }

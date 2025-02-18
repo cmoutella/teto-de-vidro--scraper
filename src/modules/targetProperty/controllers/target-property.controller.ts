@@ -108,7 +108,7 @@ export class TargetPropertyController {
 
   @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
-  @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
+  @ApiOperation({ summary: 'TODO | Cria um novo imóvel target na caçada' })
   async createTargetProperty(
     @Body()
     {
@@ -174,19 +174,21 @@ export class TargetPropertyController {
   }
 
   @Get('/search/:huntId')
-  @ApiOperation({ summary: 'Busca todos os imóvel targets de uma caçada' })
+  @ApiOperation({
+    summary: 'TODO | Busca todos os imóvel targets de uma caçada',
+  })
   async getAllTargetsByHunt(@Param('huntId') huntId: string) {
     return await this.targetPropertyService.getAllTargetsByHunt(huntId);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Busca um imóvel target por id' })
+  @ApiOperation({ summary: 'TODO | Busca um imóvel target por id' })
   async getOneTargetProperty(@Param('id') id: string) {
     return await this.targetPropertyService.getOneTargetById(id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualiza um imóvel target' })
+  @ApiOperation({ summary: 'TODO | Atualiza um imóvel target' })
   async updateTargetProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
@@ -199,7 +201,7 @@ export class TargetPropertyController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Deleção de um imóvel target' })
+  @ApiOperation({ summary: 'TODO | Deleção de um imóvel target' })
   async deleteTargetProperty(@Param('id') id: string) {
     await this.targetPropertyService.deleteTargetProperty(id);
   }
