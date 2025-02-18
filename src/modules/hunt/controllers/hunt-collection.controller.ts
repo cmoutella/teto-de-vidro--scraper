@@ -69,7 +69,7 @@ type NewTarget = z.infer<typeof addTargetToHunt>;
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
-  @ApiOperation({ summary: 'Iniciar uma nova caça por imóvel' })
+  @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
     type: Hunt,
     description: 'Dados necessários para criação da hunt',
