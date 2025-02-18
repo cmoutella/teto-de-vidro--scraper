@@ -14,7 +14,9 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Hunt } from '../schemas/hunt.schema';
+import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -60,7 +62,16 @@ export class HuntController {
 
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
-  @ApiOperation({ summary: 'TODO | Iniciar uma nova caça por imóvel' })
+  @ApiOperation({ summary: 'Iniciar uma nova caça por imóvel' })
+  @ApiBody({
+    type: Hunt,
+    description: 'Dados necessários para criação da hunt',
+  })
+  @ApiResponse({
+    type: CreateHuntSuccess,
+    status: 201,
+    description: 'Hunt criada com sucesso',
+  })
   async createHunt(
     @Body()
     {
