@@ -20,7 +20,7 @@ export class PropertyMongooseRepository implements PropertyRepository {
     return { id: _id.toString(), ...data };
   }
 
-  async getAllPropertiesByMainAddress(
+  async getAllPropertiesByLotId(
     lotId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
@@ -38,6 +38,21 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
   async getOnePropertyById(id: string): Promise<InterfaceProperty> {
     return await this.propertyModel.findById(id).exec();
+  }
+
+  async getOnePropertyByAddress(lotId: string, propertyNumber: string) {
+    const foundProperty = await this.propertyModel
+      .findOne({
+        lotId: lotId,
+        propertyNumber: propertyNumber,
+      })
+      .exec();
+
+    if (!foundProperty) return null;
+
+    const { _id, __v, ...otherData } = foundProperty.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async updateProperty(

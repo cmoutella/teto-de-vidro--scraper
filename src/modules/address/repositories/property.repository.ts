@@ -1,13 +1,17 @@
 import { InterfaceProperty } from '../schemas/models/property.interface';
 
 export abstract class PropertyRepository {
-  abstract getAllPropertiesByMainAddress(
+  abstract getAllPropertiesByLotId(
     lotId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]>;
 
   abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
+  abstract getOnePropertyByAddress(
+    lotId: string,
+    propertyNumber: string,
+  ): Promise<InterfaceProperty>;
 
   abstract createProperty(
     newProperty: InterfaceProperty,
