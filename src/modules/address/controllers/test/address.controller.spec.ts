@@ -21,7 +21,7 @@ describe('Address Controller', () => {
         {
           provide: PropertyRepository,
           useValue: {
-            getAllPropertiesByMainAddress: jest
+            getAllPropertiesByLotId: jest
               .fn()
               .mockResolvedValue([mockProperty]),
             createProperty: jest.fn().mockResolvedValue(mockProperty),
@@ -103,7 +103,7 @@ describe('Address Controller', () => {
   it('[getPropertiesByMainAddressId] should call property service', async () => {
     const spyOnPropertyService = jest.spyOn(
       propertyService,
-      'getAllPropertiesByMainAddress',
+      'getAllPropertiesByLotId',
     );
     await controller.getPropertiesByMainAddress(mockProperty.lotId);
 

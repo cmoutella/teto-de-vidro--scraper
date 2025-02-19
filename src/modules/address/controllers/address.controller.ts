@@ -375,7 +375,7 @@ export class AddressController {
     summary: 'TODO | Busca todas as propriedades de um lot',
   })
   async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
-    return await this.propertyService.getAllPropertiesByMainAddress(lotId);
+    return await this.propertyService.getAllPropertiesByLotId(lotId);
   }
 
   /**

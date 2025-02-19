@@ -76,7 +76,7 @@ export class AddressService {
     }
 
     const foundProperties =
-      await this.propertyRepository.getAllPropertiesByMainAddress(lotId);
+      await this.propertyRepository.getAllPropertiesByLotId(lotId);
 
     if (foundProperties && foundProperties.length >= 1) {
       const foundProperty = foundProperties.find(
@@ -134,9 +134,7 @@ export class AddressService {
     let properties: InterfaceProperty[] = [];
     if (foundLots.length === 1) {
       const foundProperties =
-        await this.propertyRepository.getAllPropertiesByMainAddress(
-          foundLots[0].id,
-        );
+        await this.propertyRepository.getAllPropertiesByLotId(foundLots[0].id);
 
       if (address.propertyNumber) {
         const property = foundProperties.find(
