@@ -15,20 +15,20 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
     await createProperty.save();
 
-    const { _id, ...data } = createProperty;
+    const { _id, __v, ...data } = createProperty.toObject();
 
     return { id: _id.toString(), ...data };
   }
 
   async getAllPropertiesByMainAddress(
-    mainAddressId: string,
+    lotId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
   ): Promise<InterfaceProperty[]> {
     const offset = (page - 1) * limit;
 
     const foundProperties = await this.propertyModel
-      .find({ mainAddressId: mainAddressId })
+      .find({ lotId: lotId })
       .skip(offset)
       .limit(limit)
       .exec();

@@ -2,7 +2,7 @@ import { InterfaceLot } from './lot.interface';
 import { InterfaceProperty } from './property.interface';
 
 export interface InterfaceAddress
-  extends Omit<InterfaceProperty, 'id' | 'mainAddressId'>,
+  extends Omit<InterfaceProperty, 'id' | 'lotId'>,
     Omit<InterfaceLot, 'id'> {}
 
 export interface InterfaceSearchAddress {

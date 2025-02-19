@@ -11,37 +11,37 @@ export class Property implements InterfaceProperty {
   id?: string;
   @ApiProperty()
   @Prop()
-  mainAddressId: string;
+  lotId: string;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   block?: string;
   @ApiProperty()
   @Prop()
   propertyNumber: string;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   size?: number;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   rooms?: number;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   bathrooms?: number;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   parking?: number;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   is_front?: boolean;
   @ApiPropertyOptional()
-  @Prop()
+  @Prop({ isRequired: false })
   sun?: 'morning' | 'afternoon' | 'none';
   @ApiPropertyOptional()
-  @Prop()
-  condoPricing: number;
+  @Prop({ isRequired: false })
+  condoPricing?: number;
   @ApiPropertyOptional()
-  @Prop()
-  propertyConvenience: string[];
+  @Prop({ isRequired: false })
+  propertyConvenience?: string[];
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

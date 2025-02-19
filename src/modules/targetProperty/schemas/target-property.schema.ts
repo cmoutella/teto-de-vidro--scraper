@@ -51,7 +51,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   // para vincular ou criar um endereço
   @ApiPropertyOptional()
   @Prop()
-  mainAddressId?: string;
+  lotId?: string;
   @ApiPropertyOptional()
   @Prop()
   propertyId?: string;

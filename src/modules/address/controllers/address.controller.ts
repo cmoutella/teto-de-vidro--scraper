@@ -328,7 +328,7 @@ export class AddressController {
   async createProperty(
     @Body()
     {
-      mainAddressId,
+      lotId,
       block,
       propertyNumber,
       size,
@@ -342,7 +342,7 @@ export class AddressController {
     }: CreateProperty,
   ) {
     await this.propertyService.createProperty({
-      mainAddressId,
+      lotId,
       block,
       propertyNumber,
       size,

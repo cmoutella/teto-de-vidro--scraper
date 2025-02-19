@@ -38,7 +38,7 @@ export const mockLot: InterfaceLot = {
 
 export const mockProperty: InterfaceProperty = {
   id: 'Property1',
-  mainAddressId: 'Lote1',
+  lotId: 'Lote1',
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],

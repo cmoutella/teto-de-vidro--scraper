@@ -89,7 +89,7 @@ export class AddressService {
     }
 
     const property = this.propertyRepository.createProperty({
-      mainAddressId: lotId,
+      lotId: lotId,
       propertyNumber: address.propertyNumber,
       block: address.block ?? null,
       size: address.size ?? null,

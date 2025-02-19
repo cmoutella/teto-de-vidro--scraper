@@ -1,6 +1,6 @@
 export interface InterfaceProperty {
   id?: string;
-  mainAddressId: string;
+  lotId: string;
   block?: string;
   propertyNumber: string;
   size?: number;

@@ -2,9 +2,9 @@ import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
 import { z } from 'zod';
 
 export const createPropertySchema = z.object({
-  block: z.string(),
   propertyNumber: z.string(),
-  mainAddressId: z.string(),
+  lotId: z.string(),
+  block: z.string().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),

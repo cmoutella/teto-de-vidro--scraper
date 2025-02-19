@@ -105,14 +105,14 @@ describe('Address Controller', () => {
       propertyService,
       'getAllPropertiesByMainAddress',
     );
-    await controller.getPropertiesByMainAddress(mockProperty.mainAddressId);
+    await controller.getPropertiesByMainAddress(mockProperty.lotId);
 
     expect(spyOnPropertyService).toHaveBeenCalled();
   });
 
   it('[getPropertiesByMainAddressId] should return a list of properties for the given main address Id', async () => {
     const foundProperties = await controller.getPropertiesByMainAddress(
-      mockProperty.mainAddressId,
+      mockProperty.lotId,
     );
 
     expect(foundProperties.length).toBeGreaterThanOrEqual(1);

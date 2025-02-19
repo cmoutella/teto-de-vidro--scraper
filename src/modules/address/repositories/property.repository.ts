@@ -2,7 +2,7 @@ import { InterfaceProperty } from '../schemas/models/property.interface';
 
 export abstract class PropertyRepository {
   abstract getAllPropertiesByMainAddress(
-    mainAddressId: string,
+    lotId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]>;
