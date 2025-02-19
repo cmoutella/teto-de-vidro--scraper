@@ -45,7 +45,7 @@ const createTargetPropertySchema = z.object({
   huntId: z.string(),
   adURL: z.string(),
   price: z.number(),
-  tax: z.number(),
+  iptu: z.number(),
 
   nickname: z.string().optional(),
   priority: z.number().optional(),
@@ -79,7 +79,7 @@ type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>;
 const updateTargetPropertySchema = z.object({
   adURL: z.string().optional(),
   price: z.number().optional(),
-  tax: z.number().optional(),
+  iptu: z.number().optional(),
 
   nickname: z.string().optional(),
   priority: z.number().optional(),
@@ -136,7 +136,7 @@ export class TargetPropertyController {
       huntId,
       adURL,
       price,
-      tax,
+      iptu,
       nickname,
       priority,
       realtor,
@@ -173,7 +173,7 @@ export class TargetPropertyController {
         huntId,
         adURL,
         price,
-        tax,
+        iptu,
         nickname,
         priority,
         realtor,

@@ -34,7 +34,7 @@ export interface InterfaceTargetProperty {
   adURL: string;
   nickname?: string;
   price: number;
-  tax: number;
+  iptu: number;
   priority?: number;
   huntingStage: PropertyHuntingStage;
   isActive?: boolean;

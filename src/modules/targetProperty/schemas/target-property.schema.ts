@@ -28,7 +28,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   price: number;
   @ApiProperty()
   @Prop()
-  tax: number;
+  iptu: number;
   @ApiProperty()
   @Prop()
   priority: number;
