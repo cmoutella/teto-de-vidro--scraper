@@ -83,7 +83,6 @@ describe('Address Controller', () => {
       country: mockLot.country,
       city: mockLot.city,
       neighborhood: mockLot.neighborhood,
-      province: mockLot.province,
       street: mockLot.street,
     });
 
@@ -95,7 +94,6 @@ describe('Address Controller', () => {
       country: mockLot.country,
       city: mockLot.city,
       neighborhood: mockLot.neighborhood,
-      province: mockLot.province,
       street: mockLot.street,
     });
 

@@ -50,7 +50,7 @@ export interface InterfaceTargetProperty {
   postalCode?: string;
   neighborhood: string;
   city: string;
-  province: string;
+  uf: string;
   country: string;
   lotConvenience?: string;
   // property identification

@@ -4,7 +4,7 @@ import { InterfaceProperty } from 'src/modules/address/schemas/models/property.i
 
 export const mockCreateAddress101: InterfaceAddress = {
   city: 'Mock de Janeiro',
-  province: 'MJ',
+  uf: 'MJ',
   country: 'Brazil',
   neighborhood: 'Narnia',
   street: 'Rua dos Bobos',
@@ -16,7 +16,7 @@ export const mockCreateAddress101: InterfaceAddress = {
 
 export const mockCreateAddress102: InterfaceAddress = {
   city: 'Mock de Janeiro',
-  province: 'MJ',
+  uf: 'MJ',
   country: 'Brazil',
   neighborhood: 'Narnia',
   street: 'Rua dos Bobos',
@@ -29,7 +29,7 @@ export const mockCreateAddress102: InterfaceAddress = {
 export const mockLot: InterfaceLot = {
   id: 'Lote1',
   city: 'Mock de Janeiro',
-  province: 'MJ',
+  uf: 'RJ',
   neighborhood: 'Narnia',
   country: 'Brazil',
   street: 'Rua dos Bobos',

@@ -27,7 +27,7 @@ export class Address implements InterfaceAddress {
   city: string;
   @ApiProperty()
   @Prop()
-  province: string;
+  uf: string;
   @ApiProperty()
   @Prop()
   country: string;
@@ -70,24 +70,31 @@ export const AddressSchema = SchemaFactory.createForClass(Address);
 
 @Schema()
 export class SearchAddress implements InterfaceSearchAddress {
+  @ApiProperty()
   @Prop()
   street: string;
+  @ApiProperty()
   @Prop()
   lotNumber: string;
+  @ApiProperty()
   @Prop()
   postalCode: string;
+  @ApiProperty()
   @Prop()
   neighborhood: string;
+  @ApiProperty()
   @Prop()
   city: string;
-  @Prop()
-  province: string;
+  @ApiProperty()
   @Prop()
   country: string;
+  @ApiProperty()
   @Prop()
   lotConvenience: string[];
+  @ApiProperty()
   @Prop()
   block: string;
+  @ApiProperty()
   @Prop()
   propertyNumber: string;
 }

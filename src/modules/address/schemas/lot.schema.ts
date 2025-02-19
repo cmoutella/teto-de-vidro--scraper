@@ -29,7 +29,7 @@ export class Lot implements InterfaceLot {
   city: string;
   @ApiProperty()
   @Prop()
-  province: string;
+  uf: string;
   @ApiProperty()
   @Prop()
   country: string;

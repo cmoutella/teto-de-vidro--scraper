@@ -68,10 +68,10 @@ export class TargetProperty implements InterfaceTargetProperty {
   neighborhood: string;
   @ApiProperty()
   @Prop()
-  city: string;
+  uf: string;
   @ApiProperty()
   @Prop()
-  province: string;
+  city: string;
   @ApiProperty()
   @Prop()
   country: string;

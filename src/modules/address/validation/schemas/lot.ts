@@ -7,7 +7,7 @@ export const createLotSchema = z.object({
   postalCode: z.string().optional(),
   neighborhood: z.string().optional(),
   city: z.string().optional(),
-  province: z.string().optional(),
+  uf: z.string().optional(),
   country: z.string().optional(),
   lotConvenience: z.array(z.string()).optional(),
 });
@@ -21,7 +21,6 @@ export const updateLotSchema = z.object({
   postalCode: z.string().optional(),
   city: z.string().optional(),
   neighborhood: z.string().optional(),
-  province: z.string().optional(),
   country: z.string().optional(),
   lotConvenience: z.array(z.string()).optional(),
 });
@@ -32,7 +31,7 @@ export const searchLotsSchema = z.object({
   street: z.string(),
   city: z.string(),
   neighborhood: z.string().optional(),
-  province: z.string(),
+  uf: z.string(),
   country: z.string(),
   block: z.string().optional(),
   lotName: z.string().optional(),

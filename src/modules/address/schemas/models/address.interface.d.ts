@@ -9,11 +9,11 @@ export interface InterfaceSearchAddress {
   street: string;
   city: string;
   neighborhood: string;
-  province: string;
   country: string;
   block?: string;
   lotName?: string;
   lotNumber?: string;
   postalCode?: string;
+  uf?: string;
   propertyNumber?: string;
 }

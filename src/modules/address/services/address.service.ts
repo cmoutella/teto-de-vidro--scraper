@@ -20,7 +20,6 @@ export class AddressService {
       !address.street ||
       !address.lotNumber ||
       !address.city ||
-      !address.province ||
       !address.country
     ) {
       throw new BadRequestException(
@@ -32,7 +31,7 @@ export class AddressService {
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
-      province: address.province,
+      uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
     });
@@ -41,7 +40,7 @@ export class AddressService {
       const lot = await this.lotRepository.createLot({
         street: address.street,
         city: address.city,
-        province: address.province,
+        uf: address.uf,
         country: address.country,
         lotNumber: address.lotNumber,
         neighborhood: address.neighborhood,
@@ -113,7 +112,6 @@ export class AddressService {
       !address.street ||
       !address.lotNumber ||
       !address.city ||
-      !address.province ||
       !address.country
     ) {
       throw new BadRequestException(
@@ -124,7 +122,7 @@ export class AddressService {
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
-      province: address.province,
+      uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
     });
@@ -157,12 +155,7 @@ export class AddressService {
   async findLotsByAddress(
     address: InterfaceSearchAddress,
   ): Promise<InterfaceLot[]> {
-    if (
-      !address.street ||
-      !address.city ||
-      !address.province ||
-      !address.country
-    ) {
+    if (!address.street || !address.city || !address.country) {
       throw new BadRequestException(
         'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
       );
@@ -171,8 +164,8 @@ export class AddressService {
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
-      province: address.province,
       country: address.country,
+      uf: address.uf,
     });
 
     return foundLots;
