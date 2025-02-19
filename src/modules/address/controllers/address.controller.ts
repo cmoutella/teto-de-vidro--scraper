@@ -40,7 +40,6 @@ import { Address } from '../schemas/address.schema';
 import { Property } from '../schemas/property.schema';
 import { Lot } from '../schemas/lot.schema';
 
-@ApiTags('address')
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
 export class AddressController {
@@ -60,6 +59,7 @@ export class AddressController {
   /**
    * CREATE
    */
+  @ApiTags('address')
   @ApiOperation({
     summary: 'Tenta criar lot e property',
     description:
@@ -122,6 +122,7 @@ export class AddressController {
   /**
    * BUSCA DE ENDEREÇOS
    */
+  @ApiTags('address')
   @ApiOperation({ summary: 'TODO | Busca por um endereço' })
   @UsePipes(new ZodValidationPipe(searchAddressSchema))
   @Post('/search')
@@ -164,6 +165,7 @@ export class AddressController {
   /**
    * CREATE
    */
+  @ApiTags('lot')
   @ApiOperation({ summary: 'TODO | Criação de lotes' })
   @ApiBody({
     type: Lot,
@@ -200,8 +202,9 @@ export class AddressController {
   /**
    * GET by ID
    */
-  @Get('/lot/:lotId')
+  @ApiTags('lot')
   @ApiOperation({ summary: 'TODO | Buscar por lote por id' })
+  @Get('/lot/:lotId')
   async getLotById(@Param('id') id: string) {
     return await this.lotService.getOneLot(id);
   }
@@ -209,6 +212,7 @@ export class AddressController {
   /**
    * BUSCA DE LOTES
    */
+  @ApiTags('lot')
   @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
   @UsePipes(new ZodValidationPipe(searchLotsSchema))
   @Post('/lots')
@@ -240,6 +244,7 @@ export class AddressController {
   /**
    * UPDATE
    */
+  @ApiTags('lot')
   @Put('/lot/:id')
   @ApiOperation({ summary: 'TODO | Atualizar um lote' })
   async updateLot(
@@ -253,6 +258,7 @@ export class AddressController {
   /**
    * DELETE
    */
+  @ApiTags('lot')
   @Delete('/lot/:id')
   @ApiOperation({ summary: 'TODO | Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
@@ -269,6 +275,7 @@ export class AddressController {
   /**
    * CREATE
    */
+  @ApiTags('property')
   @ApiOperation({ summary: 'TODO | Cria uma propriedade' })
   @ApiBody({
     type: Property,
@@ -309,6 +316,7 @@ export class AddressController {
   /**
    * GET
    */
+  @ApiTags('property')
   @Get('/property/:id')
   @ApiOperation({ summary: 'TODO | Busca uma pripridade por id' })
   async getOnePropertyById(@Param('id') id: string) {
@@ -318,6 +326,7 @@ export class AddressController {
   /**
    * GET ALL by LOT
    */
+  @ApiTags('property')
   @Get('/main-address/:lotId')
   @ApiOperation({
     summary: 'TODO | Busca todas as propriedades de um lot',
@@ -329,7 +338,8 @@ export class AddressController {
   /**
    * UDPATE
    */
-  @Put(':id')
+  @ApiTags('property')
+  @Put('/property/:id')
   @ApiOperation({ summary: 'TODO | Atualiza uma pripridade' })
   async updateProperty(
     @Param('id') id: string,
@@ -342,6 +352,7 @@ export class AddressController {
   /**
    * DELETE
    */
+  @ApiTags('property')
   @Delete('/property/:id')
   @ApiOperation({ summary: 'TODO | Deleta uma pripridade' })
   async deleteProperty(@Param('id') id: string) {
