@@ -4,6 +4,7 @@ import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { HuntRepository } from '../hunt.repository';
 import { Hunt } from '../../schemas/hunt.schema';
 import { InterfaceHunt } from '../../schemas/models/hunt.interface';
+import { InternalServerErrorException } from '@nestjs/common';
 
 export class HuntMongooseRepository implements HuntRepository {
   constructor(@InjectModel(Hunt.name) private huntModel: Model<Hunt>) {}
@@ -13,7 +14,7 @@ export class HuntMongooseRepository implements HuntRepository {
 
     await createHunt.save();
 
-    const { _id, ...data } = createHunt.toObject();
+    const { _id, __v, ...data } = createHunt.toObject();
 
     return { id: _id, ...data } as InterfaceHunt;
   }
@@ -43,12 +44,18 @@ export class HuntMongooseRepository implements HuntRepository {
 
     if (!hunt) return;
 
-    await this.huntModel
+    const { __v, ...otherData } = hunt.toObject();
+
+    const data = await this.huntModel
       .updateOne(
         { _id: huntId },
-        { ...hunt, targets: [...hunt.targets, targetId] },
+        { ...otherData, targets: [...otherData.targets, targetId] },
       )
       .exec();
+
+    if (!data) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
@@ -67,14 +74,16 @@ export class HuntMongooseRepository implements HuntRepository {
     id: string,
     data: Partial<InterfaceHunt>,
   ): Promise<InterfaceHunt> {
-    const foundHunt = this.huntModel.findById(id).exec();
+    const foundHunt = await this.huntModel.findById(id).exec();
 
     if (!foundHunt) {
       return null;
     }
 
+    const { __v, ...otherData } = await foundHunt.toObject();
+
     await this.huntModel
-      .updateOne({ _id: id }, { ...foundHunt, ...data })
+      .updateOne({ _id: id }, { ...otherData, ...data })
       .exec();
 
     return await this.getOneHuntById(id);
