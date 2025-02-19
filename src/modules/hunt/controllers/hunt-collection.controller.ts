@@ -150,17 +150,6 @@ export class HuntController {
     return await this.huntService.getAllHuntsByUser(userId);
   }
 
-  @Post('new-target')
-  @ApiOperation({ summary: 'TODO | Adiciona um imóvel target à uma caçada' })
-  async addTargetToHunt(
-    @Body(new ZodValidationPipe(addTargetToHunt))
-    { huntId, targetId }: NewTarget,
-  ) {
-    // deveria verificar se existe uma hunt com essa id
-    // isso talvez devesse acontecer na controller do targetProperty
-    return await this.huntService.addTargetToHunt(huntId, targetId);
-  }
-
   @ApiOperation({ summary: 'Deleção de uma caçada' })
   @ApiResponse({
     type: DeleteHuntSuccess,
