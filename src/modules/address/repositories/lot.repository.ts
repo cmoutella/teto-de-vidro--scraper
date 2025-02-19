@@ -10,6 +10,12 @@ export abstract class LotRepository {
     limit?: number,
   ): Promise<InterfaceLot[]>;
 
+  abstract getAllLotsByCEP(
+    cep: string,
+    page?: number,
+    limit?: number,
+  ): Promise<InterfaceLot[]>;
+
   abstract getOneLot(id: string): Promise<InterfaceLot>;
 
   abstract createLot(newLot: InterfaceLot): Promise<InterfaceLot | null>;

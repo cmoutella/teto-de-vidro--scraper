@@ -7,6 +7,7 @@ import {
   InterfaceLot,
   InterfaceSearchLot,
 } from '../../schemas/models/lot.interface';
+import { BadRequestException } from '@nestjs/common';
 
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
@@ -16,7 +17,7 @@ export class LotMongooseRepository implements LotRepository {
 
     await createLot.save();
 
-    const { _id, ...data } = createLot;
+    const { _id, __v, ...data } = createLot.toObject();
 
     return { id: _id.toString(), ...data };
   }
@@ -52,6 +53,32 @@ export class LotMongooseRepository implements LotRepository {
     return foundLots.map((lot) => {
       const lotObj = lot.toObject();
       const { _id, ...data } = lotObj;
+
+      return { id: _id.toString(), ...data };
+    });
+  }
+
+  async getAllLotsByCEP(
+    cep: string,
+    page = 1,
+    limit = DEFAULT_LIMIT,
+  ): Promise<InterfaceLot[]> {
+    const offset = (page - 1) * limit;
+
+    if (!cep) {
+      throw new BadRequestException('CEP não informado');
+    }
+
+    const foundLots = await this.lotModel
+      .find({
+        postalCode: cep,
+      })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+
+    return foundLots.map((lot) => {
+      const { _id, __v, ...data } = lot.toObject();
 
       return { id: _id.toString(), ...data };
     });

@@ -35,10 +35,14 @@ import {
   UpdateProperty,
   updatePropertySchema,
 } from '../validation/schemas/property';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Address } from '../schemas/address.schema';
 import { Property } from '../schemas/property.schema';
 import { Lot } from '../schemas/lot.schema';
+import {
+  GetLotsByCEPSuccess,
+  GetLotsByIdSuccess,
+} from '../schemas/endpoints/getLot';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
@@ -61,7 +65,7 @@ export class AddressController {
    */
   @ApiTags('address')
   @ApiOperation({
-    summary: 'Tenta criar lot e property',
+    summary: 'TODO | Tenta criar lot e property',
     description:
       'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda',
   })
@@ -166,7 +170,7 @@ export class AddressController {
    * CREATE
    */
   @ApiTags('lot')
-  @ApiOperation({ summary: 'TODO | Criação de lotes' })
+  @ApiOperation({ summary: 'Criação de lotes' })
   @ApiBody({
     type: Lot,
   })
@@ -186,7 +190,7 @@ export class AddressController {
       lotConvenience,
     }: CreateLot,
   ) {
-    await this.lotService.createLot({
+    return await this.lotService.createLot({
       lotName,
       street,
       lotNumber,
@@ -203,8 +207,12 @@ export class AddressController {
    * GET by ID
    */
   @ApiTags('lot')
-  @ApiOperation({ summary: 'TODO | Buscar por lote por id' })
-  @Get('/lot/:lotId')
+  @ApiOperation({ summary: 'Buscar por lote por id' })
+  @ApiResponse({
+    type: GetLotsByIdSuccess,
+    status: 200,
+  })
+  @Get('/lot/:id')
   async getLotById(@Param('id') id: string) {
     return await this.lotService.getOneLot(id);
   }
@@ -242,6 +250,23 @@ export class AddressController {
   }
 
   /**
+   * BUSCA DE LOTES por CEP
+   */
+  @ApiOperation({ summary: 'Buscar por lotes a partir do CEP' })
+  @ApiResponse({
+    type: GetLotsByCEPSuccess,
+    status: 200,
+  })
+  @ApiTags('lot')
+  @Get('/lot/cep/:cep')
+  async findLotsByCEP(
+    @Param('cep')
+    cep: string,
+  ) {
+    return await this.lotService.getAllLotsByCEP(cep);
+  }
+
+  /**
    * UPDATE
    */
   @ApiTags('lot')
@@ -260,7 +285,7 @@ export class AddressController {
    */
   @ApiTags('lot')
   @Delete('/lot/:id')
-  @ApiOperation({ summary: 'TODO | Deleção de lote' })
+  @ApiOperation({ summary: 'Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
     await this.lotService.deleteLot(id);
   }

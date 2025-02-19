@@ -25,6 +25,14 @@ export class LotService {
     );
   }
 
+  async getAllLotsByCEP(
+    cep: string,
+    page?: number,
+    limit?: number,
+  ): Promise<InterfaceLot[]> {
+    return await this.lotRepository.getAllLotsByCEP(cep, page, limit);
+  }
+
   async getOneLot(id: string): Promise<InterfaceLot> {
     const Lot = await this.lotRepository.getOneLot(id);
 
