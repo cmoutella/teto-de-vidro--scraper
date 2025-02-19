@@ -22,7 +22,9 @@ export class TargetPropertyMongooseRepository
 
     if (!createProperty) return null;
 
-    return createProperty.toObject();
+    const { _id: id, __v, ...otherData } = createProperty.toObject();
+
+    return { id: id.toString(), ...otherData };
   }
 
   async getAllTargetsByHunt(
