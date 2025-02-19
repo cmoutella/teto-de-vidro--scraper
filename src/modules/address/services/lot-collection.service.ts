@@ -9,6 +9,7 @@ import {
   InterfaceSearchLot,
 } from '../schemas/models/lot.interface';
 import { CEPService } from 'src/services/cep';
+import { Lot } from '../schemas/lot.schema';
 
 @Injectable()
 export class LotService {
@@ -71,7 +72,7 @@ export class LotService {
     return Lot;
   }
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<void> {
+  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
     return await this.lotRepository.updateLot(id, data);
   }
 

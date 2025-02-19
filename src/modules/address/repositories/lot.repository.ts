@@ -1,3 +1,4 @@
+import { Lot } from '../schemas/lot.schema';
 import {
   InterfaceLot,
   InterfaceSearchLot,
@@ -25,7 +26,7 @@ export abstract class LotRepository {
 
   abstract createLot(newLot: InterfaceLot): Promise<InterfaceLot | null>;
 
-  abstract updateLot(id: string, data: Partial<InterfaceLot>): Promise<void>;
+  abstract updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot>;
 
   abstract deleteLot(id: string): Promise<void>;
 }

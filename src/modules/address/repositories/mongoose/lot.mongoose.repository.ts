@@ -39,6 +39,7 @@ export class LotMongooseRepository implements LotRepository {
     return { id: _id.toString(), ...data };
   }
 
+  // TODO
   async getAllLotsByAddress(
     searchBy: InterfaceSearchLot,
     page = 1,
@@ -96,17 +97,30 @@ export class LotMongooseRepository implements LotRepository {
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {
-    return await this.lotModel.findById(id).exec();
-  }
+    const data = await this.lotModel.findById(id).exec();
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<void> {
-    const foundLot = this.lotModel.findById(id).exec();
-
-    if (!foundLot) {
+    if (!data) {
       return null;
     }
 
+    const { _id, __v, ...otherData } = data.toObject();
+
+    return { id: _id.toString(), ...otherData };
+  }
+
+  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
+    const foundLot = this.lotModel.findById(id).exec();
+
+    if (!foundLot) {
+      throw new BadRequestException('Lote não encontrado');
+    }
+
     await this.lotModel.updateOne({ _id: id }, { ...foundLot, ...data }).exec();
+
+    const updated = await this.lotModel.findById(id).exec();
+    const { _id, __v, ...otherData } = await updated.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async deleteLot(id: string): Promise<void> {

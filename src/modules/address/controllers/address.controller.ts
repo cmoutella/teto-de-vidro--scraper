@@ -232,7 +232,7 @@ export class AddressController {
   }
 
   /**
-   * BUSCA DE LOTES
+   * BUSCA DE LOTES | wip
    */
   @ApiTags('lot')
   @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
@@ -284,8 +284,12 @@ export class AddressController {
    * UPDATE
    */
   @ApiTags('lot')
+  @ApiOperation({ summary: 'Atualizar um lote' })
+  @ApiResponse({
+    type: CreateLotSuccess,
+    status: 200,
+  })
   @Put('/lot/:id')
-  @ApiOperation({ summary: 'TODO | Atualizar um lote' })
   async updateLot(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateLotSchema))
