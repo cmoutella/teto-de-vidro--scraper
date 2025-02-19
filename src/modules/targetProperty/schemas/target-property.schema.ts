@@ -4,77 +4,110 @@ import {
   InterfaceTargetProperty,
   PropertyHuntingStage,
 } from './models/target-property.interface';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export type PropertyDocument = HydratedDocument<TargetProperty>;
 
 @Schema()
 export class TargetProperty implements InterfaceTargetProperty {
+  @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string;
-
+  // básicos de um target
+  @ApiProperty()
   @Prop()
   huntId: string;
+  @ApiProperty()
   @Prop()
   adURL: string;
+  @ApiProperty()
   @Prop()
   nickname: string;
+  @ApiProperty()
   @Prop()
   price: number;
+  @ApiProperty()
   @Prop()
   tax: number;
+  @ApiProperty()
   @Prop()
   priority: number;
+  @ApiProperty()
   @Prop()
   huntingStage: PropertyHuntingStage;
+  @ApiProperty()
   @Prop()
   isActive: boolean;
+  @ApiPropertyOptional()
   @Prop()
-  visitDate: string;
+  visitDate?: string;
+  @ApiPropertyOptional()
   @Prop()
-  realtor: string;
+  realtor?: string;
+  @ApiPropertyOptional()
   @Prop()
-  realtorContact: string;
+  realtorContact?: string;
 
+  // para vincular ou criar um endereço
+  @ApiPropertyOptional()
   @Prop()
-  mainAddressId: string;
+  mainAddressId?: string;
+  @ApiPropertyOptional()
   @Prop()
-  propertyId: string;
+  propertyId?: string;
   @Prop()
   address: string;
+  @ApiPropertyOptional()
   @Prop()
-  lotNumber: string;
+  lotNumber?: string;
+  @ApiPropertyOptional()
   @Prop()
-  postalCode: string;
+  postalCode?: string;
+  @ApiProperty()
   @Prop()
   neighborhood: string;
+  @ApiProperty()
   @Prop()
   city: string;
+  @ApiProperty()
   @Prop()
   province: string;
+  @ApiProperty()
   @Prop()
   country: string;
+  @ApiPropertyOptional()
   @Prop()
-  lotConvenience: string;
+  lotConvenience?: string;
+  @ApiPropertyOptional()
   @Prop()
-  block: string;
+  block?: string;
+  @ApiPropertyOptional()
   @Prop()
-  number: string;
+  number?: string;
+  @ApiPropertyOptional()
   @Prop()
-  size: number;
+  size?: number;
+  @ApiPropertyOptional()
   @Prop()
-  rooms: number;
+  rooms?: number;
+  @ApiPropertyOptional()
   @Prop()
-  bathrooms: number;
+  bathrooms?: number;
+  @ApiPropertyOptional()
   @Prop()
-  parking: number;
+  parking?: number;
+  @ApiPropertyOptional()
   @Prop()
-  is_front: boolean;
+  is_front?: boolean;
+  @ApiPropertyOptional()
   @Prop()
-  sun: 'morning' | 'afternoon' | 'none';
+  sun?: 'morning' | 'afternoon' | 'none';
+  @ApiPropertyOptional()
   @Prop()
-  condoPricing: number;
+  condoPricing?: number;
+  @ApiPropertyOptional()
   @Prop()
-  convenience: string;
+  convenience?: string;
 }
 
 export const TargetPropertySchema =
