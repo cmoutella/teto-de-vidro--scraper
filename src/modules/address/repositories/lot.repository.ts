@@ -4,6 +4,11 @@ import {
 } from '../schemas/models/lot.interface';
 
 export abstract class LotRepository {
+  abstract getOneLotByAddress(
+    cep: string,
+    lotNumber: string,
+  ): Promise<InterfaceLot>;
+
   abstract getAllLotsByAddress(
     searchBy: InterfaceSearchLot,
     page?: number,

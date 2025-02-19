@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -43,6 +44,7 @@ import {
   GetLotsByCEPSuccess,
   GetLotsByIdSuccess,
 } from '../schemas/endpoints/getLot';
+import { CreateLotSuccess } from '../schemas/endpoints/createLot';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
@@ -85,8 +87,8 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
-      country,
+      uf,
+      country = 'Brasil',
       lotConvenience,
       block,
       propertyNumber,
@@ -107,7 +109,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       lotConvenience: lotConvenience ?? [],
       block,
@@ -139,7 +141,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
       propertyNumber,
@@ -152,7 +154,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
       propertyNumber,
@@ -170,9 +172,17 @@ export class AddressController {
    * CREATE
    */
   @ApiTags('lot')
-  @ApiOperation({ summary: 'Criação de lotes' })
+  @ApiOperation({
+    summary: 'Criação de lotes',
+    description:
+      'Endpoint para criação de um lote. Será verificado na API de ceps pelo endereço correto e validado se o lote já está cadastrado',
+  })
   @ApiBody({
     type: Lot,
+  })
+  @ApiResponse({
+    type: CreateLotSuccess,
+    status: 201,
   })
   @UsePipes(new ZodValidationPipe(createLotSchema))
   @Post('/lot')
@@ -185,11 +195,15 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
-      country,
+      uf,
+      country = 'Brasil',
       lotConvenience,
     }: CreateLot,
   ) {
+    if (!postalCode) {
+      throw new BadRequestException('CEP é obrigatório');
+    }
+
     return await this.lotService.createLot({
       lotName,
       street,
@@ -197,7 +211,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       lotConvenience: lotConvenience ?? [],
     });
@@ -232,7 +246,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
     }: SearchLots,
@@ -243,7 +257,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
     });

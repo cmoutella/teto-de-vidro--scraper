@@ -22,6 +22,23 @@ export class LotMongooseRepository implements LotRepository {
     return { id: _id.toString(), ...data };
   }
 
+  async getOneLotByAddress(cep: string, lotNumber: string) {
+    const foundLot = await this.lotModel
+      .findOne({
+        postalCode: cep,
+        lotNumber: lotNumber,
+      })
+      .exec();
+
+    if (!foundLot) {
+      return null;
+    }
+
+    const { _id, __v, ...data } = foundLot.toObject();
+
+    return { id: _id.toString(), ...data };
+  }
+
   async getAllLotsByAddress(
     searchBy: InterfaceSearchLot,
     page = 1,
@@ -29,12 +46,7 @@ export class LotMongooseRepository implements LotRepository {
   ): Promise<InterfaceLot[]> {
     const offset = (page - 1) * limit;
 
-    if (
-      !searchBy.street ||
-      !searchBy.city ||
-      !searchBy.province ||
-      !searchBy.country
-    ) {
+    if (!searchBy.street || !searchBy.city || !searchBy.country) {
       return [];
     }
 
@@ -44,7 +56,6 @@ export class LotMongooseRepository implements LotRepository {
         street: searchBy.street,
         city: searchBy.city,
         country: searchBy.country,
-        province: searchBy.province,
       })
       .skip(offset)
       .limit(limit)

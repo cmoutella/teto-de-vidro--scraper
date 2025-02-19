@@ -1,16 +1,47 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LotRepository } from '../repositories/lot.repository';
 import {
   InterfaceLot,
   InterfaceSearchLot,
 } from '../schemas/models/lot.interface';
+import { CEPService } from 'src/services/cep';
 
 @Injectable()
 export class LotService {
   constructor(private readonly lotRepository: LotRepository) {}
 
-  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
-    return await this.lotRepository.createLot(newLot);
+  async createLot(newLot: InterfaceLot): Promise<InterfaceLot> {
+    const cep = CEPService();
+    const verifiedAddress = await cep.get(newLot.postalCode);
+
+    if (!verifiedAddress) {
+      throw new BadRequestException('CEP inválido');
+    }
+
+    const newLotIsValid = await cep.validate(newLot.postalCode, newLot);
+
+    const validLot = newLotIsValid ? newLot : { ...newLot, ...verifiedAddress };
+
+    if (!!validLot.lotNumber) {
+      const foundLot = await this.lotRepository.getOneLotByAddress(
+        validLot.postalCode,
+        validLot.lotNumber,
+      );
+
+      if (foundLot) {
+        return foundLot;
+      }
+    } else {
+      // TODO: tratar endereço sem numero
+    }
+
+    const createdLot = await this.lotRepository.createLot(validLot);
+
+    return createdLot;
   }
 
   async getAllLotsByAddress(
