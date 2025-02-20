@@ -17,11 +17,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Login to DockerHub
-        run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-
       - name: Build and Push Docker Image
         run: |
-          # docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
           docker build -t $DOCKER_USERNAME/teto-de-vidro-api --build-arg MONGO_URI=${{ secrets.MONGO_URI }} .
           docker push $DOCKER_USERNAME/teto-de-vidro-api
