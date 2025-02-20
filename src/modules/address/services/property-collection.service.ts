@@ -1,24 +1,49 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PropertyRepository } from '../../address/repositories/property.repository';
 import { InterfaceProperty } from '../../address/schemas/models/property.interface';
+import { LotRepository } from '../repositories/lot.repository';
 
 @Injectable()
 export class PropertyService {
-  constructor(private readonly propertyRepository: PropertyRepository) {}
+  constructor(
+    private readonly propertyRepository: PropertyRepository,
+    private readonly lotRepository: LotRepository,
+  ) {}
 
   async createProperty(
     newProperty: InterfaceProperty,
   ): Promise<InterfaceProperty> {
-    return await this.propertyRepository.createProperty(newProperty);
+    const foundLot = await this.lotRepository.getOneLot(newProperty.lotId);
+
+    if (!foundLot) {
+      throw new NotFoundException('o lote informado não existe');
+    }
+
+    const foundProperty = await this.propertyRepository.getOnePropertyByAddress(
+      newProperty.lotId,
+      newProperty.propertyNumber,
+    );
+
+    if (!!foundProperty) {
+      return foundProperty;
+    }
+
+    const data = await this.propertyRepository.createProperty(newProperty);
+
+    if (!data) {
+      return null;
+    }
+
+    return data;
   }
 
-  async getAllPropertiesByMainAddress(
-    mainAddressId: string,
+  async getAllPropertiesByLotId(
+    lotId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]> {
-    return await this.propertyRepository.getAllPropertiesByMainAddress(
-      mainAddressId,
+    return await this.propertyRepository.getAllPropertiesByLotId(
+      lotId,
       page,
       limit,
     );
@@ -34,7 +59,7 @@ export class PropertyService {
   async updateProperty(
     id: string,
     data: Partial<InterfaceProperty>,
-  ): Promise<void> {
+  ): Promise<InterfaceProperty> {
     return await this.propertyRepository.updateProperty(id, data);
   }
 

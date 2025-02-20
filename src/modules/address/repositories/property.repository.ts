@@ -1,13 +1,17 @@
 import { InterfaceProperty } from '../schemas/models/property.interface';
 
 export abstract class PropertyRepository {
-  abstract getAllPropertiesByMainAddress(
-    mainAddressId: string,
+  abstract getAllPropertiesByLotId(
+    lotId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceProperty[]>;
 
   abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
+  abstract getOnePropertyByAddress(
+    lotId: string,
+    propertyNumber: string,
+  ): Promise<InterfaceProperty>;
 
   abstract createProperty(
     newProperty: InterfaceProperty,
@@ -16,7 +20,7 @@ export abstract class PropertyRepository {
   abstract updateProperty(
     id: string,
     data: Partial<InterfaceProperty>,
-  ): Promise<void>;
+  ): Promise<InterfaceProperty>;
 
   abstract deleteProperty(id: string): Promise<void>;
 }

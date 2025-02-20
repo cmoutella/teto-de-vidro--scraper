@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -35,9 +36,21 @@ import {
   UpdateProperty,
   updatePropertySchema,
 } from '../validation/schemas/property';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Address } from '../schemas/address.schema';
+import { Property } from '../schemas/property.schema';
+import { Lot } from '../schemas/lot.schema';
+import {
+  GetLotsByCEPSuccess,
+  GetLotsByIdSuccess,
+} from '../schemas/endpoints/getLot';
+import { CreateLotSuccess } from '../schemas/endpoints/createLot';
+import { CreatePropertySuccess } from '../schemas/endpoints/createProperty';
+import {
+  GetPropertyByIdSuccess,
+  GetPropertyByLotSuccess,
+} from '../schemas/endpoints/getProperty';
 
-@ApiTags('address')
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
 export class AddressController {
@@ -47,9 +60,29 @@ export class AddressController {
     private readonly propertyService: PropertyService,
   ) {}
 
+  /**
+   *
+   * #####################
+   * # Address Endpoints #
+   * #####################
+   */
+
+  /**
+   * CREATE
+   */
+  @ApiTags('address')
+  @ApiOperation({
+    summary: 'TODO | Tenta criar lot e property',
+    description:
+      'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda',
+  })
+  @ApiBody({
+    type: Address,
+    description:
+      'Todas as possibilidades de dados possíveis para lot ou property',
+  })
   @UsePipes(new ZodValidationPipe(createAddressSchema))
   @Post()
-  @ApiOperation({ summary: 'TODO | Cria um novo endereço' })
   async createAddress(
     @Body()
     {
@@ -59,8 +92,8 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
-      country,
+      uf,
+      country = 'Brasil',
       lotConvenience,
       block,
       propertyNumber,
@@ -81,7 +114,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       lotConvenience: lotConvenience ?? [],
       block,
@@ -97,9 +130,13 @@ export class AddressController {
     });
   }
 
+  /**
+   * BUSCA DE ENDEREÇOS
+   */
+  @ApiTags('address')
+  @ApiOperation({ summary: 'TODO | Busca por um endereço' })
   @UsePipes(new ZodValidationPipe(searchAddressSchema))
   @Post('/search')
-  @ApiOperation({ summary: 'TODO | Busca por um endereço' })
   async searchByAddress(
     @Body()
     {
@@ -109,7 +146,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
       propertyNumber,
@@ -122,16 +159,90 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
       propertyNumber,
     });
   }
 
+  /**
+   *
+   * #####################
+   * # Lots Endpoints #
+   * #####################
+   */
+
+  /**
+   * CREATE
+   */
+  @ApiTags('lot')
+  @ApiOperation({
+    summary: 'Criação de lotes',
+    description:
+      'Endpoint para criação de um lote. Será verificado na API de ceps pelo endereço correto e validado se o lote já está cadastrado',
+  })
+  @ApiBody({
+    type: Lot,
+  })
+  @ApiResponse({
+    type: CreateLotSuccess,
+    status: 201,
+  })
+  @UsePipes(new ZodValidationPipe(createLotSchema))
+  @Post('/lot')
+  async createLot(
+    @Body()
+    {
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      uf,
+      country = 'Brasil',
+      lotConvenience,
+    }: CreateLot,
+  ) {
+    if (!postalCode) {
+      throw new BadRequestException('CEP é obrigatório');
+    }
+
+    return await this.lotService.createLot({
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      uf,
+      country,
+      lotConvenience: lotConvenience ?? [],
+    });
+  }
+
+  /**
+   * GET by ID
+   */
+  @ApiTags('lot')
+  @ApiOperation({ summary: 'Buscar por lote por id' })
+  @ApiResponse({
+    type: GetLotsByIdSuccess,
+    status: 200,
+  })
+  @Get('/lot/:id')
+  async getLotById(@Param('id') id: string) {
+    return await this.lotService.getOneLot(id);
+  }
+
+  /**
+   * BUSCA DE LOTES | wip
+   */
+  @ApiTags('lot')
+  @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
   @UsePipes(new ZodValidationPipe(searchLotsSchema))
   @Post('/lots')
-  @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
   async findLotsByAddress(
     @Body()
     {
@@ -140,7 +251,7 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
     }: SearchLots,
@@ -151,51 +262,39 @@ export class AddressController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       block,
     });
   }
 
-  // Lot subroutes
-  @UsePipes(new ZodValidationPipe(createLotSchema))
-  @Post('/lot')
-  @ApiOperation({ summary: 'TODO | Criação de lotes' })
-  async createLot(
-    @Body()
-    {
-      lotName,
-      street,
-      lotNumber,
-      postalCode,
-      neighborhood,
-      city,
-      province,
-      country,
-      lotConvenience,
-    }: CreateLot,
+  /**
+   * BUSCA DE LOTES por CEP
+   */
+  @ApiOperation({ summary: 'Buscar por lotes a partir do CEP' })
+  @ApiResponse({
+    type: GetLotsByCEPSuccess,
+    status: 200,
+  })
+  @ApiTags('lot')
+  @Get('/lot/cep/:cep')
+  async findLotsByCEP(
+    @Param('cep')
+    cep: string,
   ) {
-    await this.lotService.createLot({
-      lotName,
-      street,
-      lotNumber,
-      postalCode,
-      neighborhood,
-      city,
-      province,
-      country,
-      lotConvenience: lotConvenience ?? [],
-    });
+    return await this.lotService.getAllLotsByCEP(cep);
   }
 
-  @Get('/lot/:lotId')
-  @ApiOperation({ summary: 'TODO | Buscar por lote por id' })
-  async getLotById(@Param('id') id: string) {
-    return await this.lotService.getOneLot(id);
-  }
-
+  /**
+   * UPDATE
+   */
+  @ApiTags('lot')
+  @ApiOperation({ summary: 'Atualizar um lote' })
+  @ApiResponse({
+    type: CreateLotSuccess,
+    status: 200,
+  })
   @Put('/lot/:id')
-  @ApiOperation({ summary: 'TODO | Atualizar um lote' })
   async updateLot(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateLotSchema))
@@ -204,20 +303,41 @@ export class AddressController {
     return await this.lotService.updateLot(id, updateData);
   }
 
+  /**
+   * DELETE
+   */
+  @ApiTags('lot')
   @Delete('/lot/:id')
-  @ApiOperation({ summary: 'TODO | Deleção de lote' })
+  @ApiOperation({ summary: 'Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
     await this.lotService.deleteLot(id);
   }
 
-  // Property subroutes
+  /**
+   *
+   * #####################
+   * # Property Endpoints #
+   * #####################
+   */
+
+  /**
+   * CREATE
+   */
+  @ApiTags('property')
+  @ApiOperation({ summary: 'Cria uma propriedade' })
+  @ApiBody({
+    type: Property,
+  })
+  @ApiResponse({
+    type: CreatePropertySuccess,
+    status: 201,
+  })
   @UsePipes(new ZodValidationPipe(createPropertySchema))
   @Post('/property')
-  @ApiOperation({ summary: 'TODO | Cria uma propriedade' })
   async createProperty(
     @Body()
     {
-      mainAddressId,
+      lotId,
       block,
       propertyNumber,
       size,
@@ -227,11 +347,10 @@ export class AddressController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
     }: CreateProperty,
   ) {
-    await this.propertyService.createProperty({
-      mainAddressId,
+    return await this.propertyService.createProperty({
+      lotId,
       block,
       propertyNumber,
       size,
@@ -241,26 +360,50 @@ export class AddressController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience: propertyConvenience ?? [],
+      /**
+       * TODO: Implementar conveniências de propriedade
+       */
+      propertyConvenience: [],
     });
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'TODO | Busca uma pripridade por id' })
+  /**
+   * GET
+   */
+  @ApiOperation({ summary: 'Busca uma propriedade por id' })
+  @ApiResponse({
+    type: GetPropertyByIdSuccess,
+    status: 200,
+  })
+  @ApiTags('property')
+  @Get('/property/:id')
   async getOnePropertyById(@Param('id') id: string) {
     return await this.propertyService.getOneProperty(id);
   }
 
-  @Get('/main-address/:lotId')
+  /**
+   * GET ALL PROPERTIES by LOT
+   */
+  @ApiTags('property')
   @ApiOperation({
-    summary: 'TODO | Busca propriedades a partir de um endereço',
+    summary: 'Busca todas as propriedades de um lote',
   })
+  @ApiResponse({
+    type: GetPropertyByLotSuccess,
+    status: 200,
+  })
+  @Get('/lot/:lotId/properties')
   async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
-    return await this.propertyService.getAllPropertiesByMainAddress(lotId);
+    return await this.propertyService.getAllPropertiesByLotId(lotId);
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'TODO | Atualiza uma pripridade' })
+  /**
+   * UDPATE
+   */
+  @ApiTags('property')
+  @ApiOperation({ summary: 'Atualiza uma pripridade' })
+  @ApiResponse({ type: CreatePropertySuccess, status: 200 })
+  @Put('/property/:id')
   async updateProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePropertySchema))
@@ -269,8 +412,12 @@ export class AddressController {
     return await this.propertyService.updateProperty(id, updateData);
   }
 
+  /**
+   * DELETE
+   */
+  @ApiTags('property')
   @Delete('/property/:id')
-  @ApiOperation({ summary: 'TODO | Deleta uma pripridade' })
+  @ApiOperation({ summary: 'Deleta uma pripridade' })
   async deleteProperty(@Param('id') id: string) {
     await this.propertyService.deleteProperty(id);
   }

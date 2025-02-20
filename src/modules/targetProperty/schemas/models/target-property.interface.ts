@@ -43,14 +43,14 @@ export interface InterfaceTargetProperty {
   realtorContact?: string;
 
   // lot identification
-  mainAddressId?: string;
+  lotId?: string;
   lotName?: string;
   street?: string;
   lotNumber?: string;
   postalCode?: string;
   neighborhood: string;
   city: string;
-  province: string;
+  uf: string;
   country: string;
   lotConvenience?: string;
   // property identification

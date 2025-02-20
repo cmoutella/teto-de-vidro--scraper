@@ -7,6 +7,7 @@ import {
   InterfaceLot,
   InterfaceSearchLot,
 } from '../../schemas/models/lot.interface';
+import { BadRequestException } from '@nestjs/common';
 
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
@@ -16,11 +17,29 @@ export class LotMongooseRepository implements LotRepository {
 
     await createLot.save();
 
-    const { _id, ...data } = createLot;
+    const { _id, __v, ...data } = createLot.toObject();
 
     return { id: _id.toString(), ...data };
   }
 
+  async getOneLotByAddress(cep: string, lotNumber: string) {
+    const foundLot = await this.lotModel
+      .findOne({
+        postalCode: cep,
+        lotNumber: lotNumber,
+      })
+      .exec();
+
+    if (!foundLot) {
+      return null;
+    }
+
+    const { _id, __v, ...data } = foundLot.toObject();
+
+    return { id: _id.toString(), ...data };
+  }
+
+  // TODO
   async getAllLotsByAddress(
     searchBy: InterfaceSearchLot,
     page = 1,
@@ -28,12 +47,7 @@ export class LotMongooseRepository implements LotRepository {
   ): Promise<InterfaceLot[]> {
     const offset = (page - 1) * limit;
 
-    if (
-      !searchBy.street ||
-      !searchBy.city ||
-      !searchBy.province ||
-      !searchBy.country
-    ) {
+    if (!searchBy.street || !searchBy.city || !searchBy.country) {
       return [];
     }
 
@@ -43,7 +57,6 @@ export class LotMongooseRepository implements LotRepository {
         street: searchBy.street,
         city: searchBy.city,
         country: searchBy.country,
-        province: searchBy.province,
       })
       .skip(offset)
       .limit(limit)
@@ -57,18 +70,57 @@ export class LotMongooseRepository implements LotRepository {
     });
   }
 
-  async getOneLot(id: string): Promise<InterfaceLot> {
-    return await this.lotModel.findById(id).exec();
+  async getAllLotsByCEP(
+    cep: string,
+    page = 1,
+    limit = DEFAULT_LIMIT,
+  ): Promise<InterfaceLot[]> {
+    const offset = (page - 1) * limit;
+
+    if (!cep) {
+      throw new BadRequestException('CEP não informado');
+    }
+
+    const foundLots = await this.lotModel
+      .find({
+        postalCode: cep,
+      })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+
+    return foundLots.map((lot) => {
+      const { _id, __v, ...data } = lot.toObject();
+
+      return { id: _id.toString(), ...data };
+    });
   }
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<void> {
-    const foundLot = this.lotModel.findById(id).exec();
+  async getOneLot(id: string): Promise<InterfaceLot> {
+    const data = await this.lotModel.findById(id).exec();
 
-    if (!foundLot) {
+    if (!data) {
       return null;
     }
 
+    const { _id, __v, ...otherData } = data.toObject();
+
+    return { id: _id.toString(), ...otherData };
+  }
+
+  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
+    const foundLot = this.lotModel.findById(id).exec();
+
+    if (!foundLot) {
+      throw new BadRequestException('Lote não encontrado');
+    }
+
     await this.lotModel.updateOne({ _id: id }, { ...foundLot, ...data }).exec();
+
+    const updated = await this.lotModel.findById(id).exec();
+    const { _id, __v, ...otherData } = await updated.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async deleteLot(id: string): Promise<void> {

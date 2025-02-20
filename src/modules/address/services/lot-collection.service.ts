@@ -1,16 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LotRepository } from '../repositories/lot.repository';
 import {
   InterfaceLot,
   InterfaceSearchLot,
 } from '../schemas/models/lot.interface';
+import { CEPService } from 'src/services/cep';
+import { Lot } from '../schemas/lot.schema';
 
 @Injectable()
 export class LotService {
   constructor(private readonly lotRepository: LotRepository) {}
 
-  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
-    return await this.lotRepository.createLot(newLot);
+  async createLot(newLot: InterfaceLot): Promise<InterfaceLot> {
+    const cep = CEPService();
+    const verifiedAddress = await cep.get(newLot.postalCode);
+
+    if (!verifiedAddress) {
+      throw new BadRequestException('CEP inválido');
+    }
+
+    const newLotIsValid = await cep.validate(newLot.postalCode, newLot);
+
+    const validLot = newLotIsValid ? newLot : { ...newLot, ...verifiedAddress };
+
+    if (!!validLot.lotNumber) {
+      const foundLot = await this.lotRepository.getOneLotByAddress(
+        validLot.postalCode,
+        validLot.lotNumber,
+      );
+
+      if (foundLot) {
+        return foundLot;
+      }
+    } else {
+      // TODO: tratar endereço sem numero
+    }
+
+    const createdLot = await this.lotRepository.createLot(validLot);
+
+    return createdLot;
   }
 
   async getAllLotsByAddress(
@@ -25,6 +57,14 @@ export class LotService {
     );
   }
 
+  async getAllLotsByCEP(
+    cep: string,
+    page?: number,
+    limit?: number,
+  ): Promise<InterfaceLot[]> {
+    return await this.lotRepository.getAllLotsByCEP(cep, page, limit);
+  }
+
   async getOneLot(id: string): Promise<InterfaceLot> {
     const Lot = await this.lotRepository.getOneLot(id);
 
@@ -32,7 +72,7 @@ export class LotService {
     return Lot;
   }
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<void> {
+  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
     return await this.lotRepository.updateLot(id, data);
   }
 

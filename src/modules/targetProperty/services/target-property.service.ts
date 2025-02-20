@@ -27,12 +27,12 @@ export class TargetPropertyService {
   }
 
   async getAllTargetsByHunt(
-    mainAddressId: string,
+    lotId: string,
     page?: number,
     limit?: number,
   ): Promise<InterfaceTargetProperty[]> {
     return await this.targetPropertyRepository.getAllTargetsByHunt(
-      mainAddressId,
+      lotId,
       page,
       limit,
     );

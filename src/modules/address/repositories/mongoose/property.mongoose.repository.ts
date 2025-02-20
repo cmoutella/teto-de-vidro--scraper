@@ -15,35 +15,60 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
     await createProperty.save();
 
-    const { _id, ...data } = createProperty;
+    const { _id, __v, ...data } = createProperty.toObject();
 
     return { id: _id.toString(), ...data };
   }
 
-  async getAllPropertiesByMainAddress(
-    mainAddressId: string,
+  async getAllPropertiesByLotId(
+    lotId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
   ): Promise<InterfaceProperty[]> {
     const offset = (page - 1) * limit;
 
     const foundProperties = await this.propertyModel
-      .find({ mainAddressId: mainAddressId })
+      .find({ lotId: lotId })
       .skip(offset)
       .limit(limit)
       .exec();
 
-    return foundProperties.map((prop) => prop.toObject());
+    return foundProperties.map((prop) => {
+      const { _id, __v, ...otherData } = prop.toObject();
+
+      return { id: _id.toString(), ...otherData };
+    });
   }
 
   async getOnePropertyById(id: string): Promise<InterfaceProperty> {
-    return await this.propertyModel.findById(id).exec();
+    const foundProperty = await this.propertyModel.findById(id).exec();
+
+    if (!foundProperty) return null;
+
+    const { _id, __v, ...otherData } = foundProperty.toObject();
+
+    return { id: _id.toString(), ...otherData };
+  }
+
+  async getOnePropertyByAddress(lotId: string, propertyNumber: string) {
+    const foundProperty = await this.propertyModel
+      .findOne({
+        lotId: lotId,
+        propertyNumber: propertyNumber,
+      })
+      .exec();
+
+    if (!foundProperty) return null;
+
+    const { _id, __v, ...otherData } = foundProperty.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async updateProperty(
     id: string,
     data: Partial<InterfaceProperty>,
-  ): Promise<void> {
+  ): Promise<InterfaceProperty> {
     const foundProperty = this.propertyModel.findById(id).exec();
 
     if (!foundProperty) {
@@ -53,6 +78,12 @@ export class PropertyMongooseRepository implements PropertyRepository {
     await this.propertyModel
       .updateOne({ _id: id }, { ...foundProperty, ...data })
       .exec();
+
+    const updatedProperty = await this.propertyModel.findById(id).exec();
+
+    const { _id, __v, ...otherData } = await updatedProperty.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async deleteProperty(id: string): Promise<void> {

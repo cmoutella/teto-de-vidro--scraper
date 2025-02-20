@@ -54,7 +54,7 @@ const createTargetPropertySchema = z.object({
 
   city: z.string(),
   neighborhood: z.string(),
-  province: z.string(),
+  uf: z.string(),
   country: z.string(),
 
   block: z.string().optional(),
@@ -89,6 +89,7 @@ const updateTargetPropertySchema = z.object({
   visitDate: z.string().optional(),
 
   city: z.string().optional(),
+  uf: z.string().optional(),
   neighborhood: z.string().optional(),
 
   block: z.string().optional(),
@@ -147,7 +148,7 @@ export class TargetPropertyController {
       postalCode,
       neighborhood,
       city,
-      province,
+      uf,
       country,
       lotConvenience,
       block,
@@ -185,7 +186,7 @@ export class TargetPropertyController {
         postalCode,
         neighborhood,
         city,
-        province,
+        uf,
         country,
         lotConvenience,
         block,

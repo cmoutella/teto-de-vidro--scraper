@@ -21,7 +21,7 @@ describe('Address Controller', () => {
         {
           provide: PropertyRepository,
           useValue: {
-            getAllPropertiesByMainAddress: jest
+            getAllPropertiesByLotId: jest
               .fn()
               .mockResolvedValue([mockProperty]),
             createProperty: jest.fn().mockResolvedValue(mockProperty),
@@ -83,7 +83,6 @@ describe('Address Controller', () => {
       country: mockLot.country,
       city: mockLot.city,
       neighborhood: mockLot.neighborhood,
-      province: mockLot.province,
       street: mockLot.street,
     });
 
@@ -95,7 +94,6 @@ describe('Address Controller', () => {
       country: mockLot.country,
       city: mockLot.city,
       neighborhood: mockLot.neighborhood,
-      province: mockLot.province,
       street: mockLot.street,
     });
 
@@ -105,16 +103,16 @@ describe('Address Controller', () => {
   it('[getPropertiesByMainAddressId] should call property service', async () => {
     const spyOnPropertyService = jest.spyOn(
       propertyService,
-      'getAllPropertiesByMainAddress',
+      'getAllPropertiesByLotId',
     );
-    await controller.getPropertiesByMainAddress(mockProperty.mainAddressId);
+    await controller.getPropertiesByMainAddress(mockProperty.lotId);
 
     expect(spyOnPropertyService).toHaveBeenCalled();
   });
 
   it('[getPropertiesByMainAddressId] should return a list of properties for the given main address Id', async () => {
     const foundProperties = await controller.getPropertiesByMainAddress(
-      mockProperty.mainAddressId,
+      mockProperty.lotId,
     );
 
     expect(foundProperties.length).toBeGreaterThanOrEqual(1);

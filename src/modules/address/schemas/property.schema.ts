@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { InterfaceProperty } from './models/property.interface';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export type PropertyDocument = HydratedDocument<Property>;
 
@@ -8,28 +9,39 @@ export type PropertyDocument = HydratedDocument<Property>;
 export class Property implements InterfaceProperty {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string;
+  @ApiProperty()
   @Prop()
-  mainAddressId: string;
-  @Prop()
-  block: string;
+  lotId: string;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  block?: string;
+  @ApiProperty()
   @Prop()
   propertyNumber: string;
-  @Prop()
-  size: number;
-  @Prop()
-  rooms: number;
-  @Prop()
-  bathrooms: number;
-  @Prop()
-  parking: number;
-  @Prop()
-  is_front: boolean;
-  @Prop()
-  sun: 'morning' | 'afternoon' | 'none';
-  @Prop()
-  condoPricing: number;
-  @Prop()
-  propertyConvenience: string[];
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  size?: number;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  rooms?: number;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  bathrooms?: number;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  parking?: number;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  is_front?: boolean;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  sun?: 'morning' | 'afternoon' | 'none';
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  condoPricing?: number;
+  @ApiPropertyOptional()
+  @Prop({ isRequired: false })
+  propertyConvenience?: string[];
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

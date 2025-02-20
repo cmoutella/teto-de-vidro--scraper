@@ -6,7 +6,7 @@ export interface InterfaceLot {
   postalCode?: string;
   neighborhood: string;
   city: string;
-  province: string;
+  uf: string;
   country: string;
   lotConvenience?: string[];
 }
@@ -18,6 +18,6 @@ export interface InterfaceSearchLot {
   postalCode?: string;
   neighborhood?: string;
   city: string;
-  province: string;
+  uf: string;
   country: string;
 }
