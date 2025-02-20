@@ -17,7 +17,6 @@ async function bootstrap() {
     .setTitle('Teto de Vidro - API')
     .setDescription('Descrição dos endpoints disponíveis no projeto')
     .setVersion('1.0')
-    .addTag('glassRoof')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

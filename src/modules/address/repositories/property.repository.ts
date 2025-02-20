@@ -20,7 +20,7 @@ export abstract class PropertyRepository {
   abstract updateProperty(
     id: string,
     data: Partial<InterfaceProperty>,
-  ): Promise<void>;
+  ): Promise<InterfaceProperty>;
 
   abstract deleteProperty(id: string): Promise<void>;
 }

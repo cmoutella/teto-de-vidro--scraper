@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PropertyRepository } from '../../address/repositories/property.repository';
 import { InterfaceProperty } from '../../address/schemas/models/property.interface';
-import { CreateResponse } from 'src/shared/types/creationResponse';
 import { LotRepository } from '../repositories/lot.repository';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class PropertyService {
 
   async createProperty(
     newProperty: InterfaceProperty,
-  ): Promise<CreateResponse<InterfaceProperty>> {
+  ): Promise<InterfaceProperty> {
     const foundLot = await this.lotRepository.getOneLot(newProperty.lotId);
 
     if (!foundLot) {
@@ -26,7 +25,7 @@ export class PropertyService {
     );
 
     if (!!foundProperty) {
-      return { isNew: false, data: foundProperty };
+      return foundProperty;
     }
 
     const data = await this.propertyRepository.createProperty(newProperty);
@@ -35,7 +34,7 @@ export class PropertyService {
       return null;
     }
 
-    return { isNew: true, data };
+    return data;
   }
 
   async getAllPropertiesByLotId(
@@ -60,7 +59,7 @@ export class PropertyService {
   async updateProperty(
     id: string,
     data: Partial<InterfaceProperty>,
-  ): Promise<void> {
+  ): Promise<InterfaceProperty> {
     return await this.propertyRepository.updateProperty(id, data);
   }
 
