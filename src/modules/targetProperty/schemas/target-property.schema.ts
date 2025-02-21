@@ -49,12 +49,10 @@ export class TargetProperty implements InterfaceTargetProperty {
   realtorContact?: string;
 
   // para vincular ou criar um endereço
+  // lot
   @ApiPropertyOptional()
   @Prop()
   lotId?: string;
-  @ApiPropertyOptional()
-  @Prop()
-  propertyId?: string;
   @Prop()
   address: string;
   @ApiPropertyOptional()
@@ -75,9 +73,11 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiProperty()
   @Prop()
   country: string;
+
+  // property
   @ApiPropertyOptional()
   @Prop()
-  lotConvenience?: string;
+  propertyId?: string;
   @ApiPropertyOptional()
   @Prop()
   block?: string;

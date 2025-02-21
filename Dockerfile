@@ -6,7 +6,10 @@ COPY package.json ./
 
 RUN npm install
 
-COPY . .
+COPY src ./src
+COPY package.json package.json
+COPY tsconfig.json tsconfig.json
+COPY tsconfig.build.json tsconfig.build.json
 
 ARG MONGO_URI
 
