@@ -19,6 +19,7 @@ export class HuntMongooseRepository implements HuntRepository {
     return { id: _id, ...data } as InterfaceHunt;
   }
 
+  // ordenar por mais recentemente alterado
   async getAllHuntsByUser(
     userId: string,
     page = 1,

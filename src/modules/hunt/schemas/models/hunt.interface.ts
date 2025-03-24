@@ -1,6 +1,8 @@
 export interface InterfaceHunt {
   id?: string;
   isActive?: boolean;
+  createdAt: string;
+  updatedAt: string;
   creatorId: string;
   title?: string;
   type: 'buy' | 'rent' | 'either';

@@ -11,6 +11,12 @@ export class Hunt implements InterfaceHunt {
   id?: string;
   @ApiProperty()
   @Prop()
+  createdAt: string;
+  @ApiProperty()
+  @Prop()
+  updatedAt: string;
+  @ApiProperty()
+  @Prop()
   title: string;
   @ApiProperty()
   @Prop()

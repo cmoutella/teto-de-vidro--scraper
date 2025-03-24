@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -56,13 +57,6 @@ const updateHuntSchema = z.object({
 
 type UpdateHunt = z.infer<typeof updateHuntSchema>;
 
-const addTargetToHunt = z.object({
-  targetId: z.string(),
-  huntId: z.string(),
-});
-
-type NewTarget = z.infer<typeof addTargetToHunt>;
-
 @ApiTags('hunt')
 @UseInterceptors(LoggingInterceptor)
 @Controller('hunt')
@@ -96,6 +90,8 @@ export class HuntController {
     }: CreateHunt,
   ) {
     return await this.huntService.createHunt({
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       title,
       creatorId,
       invitedUsers,
@@ -136,7 +132,10 @@ export class HuntController {
     @Body(new ZodValidationPipe(updateHuntSchema))
     updateData: UpdateHunt,
   ) {
-    return await this.huntService.updateHunt(id, updateData);
+    return await this.huntService.updateHunt(id, {
+      ...updateData,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
@@ -146,8 +145,12 @@ export class HuntController {
     description: 'Hunts do usuário encontradas com sucesso',
   })
   @Get('search/:userId')
-  async getAllHuntsByUser(@Param('userId') userId: string) {
-    return await this.huntService.getAllHuntsByUser(userId);
+  async getAllHuntsByUser(
+    @Param('userId') userId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return await this.huntService.getAllHuntsByUser(userId, page, limit);
   }
 
   @ApiOperation({ summary: 'Deleção de uma caçada' })

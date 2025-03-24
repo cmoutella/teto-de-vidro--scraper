@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -45,7 +46,7 @@ const createTargetPropertySchema = z.object({
   huntId: z.string(),
   adURL: z.string(),
   price: z.number(),
-  iptu: z.number(),
+  iptu: z.number().optional(),
 
   nickname: z.string().optional(),
   priority: z.number().optional(),
@@ -243,8 +244,16 @@ export class TargetPropertyController {
   })
   @ApiResponse({ type: GetTargetPropertiesByHuntSuccess, status: 200 })
   @Get('/search/:huntId')
-  async getAllTargetsByHunt(@Param('huntId') huntId: string) {
-    return await this.targetPropertyService.getAllTargetsByHunt(huntId);
+  async getAllTargetsByHunt(
+    @Param('huntId') huntId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return await this.targetPropertyService.getAllTargetsByHunt(
+      huntId,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({ summary: 'Deleção de um imóvel target' })
