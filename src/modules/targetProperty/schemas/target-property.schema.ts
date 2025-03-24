@@ -14,6 +14,14 @@ export class TargetProperty implements InterfaceTargetProperty {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string;
   // básicos de um target
+
+  @ApiPropertyOptional()
+  @Prop()
+  createdAt: string;
+  @ApiPropertyOptional()
+  @Prop()
+  updatedAt: string;
+
   @ApiProperty()
   @Prop()
   huntId: string;
@@ -54,7 +62,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   @Prop()
   lotId?: string;
   @Prop()
-  address: string;
+  street: string;
   @ApiPropertyOptional()
   @Prop()
   lotNumber?: string;

@@ -40,7 +40,11 @@ export class TargetPropertyMongooseRepository
       .limit(limit)
       .exec();
 
-    return foundProperties.map((prop) => prop.toObject());
+    return foundProperties.map((property) => {
+      const { _id: id, __v, ...otherData } = property.toObject();
+
+      return { id: id.toString(), ...otherData };
+    });
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {

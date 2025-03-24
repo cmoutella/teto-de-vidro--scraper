@@ -30,6 +30,10 @@ export const huntingStageTranslation: {
 // TODO connect to Lot in address
 export interface InterfaceTargetProperty {
   id?: string;
+
+  createdAt: string;
+  updatedAt: string;
+
   huntId: string;
   adURL: string;
   nickname?: string;
@@ -45,7 +49,7 @@ export interface InterfaceTargetProperty {
   // lot identification
   lotId?: string;
   lotName?: string;
-  street?: string;
+  street: string;
   lotNumber?: string;
   postalCode?: string;
   neighborhood: string;

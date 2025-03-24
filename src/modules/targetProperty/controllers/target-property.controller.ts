@@ -59,7 +59,7 @@ const createTargetPropertySchema = z.object({
   country: z.string(),
 
   block: z.string().optional(),
-  street: z.string().optional(),
+  street: z.string(),
   lotName: z.string().optional(),
   lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
@@ -166,6 +166,8 @@ export class TargetPropertyController {
   ) {
     const hunt = await this.huntService.getOneHuntById(huntId);
 
+    console.log('street name', street);
+
     if (!hunt) {
       throw new NotFoundException();
     }
@@ -200,7 +202,11 @@ export class TargetPropertyController {
         sun,
         condoPricing,
         propertyConvenience,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
+
+    console.log('created', createdTargetProperty);
 
     if (!createdTargetProperty) {
       throw new InternalServerErrorException();
@@ -233,10 +239,10 @@ export class TargetPropertyController {
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
     updateData: UpdateTargetProperty,
   ) {
-    return await this.targetPropertyService.updateTargetProperty(
-      id,
-      updateData,
-    );
+    return await this.targetPropertyService.updateTargetProperty(id, {
+      ...updateData,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   @ApiOperation({
