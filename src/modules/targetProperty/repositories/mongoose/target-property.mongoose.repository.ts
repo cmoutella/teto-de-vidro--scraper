@@ -54,7 +54,7 @@ export class TargetPropertyMongooseRepository
   async updateTargetProperty(
     id: string,
     data: Partial<InterfaceTargetProperty>,
-  ): Promise<void> {
+  ): Promise<InterfaceTargetProperty> {
     const foundProperty = this.targetPropertyModel.findById(id).exec();
 
     if (!foundProperty) {
@@ -64,6 +64,8 @@ export class TargetPropertyMongooseRepository
     await this.targetPropertyModel
       .updateOne({ _id: id }, { ...foundProperty, ...data })
       .exec();
+
+    return await this.getOneTargetById(id);
   }
 
   async deleteTargetProperty(id: string): Promise<DeleteResult> {

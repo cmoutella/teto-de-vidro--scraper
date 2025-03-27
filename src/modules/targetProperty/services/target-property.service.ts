@@ -49,7 +49,7 @@ export class TargetPropertyService {
   async updateTargetProperty(
     id: string,
     data: Partial<InterfaceTargetProperty>,
-  ): Promise<void> {
+  ): Promise<InterfaceTargetProperty> {
     return await this.targetPropertyRepository.updateTargetProperty(id, data);
   }
 

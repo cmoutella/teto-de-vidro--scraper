@@ -17,7 +17,7 @@ export abstract class TargetPropertyRepository {
   abstract updateTargetProperty(
     id: string,
     data: Partial<InterfaceTargetProperty>,
-  ): Promise<void>;
+  ): Promise<InterfaceTargetProperty>;
 
   abstract deleteTargetProperty(id: string): Promise<DeleteResult>;
 }
