@@ -32,6 +32,10 @@ export class HuntService {
     return await this.huntRepository.addTargetToHunt(huntId, targetId);
   }
 
+  async removeTargetFromHunt(huntId: string, targetId: string): Promise<void> {
+    return await this.huntRepository.removeTargetFromHunt(huntId, targetId);
+  }
+
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
     const Hunt = await this.huntRepository.getOneHuntById(id);
 

@@ -1,3 +1,4 @@
+import { DeleteResult } from 'mongoose';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
 
 export abstract class TargetPropertyRepository {
@@ -18,5 +19,5 @@ export abstract class TargetPropertyRepository {
     data: Partial<InterfaceTargetProperty>,
   ): Promise<void>;
 
-  abstract deleteTargetProperty(id: string): Promise<void>;
+  abstract deleteTargetProperty(id: string): Promise<DeleteResult>;
 }

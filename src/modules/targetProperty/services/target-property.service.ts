@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { TargetPropertyRepository } from '../repositories/target-property.repository';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
+import { DeleteResult } from 'mongoose';
 
 @Injectable()
 export class TargetPropertyService {
@@ -17,7 +18,7 @@ export class TargetPropertyService {
   ): Promise<InterfaceTargetProperty> {
     if (!newProperty.huntId) {
       throw new BadRequestException(
-        'Um imóvel de interesse deve estar associado a uma busca',
+        'Um imóvel de interesse deve estar associado a uma hunt',
       );
     }
 
@@ -52,7 +53,7 @@ export class TargetPropertyService {
     return await this.targetPropertyRepository.updateTargetProperty(id, data);
   }
 
-  async deleteTargetProperty(id: string): Promise<void> {
-    await this.targetPropertyRepository.deleteTargetProperty(id);
+  async deleteTargetProperty(id: string): Promise<DeleteResult> {
+    return await this.targetPropertyRepository.deleteTargetProperty(id);
   }
 }

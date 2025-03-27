@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { DeleteResult, Model } from 'mongoose';
 import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { TargetPropertyRepository } from '../target-property.repository';
 import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';
@@ -66,7 +66,7 @@ export class TargetPropertyMongooseRepository
       .exec();
   }
 
-  async deleteTargetProperty(id: string): Promise<void> {
-    await this.targetPropertyModel.deleteOne({ _id: id }).exec();
+  async deleteTargetProperty(id: string): Promise<DeleteResult> {
+    return await this.targetPropertyModel.deleteOne({ _id: id }).exec();
   }
 }

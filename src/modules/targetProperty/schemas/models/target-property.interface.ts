@@ -14,7 +14,7 @@ export type PropertyHuntingStage =
 export const huntingStageTranslation: {
   [key in PropertyHuntingStage]: string;
 } = {
-  new: 'Quem sabe...',
+  new: 'Novo',
   iniciated: 'Mandei mensagem',
   returned: 'Em contato',
   disappeared: 'Não tive mais notícias',

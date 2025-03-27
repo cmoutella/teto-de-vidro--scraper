@@ -269,6 +269,11 @@ export class TargetPropertyController {
   })
   @Delete(':id')
   async deleteTargetProperty(@Param('id') id: string) {
-    await this.targetPropertyService.deleteTargetProperty(id);
+    const toDelete = await this.targetPropertyService.getOneTargetById(id);
+    const deleted = await this.targetPropertyService.deleteTargetProperty(id);
+
+    if (deleted) {
+      await this.huntService.removeTargetFromHunt(toDelete.huntId, id);
+    }
   }
 }

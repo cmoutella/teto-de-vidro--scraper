@@ -59,6 +59,22 @@ export class HuntMongooseRepository implements HuntRepository {
     }
   }
 
+  async removeTargetFromHunt(huntId: string, targetId: string): Promise<void> {
+    const hunt = await this.huntModel.findById(huntId).exec();
+
+    if (!hunt) return;
+
+    const removed = hunt.targets.filter((el) => el !== targetId);
+
+    const data = await this.huntModel
+      .updateOne({ _id: huntId }, { targets: removed })
+      .exec();
+
+    if (!data) {
+      throw new InternalServerErrorException();
+    }
+  }
+
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
     const found = await this.huntModel.findById(id).exec();
 

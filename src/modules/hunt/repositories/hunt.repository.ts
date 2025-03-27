@@ -18,5 +18,10 @@ export abstract class HuntRepository {
 
   abstract addTargetToHunt(huntId: string, targetId: string): Promise<void>;
 
+  abstract removeTargetFromHunt(
+    huntId: string,
+    targetId: string,
+  ): Promise<void>;
+
   abstract deleteHunt(id: string): Promise<void>;
 }
