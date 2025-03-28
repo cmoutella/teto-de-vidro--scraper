@@ -144,9 +144,10 @@ export class UsersController {
     const { email, password } = credentials;
 
     const foundUser = await this.userService.getByEmail(email);
+
     const passwordMatch = await compare(password, foundUser.password);
 
-    if (!passwordMatch) throw new Error('Username or password is wrong');
+    if (!passwordMatch) throw new Error('Usuário ou senha incorretos');
 
     const authDate = new Date();
     const token = await this.jwtService.sign({ email: email });

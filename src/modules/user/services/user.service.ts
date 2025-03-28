@@ -22,7 +22,7 @@ export class UserService {
     const existingUser = await this.userRepository.getByEmail(user.email);
 
     if (existingUser) {
-      throw new ConflictException('Username already exists');
+      throw new ConflictException('Nome de usuário em uso');
     }
 
     return await this.userRepository.createUser(user);
@@ -34,7 +34,9 @@ export class UserService {
 
   async getByEmail(email: string): Promise<InterfaceUser> {
     const user = await this.userRepository.getByEmail(email);
-    if (!user) throw new NotFoundException();
+
+    console.log('user', user);
+    if (!user) throw new NotFoundException('Usuário não encontrado');
 
     return user;
   }
