@@ -1,3 +1,4 @@
+import { PaginatedData } from 'src/shared/types/response';
 import { InterfaceProperty } from '../schemas/models/property.interface';
 
 export abstract class PropertyRepository {
@@ -5,7 +6,7 @@ export abstract class PropertyRepository {
     lotId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceProperty[]>;
+  ): Promise<PaginatedData<InterfaceProperty>>;
 
   abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
   abstract getOnePropertyByAddress(

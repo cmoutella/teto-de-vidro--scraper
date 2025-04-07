@@ -8,6 +8,7 @@ import {
   InterfaceSearchLot,
 } from '../../schemas/models/lot.interface';
 import { BadRequestException } from '@nestjs/common';
+import { PaginatedData } from 'src/shared/types/response';
 
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
@@ -44,11 +45,17 @@ export class LotMongooseRepository implements LotRepository {
     searchBy: InterfaceSearchLot,
     page = 1,
     limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceLot[]> {
+  ): Promise<PaginatedData<InterfaceLot>> {
     const offset = (page - 1) * limit;
 
     if (!searchBy.street || !searchBy.city || !searchBy.country) {
-      return [];
+      return {
+        list: [],
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: page,
+        perPage: limit,
+      };
     }
 
     // TODO
@@ -62,19 +69,35 @@ export class LotMongooseRepository implements LotRepository {
       .limit(limit)
       .exec();
 
-    return foundLots.map((lot) => {
-      const lotObj = lot.toObject();
-      const { _id, ...data } = lotObj;
-
-      return { id: _id.toString(), ...data };
+    const totalItems = await this.lotModel.countDocuments({
+      street: searchBy.street,
+      city: searchBy.city,
+      country: searchBy.country,
     });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result: PaginatedData<InterfaceLot> = {
+      list: foundLots.map((lot) => {
+        const lotObj = lot.toObject();
+        const { _id, ...data } = lotObj;
+
+        return { id: _id.toString(), ...data };
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit,
+    };
+
+    return result;
   }
 
   async getAllLotsByCEP(
     cep: string,
     page = 1,
     limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceLot[]> {
+  ): Promise<PaginatedData<InterfaceLot>> {
     const offset = (page - 1) * limit;
 
     if (!cep) {
@@ -89,11 +112,25 @@ export class LotMongooseRepository implements LotRepository {
       .limit(limit)
       .exec();
 
-    return foundLots.map((lot) => {
-      const { _id, __v, ...data } = lot.toObject();
-
-      return { id: _id.toString(), ...data };
+    const totalItems = await this.lotModel.countDocuments({
+      postalCode: cep,
     });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result: PaginatedData<InterfaceLot> = {
+      list: foundLots.map((lot) => {
+        const { _id, __v, ...data } = lot.toObject();
+
+        return { id: _id.toString(), ...data };
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit,
+    };
+
+    return result;
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {

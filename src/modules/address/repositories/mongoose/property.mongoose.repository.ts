@@ -4,6 +4,7 @@ import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { PropertyRepository } from '../property.repository';
 import { Property } from '../../schemas/property.schema';
 import { InterfaceProperty } from '../../schemas/models/property.interface';
+import { PaginatedData } from 'src/shared/types/response';
 
 export class PropertyMongooseRepository implements PropertyRepository {
   constructor(
@@ -24,7 +25,7 @@ export class PropertyMongooseRepository implements PropertyRepository {
     lotId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceProperty[]> {
+  ): Promise<PaginatedData<InterfaceProperty>> {
     const offset = (page - 1) * limit;
 
     const foundProperties = await this.propertyModel
@@ -33,11 +34,25 @@ export class PropertyMongooseRepository implements PropertyRepository {
       .limit(limit)
       .exec();
 
-    return foundProperties.map((prop) => {
-      const { _id, __v, ...otherData } = prop.toObject();
-
-      return { id: _id.toString(), ...otherData };
+    const totalItems = await this.propertyModel.countDocuments({
+      lotId: lotId,
     });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result: PaginatedData<InterfaceProperty> = {
+      list: foundProperties.map((prop) => {
+        const { _id, __v, ...otherData } = prop.toObject();
+
+        return { id: _id.toString(), ...otherData };
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit,
+    };
+
+    return result;
   }
 
   async getOnePropertyById(id: string): Promise<InterfaceProperty> {

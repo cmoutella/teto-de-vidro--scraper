@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PropertyRepository } from '../../address/repositories/property.repository';
 import { InterfaceProperty } from '../../address/schemas/models/property.interface';
 import { LotRepository } from '../repositories/lot.repository';
+import { PaginatedData } from 'src/shared/types/response';
 
 @Injectable()
 export class PropertyService {
@@ -41,7 +42,7 @@ export class PropertyService {
     lotId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceProperty[]> {
+  ): Promise<PaginatedData<InterfaceProperty>> {
     return await this.propertyRepository.getAllPropertiesByLotId(
       lotId,
       page,

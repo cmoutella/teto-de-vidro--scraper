@@ -7,6 +7,7 @@ import { LotRepository } from '../repositories/lot.repository';
 import { PropertyRepository } from '../repositories/property.repository';
 import { InterfaceProperty } from '../schemas/models/property.interface';
 import { InterfaceLot } from '../schemas/models/lot.interface';
+import { PaginatedData } from 'src/shared/types/response';
 
 @Injectable()
 export class AddressService {
@@ -36,7 +37,7 @@ export class AddressService {
       lotNumber: address.lotNumber,
     });
 
-    if (!foundLots || foundLots.length <= 0) {
+    if (!foundLots || foundLots.list.length <= 0) {
       const lot = await this.lotRepository.createLot({
         street: address.street,
         city: address.city,
@@ -55,7 +56,7 @@ export class AddressService {
       }
 
       lotId = lot.id;
-    } else if (foundLots && foundLots.length >= 2) {
+    } else if (foundLots && foundLots.list.length >= 2) {
       throw new BadRequestException(
         'Não foi possível criar esse endereço no momento, lote duplicado.',
       );
@@ -78,8 +79,8 @@ export class AddressService {
     const foundProperties =
       await this.propertyRepository.getAllPropertiesByLotId(lotId);
 
-    if (foundProperties && foundProperties.length >= 1) {
-      const foundProperty = foundProperties.find(
+    if (foundProperties && foundProperties.list.length >= 1) {
+      const foundProperty = foundProperties.list.find(
         (prop) => prop.propertyNumber === address.propertyNumber,
       );
 
@@ -127,32 +128,32 @@ export class AddressService {
       lotNumber: address.lotNumber,
     });
 
-    if (!foundLots || foundLots.length <= 0) {
+    if (!foundLots || foundLots.list.length <= 0) {
       return { lot: [], property: [] };
     }
 
     let properties: InterfaceProperty[] = [];
-    if (foundLots.length === 1) {
+    if (foundLots.list.length === 1) {
       const foundProperties =
         await this.propertyRepository.getAllPropertiesByLotId(foundLots[0].id);
 
       if (address.propertyNumber) {
-        const property = foundProperties.find(
+        const property = foundProperties.list.find(
           (property) => property.propertyNumber === address.propertyNumber,
         );
 
         properties = [property];
       } else {
-        properties = foundProperties;
+        properties = foundProperties.list;
       }
     }
 
-    return { lot: foundLots ?? [], property: properties };
+    return { lot: foundLots.list ?? [], property: properties };
   }
 
   async findLotsByAddress(
     address: InterfaceSearchAddress,
-  ): Promise<InterfaceLot[]> {
+  ): Promise<PaginatedData<InterfaceLot>> {
     if (!address.street || !address.city || !address.country) {
       throw new BadRequestException(
         'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',

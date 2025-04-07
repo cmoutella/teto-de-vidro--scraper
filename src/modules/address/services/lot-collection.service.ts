@@ -10,6 +10,7 @@ import {
 } from '../schemas/models/lot.interface';
 import { CEPService } from 'src/services/cep';
 import { Lot } from '../schemas/lot.schema';
+import { PaginatedData } from 'src/shared/types/response';
 
 @Injectable()
 export class LotService {
@@ -49,7 +50,7 @@ export class LotService {
     addressParams: InterfaceSearchLot,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceLot[]> {
+  ): Promise<PaginatedData<InterfaceLot>> {
     return await this.lotRepository.getAllLotsByAddress(
       addressParams,
       page,
@@ -61,7 +62,7 @@ export class LotService {
     cep: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceLot[]> {
+  ): Promise<PaginatedData<InterfaceLot>> {
     return await this.lotRepository.getAllLotsByCEP(cep, page, limit);
   }
 

@@ -1,3 +1,4 @@
+import { PaginatedData } from 'src/shared/types/response';
 import { Lot } from '../schemas/lot.schema';
 import {
   InterfaceLot,
@@ -14,13 +15,13 @@ export abstract class LotRepository {
     searchBy: InterfaceSearchLot,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceLot[]>;
+  ): Promise<PaginatedData<InterfaceLot>>;
 
   abstract getAllLotsByCEP(
     cep: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceLot[]>;
+  ): Promise<PaginatedData<InterfaceLot>>;
 
   abstract getOneLot(id: string): Promise<InterfaceLot>;
 
