@@ -33,7 +33,10 @@ export class TargetProperty implements InterfaceTargetProperty {
   nickname: string;
   @ApiProperty()
   @Prop()
-  price: number;
+  rentPrice: number;
+  @ApiProperty()
+  @Prop()
+  sellPrice: number;
   @ApiProperty()
   @Prop()
   iptu: number;

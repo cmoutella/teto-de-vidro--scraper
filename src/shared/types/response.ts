@@ -6,3 +6,11 @@ export interface InterfaceResponse<T> {
   data?: T;
   meta?: ResponseMeta;
 }
+
+export interface PaginatedData<T> {
+  list: T[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  perPage: number;
+}

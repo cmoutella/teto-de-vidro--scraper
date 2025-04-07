@@ -1,12 +1,13 @@
 import { DeleteResult } from 'mongoose';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
+import { PaginatedData } from 'src/shared/types/response';
 
 export abstract class TargetPropertyRepository {
   abstract getAllTargetsByHunt(
     huntId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceTargetProperty[]>;
+  ): Promise<PaginatedData<InterfaceTargetProperty>>;
 
   abstract getOneTargetById(id: string): Promise<InterfaceTargetProperty>;
 

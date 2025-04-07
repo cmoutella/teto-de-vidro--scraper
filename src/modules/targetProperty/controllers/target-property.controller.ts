@@ -45,7 +45,8 @@ const HUNTING_STAGE = [
 const createTargetPropertySchema = z.object({
   huntId: z.string(),
   adURL: z.string(),
-  price: z.number(),
+  sellPrice: z.number(),
+  rentPrice: z.number(),
   iptu: z.number().optional(),
 
   nickname: z.string().optional(),
@@ -79,12 +80,14 @@ type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>;
 
 const updateTargetPropertySchema = z.object({
   adURL: z.string().optional(),
-  price: z.number().optional(),
+  sellPrice: z.number().optional(),
+  rentPrice: z.number().optional(),
   iptu: z.number().optional(),
 
   nickname: z.string().optional(),
   priority: z.number().optional(),
   huntingStage: z.enum(HUNTING_STAGE).optional(),
+  isActive: z.boolean().optional(),
   realtor: z.string().optional(),
   realtorContact: z.string().optional(),
   visitDate: z.string().optional(),
@@ -137,7 +140,8 @@ export class TargetPropertyController {
     {
       huntId,
       adURL,
-      price,
+      sellPrice,
+      rentPrice,
       iptu,
       nickname,
       priority,
@@ -166,8 +170,6 @@ export class TargetPropertyController {
   ) {
     const hunt = await this.huntService.getOneHuntById(huntId);
 
-    console.log('street name', street);
-
     if (!hunt) {
       throw new NotFoundException();
     }
@@ -176,7 +178,8 @@ export class TargetPropertyController {
       await this.targetPropertyService.createTargetProperty({
         huntId,
         adURL,
-        price,
+        sellPrice,
+        rentPrice,
         iptu,
         nickname,
         priority,
@@ -205,8 +208,6 @@ export class TargetPropertyController {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-
-    console.log('created', createdTargetProperty);
 
     if (!createdTargetProperty) {
       throw new InternalServerErrorException();

@@ -37,7 +37,8 @@ export interface InterfaceTargetProperty {
   huntId: string;
   adURL: string;
   nickname?: string;
-  price: number;
+  sellPrice: number;
+  rentPrice: number;
   iptu: number;
   priority?: number;
   huntingStage: PropertyHuntingStage;

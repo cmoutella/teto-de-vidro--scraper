@@ -6,6 +6,7 @@ import {
 import { TargetPropertyRepository } from '../repositories/target-property.repository';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
 import { DeleteResult } from 'mongoose';
+import { PaginatedData } from 'src/shared/types/response';
 
 @Injectable()
 export class TargetPropertyService {
@@ -22,16 +23,17 @@ export class TargetPropertyService {
       );
     }
 
-    return await this.targetPropertyRepository.createTargetProperty(
-      newProperty,
-    );
+    return await this.targetPropertyRepository.createTargetProperty({
+      ...newProperty,
+      isActive: true,
+    });
   }
 
   async getAllTargetsByHunt(
     lotId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceTargetProperty[]> {
+  ): Promise<PaginatedData<InterfaceTargetProperty>> {
     return await this.targetPropertyRepository.getAllTargetsByHunt(
       lotId,
       page,

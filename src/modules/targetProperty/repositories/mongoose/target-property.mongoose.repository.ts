@@ -4,6 +4,7 @@ import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { TargetPropertyRepository } from '../target-property.repository';
 import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';
 import { TargetProperty } from '../../schemas/target-property.schema';
+import { PaginatedData } from 'src/shared/types/response';
 
 export class TargetPropertyMongooseRepository
   implements TargetPropertyRepository
@@ -31,7 +32,7 @@ export class TargetPropertyMongooseRepository
     huntId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceTargetProperty[]> {
+  ): Promise<PaginatedData<InterfaceTargetProperty>> {
     const offset = (page - 1) * limit;
 
     const foundProperties = await this.targetPropertyModel
@@ -40,15 +41,34 @@ export class TargetPropertyMongooseRepository
       .limit(limit)
       .exec();
 
-    return foundProperties.map((property) => {
-      const { _id: id, __v, ...otherData } = property.toObject();
-
-      return { id: id.toString(), ...otherData };
+    const totalItems = await this.targetPropertyModel.countDocuments({
+      huntId: huntId,
     });
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result = {
+      list: foundProperties.map((property) => {
+        const { _id: id, __v, ...otherData } = property.toObject();
+
+        return { id: id.toString(), ...otherData };
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit,
+    };
+
+    return result;
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
-    return await this.targetPropertyModel.findById(id).exec();
+    const property = await this.targetPropertyModel.findById(id).exec();
+
+    if (!property) return null;
+
+    const { _id, __v, ...otherData } = property.toObject();
+
+    return { id: _id.toString(), ...otherData };
   }
 
   async updateTargetProperty(
