@@ -5,6 +5,7 @@ import { HuntRepository } from '../hunt.repository';
 import { Hunt } from '../../schemas/hunt.schema';
 import { InterfaceHunt } from '../../schemas/models/hunt.interface';
 import { InternalServerErrorException } from '@nestjs/common';
+import { PaginatedData } from 'src/shared/types/response';
 
 export class HuntMongooseRepository implements HuntRepository {
   constructor(@InjectModel(Hunt.name) private huntModel: Model<Hunt>) {}
@@ -24,7 +25,7 @@ export class HuntMongooseRepository implements HuntRepository {
     userId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
-  ): Promise<InterfaceHunt[]> {
+  ): Promise<PaginatedData<InterfaceHunt>> {
     const offset = (page - 1) * limit;
 
     const foundHunts = await this.huntModel
@@ -33,11 +34,25 @@ export class HuntMongooseRepository implements HuntRepository {
       .limit(limit)
       .exec();
 
-    return foundHunts.map((hunt) => {
-      const { _id: id, __v, ...otherData } = hunt.toObject();
-
-      return { id: id.toString(), ...otherData };
+    const totalItems = await this.huntModel.countDocuments({
+      creatorId: userId,
     });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result: PaginatedData<InterfaceHunt> = {
+      list: foundHunts.map((hunt) => {
+        const { _id: id, __v, ...otherData } = hunt.toObject();
+
+        return { id: id.toString(), ...otherData };
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit,
+    };
+
+    return result;
   }
 
   async addTargetToHunt(huntId: string, targetId: string): Promise<void> {

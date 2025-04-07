@@ -1,3 +1,4 @@
+import { PaginatedData } from 'src/shared/types/response';
 import { InterfaceHunt } from '../schemas/models/hunt.interface';
 
 export abstract class HuntRepository {
@@ -5,7 +6,7 @@ export abstract class HuntRepository {
     userId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceHunt[]>;
+  ): Promise<PaginatedData<InterfaceHunt>>;
 
   abstract getOneHuntById(id: string): Promise<InterfaceHunt>;
 

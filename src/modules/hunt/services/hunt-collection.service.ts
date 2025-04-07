@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { HuntRepository } from '../repositories/hunt.repository';
 import { InterfaceHunt } from '../schemas/models/hunt.interface';
+import { PaginatedData } from 'src/shared/types/response';
 
 @Injectable()
 export class HuntService {
@@ -24,7 +25,7 @@ export class HuntService {
     userId: string,
     page?: number,
     limit?: number,
-  ): Promise<InterfaceHunt[]> {
+  ): Promise<PaginatedData<InterfaceHunt>> {
     return await this.huntRepository.getAllHuntsByUser(userId, page, limit);
   }
 
