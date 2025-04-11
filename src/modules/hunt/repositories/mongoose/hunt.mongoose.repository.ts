@@ -6,6 +6,7 @@ import { Hunt } from '../../schemas/hunt.schema';
 import { InterfaceHunt } from '../../schemas/models/hunt.interface';
 import { InternalServerErrorException } from '@nestjs/common';
 import { PaginatedData } from 'src/shared/types/response';
+import { LeanDoc } from 'src/shared/types/mongoose';
 
 export class HuntMongooseRepository implements HuntRepository {
   constructor(@InjectModel(Hunt.name) private huntModel: Model<Hunt>) {}
@@ -15,7 +16,12 @@ export class HuntMongooseRepository implements HuntRepository {
 
     await createHunt.save();
 
-    const { _id, __v, ...data } = createHunt.toObject();
+    const created = await this.huntModel
+      .findById(createHunt._id)
+      .lean<LeanDoc<InterfaceHunt>>()
+      .exec();
+
+    const { _id, __v, ...data } = created;
 
     return { id: _id, ...data } as InterfaceHunt;
   }
@@ -32,6 +38,7 @@ export class HuntMongooseRepository implements HuntRepository {
       .find({ creatorId: userId })
       .skip(offset)
       .limit(limit)
+      .lean<LeanDoc<InterfaceHunt>[]>()
       .exec();
 
     const totalItems = await this.huntModel.countDocuments({
@@ -42,7 +49,7 @@ export class HuntMongooseRepository implements HuntRepository {
 
     const result: PaginatedData<InterfaceHunt> = {
       list: foundHunts.map((hunt) => {
-        const { _id: id, __v, ...otherData } = hunt.toObject();
+        const { _id: id, __v, ...otherData } = hunt;
 
         return { id: id.toString(), ...otherData };
       }),
@@ -91,13 +98,16 @@ export class HuntMongooseRepository implements HuntRepository {
   }
 
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
-    const found = await this.huntModel.findById(id).exec();
+    const found = await this.huntModel
+      .findById(id)
+      .lean<LeanDoc<InterfaceHunt>>()
+      .exec();
 
     if (!found) {
       return null;
     }
 
-    const { _id, __v, ...otherData } = found.toObject();
+    const { _id, __v, ...otherData } = found;
 
     return { id: _id.toString(), ...otherData };
   }
@@ -106,16 +116,14 @@ export class HuntMongooseRepository implements HuntRepository {
     id: string,
     data: Partial<InterfaceHunt>,
   ): Promise<InterfaceHunt> {
-    const foundHunt = await this.huntModel.findById(id).exec();
+    const foundHunt = await this.getOneHuntById(id);
 
     if (!foundHunt) {
       return null;
     }
 
-    const { __v, ...otherData } = await foundHunt.toObject();
-
     await this.huntModel
-      .updateOne({ _id: id }, { ...otherData, ...data })
+      .updateOne({ _id: id }, { ...foundHunt, ...data })
       .exec();
 
     return await this.getOneHuntById(id);

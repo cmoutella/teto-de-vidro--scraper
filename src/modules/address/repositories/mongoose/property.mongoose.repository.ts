@@ -5,6 +5,7 @@ import { PropertyRepository } from '../property.repository';
 import { Property } from '../../schemas/property.schema';
 import { InterfaceProperty } from '../../schemas/models/property.interface';
 import { PaginatedData } from 'src/shared/types/response';
+import { LeanDoc } from 'src/shared/types/mongoose';
 
 export class PropertyMongooseRepository implements PropertyRepository {
   constructor(
@@ -16,7 +17,12 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
     await createProperty.save();
 
-    const { _id, __v, ...data } = createProperty.toObject();
+    const created = await this.propertyModel
+      .findById(createProperty._id)
+      .lean<LeanDoc<InterfaceProperty>>()
+      .exec();
+
+    const { _id, __v, ...data } = created;
 
     return { id: _id.toString(), ...data };
   }
@@ -32,6 +38,7 @@ export class PropertyMongooseRepository implements PropertyRepository {
       .find({ lotId: lotId })
       .skip(offset)
       .limit(limit)
+      .lean<LeanDoc<InterfaceProperty>[]>()
       .exec();
 
     const totalItems = await this.propertyModel.countDocuments({
@@ -42,8 +49,7 @@ export class PropertyMongooseRepository implements PropertyRepository {
 
     const result: PaginatedData<InterfaceProperty> = {
       list: foundProperties.map((prop) => {
-        const { _id, __v, ...otherData } = prop.toObject();
-
+        const { _id, __v, ...otherData } = prop;
         return { id: _id.toString(), ...otherData };
       }),
       totalItems,
@@ -56,11 +62,14 @@ export class PropertyMongooseRepository implements PropertyRepository {
   }
 
   async getOnePropertyById(id: string): Promise<InterfaceProperty> {
-    const foundProperty = await this.propertyModel.findById(id).exec();
+    const foundProperty = await this.propertyModel
+      .findById(id)
+      .lean<LeanDoc<InterfaceProperty>>()
+      .exec();
 
     if (!foundProperty) return null;
 
-    const { _id, __v, ...otherData } = foundProperty.toObject();
+    const { _id, __v, ...otherData } = foundProperty;
 
     return { id: _id.toString(), ...otherData };
   }
@@ -71,11 +80,12 @@ export class PropertyMongooseRepository implements PropertyRepository {
         lotId: lotId,
         propertyNumber: propertyNumber,
       })
+      .lean<LeanDoc<InterfaceProperty>>()
       .exec();
 
     if (!foundProperty) return null;
 
-    const { _id, __v, ...otherData } = foundProperty.toObject();
+    const { _id, __v, ...otherData } = foundProperty;
 
     return { id: _id.toString(), ...otherData };
   }
@@ -94,11 +104,9 @@ export class PropertyMongooseRepository implements PropertyRepository {
       .updateOne({ _id: id }, { ...foundProperty, ...data })
       .exec();
 
-    const updatedProperty = await this.propertyModel.findById(id).exec();
+    const updatedProperty = await this.getOnePropertyById(id);
 
-    const { _id, __v, ...otherData } = await updatedProperty.toObject();
-
-    return { id: _id.toString(), ...otherData };
+    return updatedProperty;
   }
 
   async deleteProperty(id: string): Promise<void> {

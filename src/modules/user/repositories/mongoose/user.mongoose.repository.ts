@@ -6,32 +6,34 @@ import {
   InterfaceUser,
   PublicInterfaceUser,
 } from '../../schemas/models/user.interface';
+import { LeanDoc } from 'src/shared/types/mongoose';
 
 export class UserMongooseRepository implements UserRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async createUser(newUser: InterfaceUser): Promise<PublicInterfaceUser> {
     const createUser = new this.userModel(newUser);
-    const createdUser = await createUser.save();
+    await createUser.save();
 
-    const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      password: _password,
-      _id: id,
-      ...otherData
-    } = createdUser.toObject();
+    const created = await this.userModel
+      .findById(createUser._id)
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec();
 
-    return { id, ...otherData };
+    const { _id: id, __v, ...otherData } = created;
+
+    return { id: id.toString(), ...otherData };
   }
 
   async getAllUsers(): Promise<Omit<InterfaceUser, 'password'>[]> {
     const users = await this.userModel
       .find()
+      .lean<LeanDoc<InterfaceUser>[]>()
       .exec()
       .then((res) =>
         res.map((user) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { password, _id, ...userData } = user.toObject();
+          const { password, _id, ...userData } = user;
           return { id: _id.toString(), ...userData };
         }),
       );
@@ -42,6 +44,7 @@ export class UserMongooseRepository implements UserRepository {
   async getById(id: string): Promise<InterfaceUser | null> {
     const { _id, ...userData } = await this.userModel
       .findById({ _id: id })
+      .lean<LeanDoc<InterfaceUser>>()
       .exec();
 
     const data = {
@@ -53,11 +56,14 @@ export class UserMongooseRepository implements UserRepository {
   }
 
   async getByEmail(email: string): Promise<InterfaceUser | null> {
-    const user = await this.userModel.findOne({ email: email }).exec();
+    const user = await this.userModel
+      .findOne({ email: email })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec();
 
     if (!user) return null;
 
-    const { _id, ...userData } = user.toObject();
+    const { _id, ...userData } = user;
     const data = {
       id: _id.toString(),
       ...userData,

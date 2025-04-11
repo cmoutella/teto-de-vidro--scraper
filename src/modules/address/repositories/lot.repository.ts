@@ -27,7 +27,10 @@ export abstract class LotRepository {
 
   abstract createLot(newLot: InterfaceLot): Promise<InterfaceLot | null>;
 
-  abstract updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot>;
+  abstract updateLot(
+    id: string,
+    data: Partial<InterfaceLot>,
+  ): Promise<InterfaceLot>;
 
   abstract deleteLot(id: string): Promise<void>;
 }

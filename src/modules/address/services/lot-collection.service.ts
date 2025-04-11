@@ -73,7 +73,10 @@ export class LotService {
     return Lot;
   }
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
+  async updateLot(
+    id: string,
+    data: Partial<InterfaceLot>,
+  ): Promise<InterfaceLot> {
     return await this.lotRepository.updateLot(id, data);
   }
 

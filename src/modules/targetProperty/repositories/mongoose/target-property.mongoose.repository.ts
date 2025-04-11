@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, Model } from 'mongoose';
 import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
@@ -5,6 +6,7 @@ import { TargetPropertyRepository } from '../target-property.repository';
 import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';
 import { TargetProperty } from '../../schemas/target-property.schema';
 import { PaginatedData } from 'src/shared/types/response';
+import { LeanDoc } from 'src/shared/types/mongoose';
 
 export class TargetPropertyMongooseRepository
   implements TargetPropertyRepository
@@ -23,7 +25,12 @@ export class TargetPropertyMongooseRepository
 
     if (!createProperty) return null;
 
-    const { _id: id, __v, ...otherData } = createProperty.toObject();
+    const created = await this.targetPropertyModel
+      .findById(createProperty._id)
+      .lean<LeanDoc<TargetProperty>>()
+      .exec();
+
+    const { _id: id, __v, ...otherData } = created;
 
     return { id: id.toString(), ...otherData };
   }
@@ -39,6 +46,7 @@ export class TargetPropertyMongooseRepository
       .find({ huntId: huntId })
       .skip(offset)
       .limit(limit)
+      .lean<LeanDoc<TargetProperty>[]>()
       .exec();
 
     const totalItems = await this.targetPropertyModel.countDocuments({
@@ -48,7 +56,7 @@ export class TargetPropertyMongooseRepository
 
     const result = {
       list: foundProperties.map((property) => {
-        const { _id: id, __v, ...otherData } = property.toObject();
+        const { _id: id, __v, ...otherData } = property;
 
         return { id: id.toString(), ...otherData };
       }),
@@ -62,11 +70,14 @@ export class TargetPropertyMongooseRepository
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
-    const property = await this.targetPropertyModel.findById(id).exec();
+    const property = await this.targetPropertyModel
+      .findById(id)
+      .lean<LeanDoc<TargetProperty>>()
+      .exec();
 
     if (!property) return null;
 
-    const { _id, __v, ...otherData } = property.toObject();
+    const { _id, __v, ...otherData } = property;
 
     return { id: _id.toString(), ...otherData };
   }
@@ -75,7 +86,7 @@ export class TargetPropertyMongooseRepository
     id: string,
     data: Partial<InterfaceTargetProperty>,
   ): Promise<InterfaceTargetProperty> {
-    const foundProperty = this.targetPropertyModel.findById(id).exec();
+    const foundProperty = this.getOneTargetById(id);
 
     if (!foundProperty) {
       return null;

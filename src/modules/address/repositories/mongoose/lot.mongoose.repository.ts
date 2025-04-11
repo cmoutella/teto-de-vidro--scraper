@@ -9,6 +9,7 @@ import {
 } from '../../schemas/models/lot.interface';
 import { BadRequestException } from '@nestjs/common';
 import { PaginatedData } from 'src/shared/types/response';
+import { LeanDoc } from 'src/shared/types/mongoose';
 
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
@@ -18,7 +19,12 @@ export class LotMongooseRepository implements LotRepository {
 
     await createLot.save();
 
-    const { _id, __v, ...data } = createLot.toObject();
+    const created = await this.lotModel
+      .findById(createLot._id)
+      .lean<LeanDoc<InterfaceLot>>()
+      .exec();
+
+    const { _id, __v, ...data } = created;
 
     return { id: _id.toString(), ...data };
   }
@@ -29,13 +35,14 @@ export class LotMongooseRepository implements LotRepository {
         postalCode: cep,
         lotNumber: lotNumber,
       })
+      .lean<LeanDoc<InterfaceLot>>()
       .exec();
 
     if (!foundLot) {
       return null;
     }
 
-    const { _id, __v, ...data } = foundLot.toObject();
+    const { _id, __v, ...data } = foundLot;
 
     return { id: _id.toString(), ...data };
   }
@@ -67,6 +74,7 @@ export class LotMongooseRepository implements LotRepository {
       })
       .skip(offset)
       .limit(limit)
+      .lean<LeanDoc<InterfaceLot>[]>()
       .exec();
 
     const totalItems = await this.lotModel.countDocuments({
@@ -79,7 +87,7 @@ export class LotMongooseRepository implements LotRepository {
 
     const result: PaginatedData<InterfaceLot> = {
       list: foundLots.map((lot) => {
-        const lotObj = lot.toObject();
+        const lotObj = lot;
         const { _id, ...data } = lotObj;
 
         return { id: _id.toString(), ...data };
@@ -110,6 +118,7 @@ export class LotMongooseRepository implements LotRepository {
       })
       .skip(offset)
       .limit(limit)
+      .lean<LeanDoc<InterfaceLot>[]>()
       .exec();
 
     const totalItems = await this.lotModel.countDocuments({
@@ -120,7 +129,7 @@ export class LotMongooseRepository implements LotRepository {
 
     const result: PaginatedData<InterfaceLot> = {
       list: foundLots.map((lot) => {
-        const { _id, __v, ...data } = lot.toObject();
+        const { _id, __v, ...data } = lot;
 
         return { id: _id.toString(), ...data };
       }),
@@ -134,19 +143,25 @@ export class LotMongooseRepository implements LotRepository {
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {
-    const data = await this.lotModel.findById(id).exec();
+    const data = await this.lotModel
+      .findById(id)
+      .lean<LeanDoc<InterfaceLot>>()
+      .exec();
 
     if (!data) {
       return null;
     }
 
-    const { _id, __v, ...otherData } = data.toObject();
+    const { _id, __v, ...otherData } = data;
 
     return { id: _id.toString(), ...otherData };
   }
 
-  async updateLot(id: string, data: Partial<InterfaceLot>): Promise<Lot> {
-    const foundLot = this.lotModel.findById(id).exec();
+  async updateLot(
+    id: string,
+    data: Partial<InterfaceLot>,
+  ): Promise<InterfaceLot> {
+    const foundLot = await this.getOneLot(id);
 
     if (!foundLot) {
       throw new BadRequestException('Lote não encontrado');
@@ -154,10 +169,9 @@ export class LotMongooseRepository implements LotRepository {
 
     await this.lotModel.updateOne({ _id: id }, { ...foundLot, ...data }).exec();
 
-    const updated = await this.lotModel.findById(id).exec();
-    const { _id, __v, ...otherData } = await updated.toObject();
+    const updated = await this.getOneLot(id);
 
-    return { id: _id.toString(), ...otherData };
+    return updated;
   }
 
   async deleteLot(id: string): Promise<void> {
