@@ -14,12 +14,14 @@ export class LoggingInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
 
-    console.log(request.headers);
+    console.log('Request received ____');
+    console.log('route', request.route.path);
+    console.log('authorization_sent', !!request.headers.authorization);
 
     const now = Date.now();
 
     return next
       .handle()
-      .pipe(tap(() => console.log(`After... ${Date.now() - now}ms`)));
+      .pipe(tap(() => console.log(`___After... ${Date.now() - now}ms`)));
   }
 }
