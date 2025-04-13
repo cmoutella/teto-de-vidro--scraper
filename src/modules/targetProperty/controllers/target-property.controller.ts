@@ -233,6 +233,8 @@ export class TargetPropertyController {
     type: GetOneTargetPropertySuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get(':id')
   async getOneTargetProperty(@Param('id') id: string) {
     return await this.targetPropertyService.getOneTargetById(id);
@@ -244,6 +246,8 @@ export class TargetPropertyController {
     type: TargetProperty,
   })
   @ApiResponse({ type: CreateTargetPropertySuccess, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put(':id')
   async updateTargetProperty(
     @Param('id') id: string,
@@ -260,6 +264,8 @@ export class TargetPropertyController {
     summary: 'Busca todos os imóvel targets de uma caçada',
   })
   @ApiResponse({ type: GetTargetPropertiesByHuntSuccess, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('/search/:huntId')
   async getAllTargetsByHunt(
     @Param('huntId') huntId: string,
@@ -278,6 +284,8 @@ export class TargetPropertyController {
     type: DeleteTargetPropertySuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteTargetProperty(@Param('id') id: string) {
     const toDelete = await this.targetPropertyService.getOneTargetById(id);
