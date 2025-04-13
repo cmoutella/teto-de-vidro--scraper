@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -15,7 +16,13 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Hunt } from '../schemas/hunt.schema';
 import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
 import {
@@ -27,6 +34,7 @@ import {
   UpdateHuntBody,
   UpdateHuntSuccess,
 } from '../schemas/endpoints/updateHunt';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -63,6 +71,7 @@ type UpdateHunt = z.infer<typeof updateHuntSchema>;
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
+  // TODO: proteger a rota
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
     type: Hunt,
@@ -105,6 +114,7 @@ export class HuntController {
     });
   }
 
+  // TODO: proteger a rota
   @ApiOperation({ summary: 'Busca de caçada por id' })
   @ApiResponse({
     type: FindHuntByIdSuccess,
@@ -144,6 +154,8 @@ export class HuntController {
     status: 200,
     description: 'Hunts do usuário encontradas com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('search/:userId')
   async getAllHuntsByUser(
     @Param('userId') userId: string,
