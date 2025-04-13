@@ -114,18 +114,20 @@ export class HuntController {
     });
   }
 
-  // TODO: proteger a rota
   @ApiOperation({ summary: 'Busca de caçada por id' })
   @ApiResponse({
     type: FindHuntByIdSuccess,
     status: 200,
     description: 'Hunt encontrada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get(':id')
   async getOneHuntById(@Param('id') id: string) {
     return await this.huntService.getOneHuntById(id);
   }
 
+  // TODO: proteger a rota
   @ApiOperation({ summary: 'Atualização de uma caçada' })
   @ApiBody({
     type: UpdateHuntBody,
