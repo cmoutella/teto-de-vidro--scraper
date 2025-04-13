@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -15,7 +16,13 @@ import { z } from 'zod';
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { HuntService } from '../services/hunt-collection.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Hunt } from '../schemas/hunt.schema';
 import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
 import {
@@ -27,6 +34,7 @@ import {
   UpdateHuntBody,
   UpdateHuntSuccess,
 } from '../schemas/endpoints/updateHunt';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
 
@@ -73,6 +81,8 @@ export class HuntController {
     status: 201,
     description: 'Hunt criada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
   async createHunt(
@@ -111,6 +121,8 @@ export class HuntController {
     status: 200,
     description: 'Hunt encontrada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get(':id')
   async getOneHuntById(@Param('id') id: string) {
     return await this.huntService.getOneHuntById(id);
@@ -126,6 +138,8 @@ export class HuntController {
     status: 200,
     description: 'Sucesso na atualização da Hunt',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put(':id')
   async updateHunt(
     @Param('id') id: string,
@@ -144,6 +158,8 @@ export class HuntController {
     status: 200,
     description: 'Hunts do usuário encontradas com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('search/:userId')
   async getAllHuntsByUser(
     @Param('userId') userId: string,
@@ -159,6 +175,8 @@ export class HuntController {
     status: 200,
     description: 'Hunt deletada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
