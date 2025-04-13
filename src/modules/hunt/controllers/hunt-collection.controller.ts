@@ -71,7 +71,6 @@ type UpdateHunt = z.infer<typeof updateHuntSchema>;
 export class HuntController {
   constructor(private readonly huntService: HuntService) {}
 
-  // TODO: proteger a rota
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
     type: Hunt,
@@ -82,6 +81,8 @@ export class HuntController {
     status: 201,
     description: 'Hunt criada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
   async createHunt(
@@ -127,7 +128,6 @@ export class HuntController {
     return await this.huntService.getOneHuntById(id);
   }
 
-  // TODO: proteger a rota
   @ApiOperation({ summary: 'Atualização de uma caçada' })
   @ApiBody({
     type: UpdateHuntBody,
@@ -138,6 +138,8 @@ export class HuntController {
     status: 200,
     description: 'Sucesso na atualização da Hunt',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put(':id')
   async updateHunt(
     @Param('id') id: string,
@@ -173,6 +175,8 @@ export class HuntController {
     status: 200,
     description: 'Hunt deletada com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHunt(@Param('id') id: string) {
     await this.huntService.deleteHunt(id);
