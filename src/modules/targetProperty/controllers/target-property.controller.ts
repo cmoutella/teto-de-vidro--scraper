@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -19,7 +20,13 @@ import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
 import { TargetPropertyService } from '../services/target-property.service';
 import { HuntService } from '../../hunt/services/hunt-collection.service';
 import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TargetProperty } from '../schemas/target-property.schema';
 import { CreateTargetPropertySuccess } from '../schemas/endpoints/create';
 import {
@@ -27,6 +34,7 @@ import {
   GetTargetPropertiesByHuntSuccess,
 } from '../schemas/endpoints/get';
 import { DeleteTargetPropertySuccess } from '../schemas/endpoints/delete';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 const HUNTING_STAGE = [
   'new',
@@ -133,6 +141,8 @@ export class TargetPropertyController {
     status: 201,
     description: 'Sucesso ao criar Imóvel de interesse',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
   async createTargetProperty(
