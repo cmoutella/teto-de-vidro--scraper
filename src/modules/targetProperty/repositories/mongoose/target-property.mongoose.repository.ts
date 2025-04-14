@@ -69,6 +69,93 @@ export class TargetPropertyMongooseRepository
     return result;
   }
 
+  async getHuntTargetByFullAddress(
+    huntId: string,
+    address: Pick<
+      InterfaceTargetProperty,
+      | 'neighborhood'
+      | 'street'
+      | 'city'
+      | 'uf'
+      | 'country'
+      | 'lotNumber'
+      | 'propertyNumber'
+    >,
+  ): Promise<InterfaceTargetProperty> {
+    const foundProperties = await this.targetPropertyModel
+      .find({
+        huntId: huntId,
+        lotNumber: address.lotNumber,
+        propertyNumber: address.propertyNumber,
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        uf: address.uf,
+        country: address.country,
+      })
+      .lean<LeanDoc<TargetProperty>[]>()
+      .exec();
+
+    if (foundProperties.length <= 0) {
+      return null;
+    }
+
+    return foundProperties[0];
+  }
+
+  async getHuntTargetsByLot(
+    huntId: string,
+    address: Pick<
+      InterfaceTargetProperty,
+      'neighborhood' | 'street' | 'city' | 'uf' | 'country' | 'lotNumber'
+    >,
+  ): Promise<InterfaceTargetProperty[]> {
+    const foundProperties = await this.targetPropertyModel
+      .find({
+        huntId: huntId,
+        lotNumber: address.lotNumber,
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        uf: address.uf,
+        country: address.country,
+      })
+      .lean<LeanDoc<TargetProperty>[]>()
+      .exec();
+
+    if (foundProperties.length <= 0) {
+      return null;
+    }
+
+    return foundProperties;
+  }
+
+  async getHuntTargetsByStreet(
+    huntId: string,
+    address: Pick<
+      InterfaceTargetProperty,
+      'neighborhood' | 'street' | 'city' | 'uf' | 'country'
+    >,
+  ): Promise<InterfaceTargetProperty[]> {
+    const foundProperties = await this.targetPropertyModel
+      .find({
+        huntId: huntId,
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        uf: address.uf,
+        country: address.country,
+      })
+      .lean<LeanDoc<TargetProperty>[]>()
+      .exec();
+
+    if (foundProperties.length <= 0) {
+      return null;
+    }
+
+    return foundProperties;
+  }
+
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
     const property = await this.targetPropertyModel
       .findById(id)

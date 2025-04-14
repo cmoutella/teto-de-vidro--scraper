@@ -94,7 +94,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   block?: string;
   @ApiPropertyOptional()
   @Prop()
-  number?: string;
+  propertyNumber?: string;
   @ApiPropertyOptional()
   @Prop()
   size?: number;

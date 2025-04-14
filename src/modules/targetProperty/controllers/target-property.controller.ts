@@ -87,7 +87,7 @@ const createTargetPropertySchema = z.object({
 type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>;
 
 const updateTargetPropertySchema = z.object({
-  adURL: z.string().optional(),
+  huntId: z.string(),
   sellPrice: z.number().optional(),
   rentPrice: z.number().optional(),
   iptu: z.number().optional(),
@@ -101,6 +101,7 @@ const updateTargetPropertySchema = z.object({
   visitDate: z.string().optional(),
 
   city: z.string().optional(),
+  country: z.string().optional(),
   uf: z.string().optional(),
   neighborhood: z.string().optional(),
 
@@ -288,11 +289,6 @@ export class TargetPropertyController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteTargetProperty(@Param('id') id: string) {
-    const toDelete = await this.targetPropertyService.getOneTargetById(id);
-    const deleted = await this.targetPropertyService.deleteTargetProperty(id);
-
-    if (deleted) {
-      await this.huntService.removeTargetFromHunt(toDelete.huntId, id);
-    }
+    await this.targetPropertyService.deleteTargetProperty(id);
   }
 }
