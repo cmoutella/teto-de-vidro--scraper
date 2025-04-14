@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -36,7 +37,13 @@ import {
   UpdateProperty,
   updatePropertySchema,
 } from '../validation/schemas/property';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Address } from '../schemas/address.schema';
 import { Property } from '../schemas/property.schema';
 import { Lot } from '../schemas/lot.schema';
@@ -50,6 +57,7 @@ import {
   GetPropertyByIdSuccess,
   GetPropertyByLotSuccess,
 } from '../schemas/endpoints/getProperty';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
@@ -70,6 +78,10 @@ export class AddressController {
   /**
    * CREATE
    */
+  /**
+   * TODO
+   * - tratar duplicidade
+   */
   @ApiTags('address')
   @ApiOperation({
     summary: 'TODO | Tenta criar lot e property',
@@ -81,6 +93,8 @@ export class AddressController {
     description:
       'Todas as possibilidades de dados possíveis para lot ou property',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createAddressSchema))
   @Post()
   async createAddress(
@@ -133,9 +147,16 @@ export class AddressController {
   /**
    * BUSCA DE ENDEREÇOS
    */
+  /**
+   * TODO
+   * - swagger documentation
+   * - corrigir a busca
+   */
   @ApiTags('address')
   @ApiOperation({ summary: 'TODO | Busca por um endereço' })
   @UsePipes(new ZodValidationPipe(searchAddressSchema))
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Post('/search')
   async searchByAddress(
     @Body()
@@ -176,6 +197,12 @@ export class AddressController {
   /**
    * CREATE
    */
+
+  /**
+   * TODO
+   * - tratar duplicidade
+   * - dados minimos: rua, numero, bairro, cidade, estado, país
+   */
   @ApiTags('lot')
   @ApiOperation({
     summary: 'Criação de lotes',
@@ -189,6 +216,8 @@ export class AddressController {
     type: CreateLotSuccess,
     status: 201,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createLotSchema))
   @Post('/lot')
   async createLot(
@@ -231,6 +260,8 @@ export class AddressController {
     type: GetLotsByIdSuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('/lot/:id')
   async getLotById(@Param('id') id: string) {
     return await this.lotService.getOneLot(id);
@@ -239,8 +270,15 @@ export class AddressController {
   /**
    * BUSCA DE LOTES | wip
    */
+  /**
+   * TODO
+   * - swagger documentation
+   * - corrigir a busca
+   */
   @ApiTags('lot')
   @ApiOperation({ summary: 'TODO | Buscar por lotes a partir de um endereço' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(searchLotsSchema))
   @Post('/lots')
   async findLotsByAddress(
@@ -276,6 +314,8 @@ export class AddressController {
     type: GetLotsByCEPSuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @ApiTags('lot')
   @Get('/lot/cep/:cep')
   async findLotsByCEP(
@@ -294,6 +334,8 @@ export class AddressController {
     type: CreateLotSuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put('/lot/:id')
   async updateLot(
     @Param('id') id: string,
@@ -308,6 +350,8 @@ export class AddressController {
    */
   @ApiTags('lot')
   @Delete('/lot/:id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
     await this.lotService.deleteLot(id);
@@ -332,6 +376,8 @@ export class AddressController {
     type: CreatePropertySuccess,
     status: 201,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createPropertySchema))
   @Post('/property')
   async createProperty(
@@ -375,6 +421,8 @@ export class AddressController {
     type: GetPropertyByIdSuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @ApiTags('property')
   @Get('/property/:id')
   async getOnePropertyById(@Param('id') id: string) {
@@ -392,6 +440,8 @@ export class AddressController {
     type: GetPropertyByLotSuccess,
     status: 200,
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('/lot/:lotId/properties')
   async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
     return await this.propertyService.getAllPropertiesByLotId(lotId);
@@ -403,6 +453,8 @@ export class AddressController {
   @ApiTags('property')
   @ApiOperation({ summary: 'Atualiza uma pripridade' })
   @ApiResponse({ type: CreatePropertySuccess, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put('/property/:id')
   async updateProperty(
     @Param('id') id: string,
@@ -418,6 +470,8 @@ export class AddressController {
   @ApiTags('property')
   @Delete('/property/:id')
   @ApiOperation({ summary: 'Deleta uma pripridade' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   async deleteProperty(@Param('id') id: string) {
     await this.propertyService.deleteProperty(id);
   }
