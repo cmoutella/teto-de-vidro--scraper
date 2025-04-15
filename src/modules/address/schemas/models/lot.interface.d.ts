@@ -9,6 +9,8 @@ export interface InterfaceLot {
   uf: string;
   country: string;
   lotConvenience?: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface InterfaceSearchLot {

@@ -2,8 +2,8 @@ import { InterfaceLot } from './lot.interface';
 import { InterfaceProperty } from './property.interface';
 
 export interface InterfaceAddress
-  extends Omit<InterfaceProperty, 'id' | 'lotId'>,
-    Omit<InterfaceLot, 'id'> {}
+  extends Omit<InterfaceProperty, 'id' | 'lotId' | 'createdAt' | 'updatedAt'>,
+    Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'> {}
 
 export interface InterfaceSearchAddress {
   street: string;

@@ -36,6 +36,10 @@ export class Lot implements InterfaceLot {
   @ApiPropertyOptional()
   @Prop()
   lotConvenience: string[];
+  @Prop({ idRequired: true })
+  createdAt: string;
+  @Prop({ idRequired: true })
+  updatedAt: string;
 }
 
 export const LotSchema = SchemaFactory.createForClass(Lot);

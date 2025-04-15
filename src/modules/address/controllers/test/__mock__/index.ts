@@ -34,6 +34,8 @@ export const mockLot: InterfaceLot = {
   country: 'Brazil',
   street: 'Rua dos Bobos',
   lotNumber: '0',
+  createdAt: '2025-04-15T20:08:19.698Z',
+  updatedAt: '2025-04-15T20:08:19.698Z',
 };
 
 export const mockProperty: InterfaceProperty = {
@@ -42,4 +44,6 @@ export const mockProperty: InterfaceProperty = {
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
+  createdAt: '2025-04-14T20:08:19.698Z',
+  updatedAt: '2025-04-14T20:08:19.698Z',
 };

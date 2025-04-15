@@ -42,6 +42,10 @@ export class Property implements InterfaceProperty {
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
   propertyConvenience?: string[];
+  @Prop({ idRequired: true })
+  createdAt: string;
+  @Prop({ idRequired: true })
+  updatedAt: string;
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

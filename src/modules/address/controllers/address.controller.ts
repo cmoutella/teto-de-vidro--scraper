@@ -248,6 +248,8 @@ export class AddressController {
       uf,
       country,
       lotConvenience: lotConvenience ?? [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   }
 
@@ -410,6 +412,8 @@ export class AddressController {
        * TODO: Implementar conveniências de propriedade
        */
       propertyConvenience: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   }
 

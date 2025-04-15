@@ -11,4 +11,6 @@ export interface InterfaceProperty {
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
   propertyConvenience?: string[];
+  createdAt: string;
+  updatedAt: string;
 }

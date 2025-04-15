@@ -47,6 +47,8 @@ export class AddressService {
         neighborhood: address.neighborhood,
         lotName: address.lotName ?? '',
         postalCode: address.postalCode ?? '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       if (!lot) {
@@ -101,6 +103,8 @@ export class AddressService {
       parking: address.parking ?? null,
       condoPricing: address.condoPricing ?? null,
       propertyConvenience: address.propertyConvenience ?? null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
 
     return property;
