@@ -6,10 +6,14 @@ import {
 import { HuntRepository } from '../repositories/hunt.repository';
 import { InterfaceHunt } from '../schemas/models/hunt.interface';
 import { PaginatedData } from 'src/shared/types/response';
+import { TargetPropertyRepository } from 'src/modules/targetProperty/repositories/target-property.repository';
 
 @Injectable()
 export class HuntService {
-  constructor(private readonly huntRepository: HuntRepository) {}
+  constructor(
+    private readonly huntRepository: HuntRepository,
+    private readonly targetPropertyRepository: TargetPropertyRepository,
+  ) {}
 
   async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null> {
     if (!newHunt.creatorId) {
@@ -38,10 +42,10 @@ export class HuntService {
   }
 
   async getOneHuntById(id: string): Promise<InterfaceHunt> {
-    const Hunt = await this.huntRepository.getOneHuntById(id);
+    const hunt = await this.huntRepository.getOneHuntById(id);
 
-    if (!Hunt) throw new NotFoundException('Endereço não encontrado');
-    return Hunt;
+    if (!hunt) throw new NotFoundException('Hunt não encontrada');
+    return hunt;
   }
 
   async updateHunt(
@@ -52,6 +56,19 @@ export class HuntService {
   }
 
   async deleteHunt(id: string): Promise<void> {
+    const huntData = await this.getOneHuntById(id);
+
+    if (!huntData) {
+      throw new NotFoundException('Hunt não encontrada');
+    }
+
+    console.log(huntData.targets);
+    huntData.targets.forEach(async (target) => {
+      console.log('removendo target', target);
+      await this.targetPropertyRepository.deleteTargetProperty(target);
+    });
+
+    console.log('agora a hunt');
     await this.huntRepository.deleteHunt(id);
   }
 }
