@@ -142,8 +142,8 @@ export class TargetPropertyController {
     status: 201,
     description: 'Sucesso ao criar Imóvel de interesse',
   })
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
   async createTargetProperty(
