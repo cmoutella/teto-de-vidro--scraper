@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult, Model } from 'mongoose';
+import { Model } from 'mongoose';
+import type { DeleteResult } from 'mongodb';
 import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
 import { TargetPropertyRepository } from '../target-property.repository';
 import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';

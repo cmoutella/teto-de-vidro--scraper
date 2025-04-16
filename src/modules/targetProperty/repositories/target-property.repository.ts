@@ -1,4 +1,4 @@
-import { DeleteResult } from 'mongoose';
+import type { DeleteResult } from 'mongodb';
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
 import { PaginatedData } from 'src/shared/types/response';
 
