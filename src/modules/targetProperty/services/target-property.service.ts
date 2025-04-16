@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,9 +15,11 @@ import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository';
 export class TargetPropertyService {
   constructor(
     private readonly targetPropertyRepository: TargetPropertyRepository,
+    @Inject(forwardRef(() => HuntRepository))
     private readonly huntRepository: HuntRepository,
   ) {}
 
+  // TODO: tentar criar o endereço
   async createTargetProperty(
     newProperty: InterfaceTargetProperty,
   ): Promise<InterfaceTargetProperty> {
@@ -25,6 +29,8 @@ export class TargetPropertyService {
       );
     }
 
+    // TODO: lidar com o noLotNumber
+    // TODO: lidar com o noPropertyNumber
     if (newProperty.propertyNumber && newProperty.lotNumber) {
       const alreadyCreated =
         await this.targetPropertyRepository.getHuntTargetByFullAddress(
@@ -106,7 +112,7 @@ export class TargetPropertyService {
     return property;
   }
 
-  // TODO: tratar duplicidade
+  // TODO: tentar criar o endereço
   async updateTargetProperty(
     id: string,
     data: Partial<InterfaceTargetProperty>,

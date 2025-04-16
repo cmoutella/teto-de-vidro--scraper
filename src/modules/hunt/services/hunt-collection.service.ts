@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,6 +14,7 @@ import { TargetPropertyRepository } from 'src/modules/targetProperty/repositorie
 export class HuntService {
   constructor(
     private readonly huntRepository: HuntRepository,
+    @Inject(forwardRef(() => TargetPropertyRepository))
     private readonly targetPropertyRepository: TargetPropertyRepository,
   ) {}
 
