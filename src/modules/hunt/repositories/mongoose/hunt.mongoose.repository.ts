@@ -63,16 +63,14 @@ export class HuntMongooseRepository implements HuntRepository {
   }
 
   async addTargetToHunt(huntId: string, targetId: string): Promise<void> {
-    const hunt = await this.huntModel.findById(huntId).exec();
+    const hunt = await this.getOneHuntById(huntId);
 
     if (!hunt) return;
-
-    const { __v, ...otherData } = hunt.toObject();
 
     const data = await this.huntModel
       .updateOne(
         { _id: huntId },
-        { ...otherData, targets: [...otherData.targets, targetId] },
+        { ...hunt, targets: [...hunt.targets, targetId] },
       )
       .exec();
 
