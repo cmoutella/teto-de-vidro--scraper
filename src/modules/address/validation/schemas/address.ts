@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const createAddressSchema = z.object({
   street: z.string(),
   lotNumber: z.string(),
+  noNumber: z.boolean(),
   lotName: z.string().optional(),
   postalCode: z.string().optional(),
   neighborhood: z.string(),

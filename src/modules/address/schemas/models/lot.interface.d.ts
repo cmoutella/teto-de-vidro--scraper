@@ -2,6 +2,7 @@ export interface InterfaceLot {
   id?: string;
   lotName?: string;
   street: string;
+  noNumber: boolean;
   lotNumber: string;
   postalCode?: string;
   neighborhood: string;
@@ -16,6 +17,7 @@ export interface InterfaceLot {
 export interface InterfaceSearchLot {
   street: string;
   lotNumber?: string;
+  noNumber?: boolean;
   block?: string;
   postalCode?: string;
   neighborhood?: string;

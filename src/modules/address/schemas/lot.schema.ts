@@ -17,6 +17,9 @@ export class Lot implements InterfaceLot {
   street: string;
   @ApiProperty()
   @Prop()
+  noNumber: boolean;
+  @ApiProperty()
+  @Prop()
   lotNumber: string;
   @ApiPropertyOptional()
   @Prop()

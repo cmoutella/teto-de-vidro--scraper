@@ -12,6 +12,7 @@ export interface InterfaceSearchAddress {
   country: string;
   block?: string;
   lotName?: string;
+  noNumber?: boolean;
   lotNumber?: string;
   postalCode?: string;
   uf?: string;

@@ -35,6 +35,7 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
+      noNumber: address.noNumber,
     });
 
     if (!foundLots || foundLots.list.length <= 0) {
@@ -43,6 +44,7 @@ export class AddressService {
         city: address.city,
         uf: address.uf,
         country: address.country,
+        noNumber: address.noNumber,
         lotNumber: address.lotNumber,
         neighborhood: address.neighborhood,
         lotName: address.lotName ?? '',
@@ -130,6 +132,7 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
+      noNumber: address.noNumber,
     });
 
     if (!foundLots || foundLots.list.length <= 0) {
