@@ -76,15 +76,12 @@ export class AddressController {
    */
 
   /**
-   * CREATE
-   */
-  /**
-   * TODO
-   * - tratar duplicidade
+   * CREATE | dev endpoint
+   * Endpoint para testar o retorno do service chamado no target
    */
   @ApiTags('address')
   @ApiOperation({
-    summary: 'TODO | Tenta criar lot e property',
+    summary: 'Tenta criar lot e property',
     description:
       'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda',
   })

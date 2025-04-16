@@ -9,6 +9,7 @@ import { PropertyRepository } from '../repositories/property.repository';
 import { InterfaceProperty } from '../schemas/models/property.interface';
 import { InterfaceLot } from '../schemas/models/lot.interface';
 import { PaginatedData } from 'src/shared/types/response';
+import { CEPService, ValidatedAddressTranslated } from 'src/services/cep';
 
 @Injectable()
 export class AddressService {
@@ -17,105 +18,7 @@ export class AddressService {
     private readonly propertyRepository: PropertyRepository,
   ) {}
 
-  // para ser usado no endpoint
-  async extCreateAddress(
-    address: InterfaceAddress,
-  ): Promise<InterfaceProperty> {
-    if (
-      !address.street ||
-      !address.lotNumber ||
-      !address.city ||
-      !address.country
-    ) {
-      throw new BadRequestException(
-        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
-      );
-    }
-
-    let lotId: string | null = null;
-    const foundLots = await this.lotRepository.getAllLotsByAddress({
-      street: address.street,
-      city: address.city,
-      uf: address.uf,
-      country: address.country,
-      lotNumber: address.lotNumber,
-      noLotNumber: address.noLotNumber,
-    });
-
-    if (!foundLots || foundLots.list.length <= 0) {
-      const lot = await this.lotRepository.createLot({
-        street: address.street,
-        city: address.city,
-        uf: address.uf,
-        country: address.country,
-        noLotNumber: address.noLotNumber,
-        lotNumber: address.lotNumber,
-        neighborhood: address.neighborhood,
-        lotName: address.lotName ?? '',
-        postalCode: address.postalCode ?? '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-
-      if (!lot) {
-        throw new BadRequestException(
-          'Não foi possível criar esse endereço no momento',
-        );
-      }
-
-      lotId = lot.id;
-    } else if (foundLots && foundLots.list.length >= 2) {
-      throw new BadRequestException(
-        'Não foi possível criar esse endereço no momento, lote duplicado.',
-      );
-    } else {
-      lotId = foundLots[0].id;
-    }
-
-    if (!lotId) {
-      throw new BadRequestException(
-        'Não foi possível criar esse endereço no momento.',
-      );
-    }
-
-    if (!address.propertyNumber) {
-      throw new BadRequestException(
-        'Sem complemento não é possível completar o endereço, use 0 para endereços sem complemento',
-      );
-    }
-
-    const foundProperties =
-      await this.propertyRepository.getAllPropertiesByLotId(lotId);
-
-    if (foundProperties && foundProperties.list.length >= 1) {
-      const foundProperty = foundProperties.list.find(
-        (prop) => prop.propertyNumber === address.propertyNumber,
-      );
-
-      if (foundProperty) {
-        return foundProperty;
-      }
-    }
-
-    const property = this.propertyRepository.createProperty({
-      lotId: lotId,
-      noComplement: address.noComplement,
-      propertyNumber: address.noComplement ? '0' : address.propertyNumber,
-      block: address.noComplement ? '0' : (address.block ?? null),
-      size: address.size ?? null,
-      rooms: address.rooms ?? null,
-      bathrooms: address.bathrooms ?? null,
-      is_front: address.is_front ?? null,
-      sun: address.sun ?? null,
-      parking: address.parking ?? null,
-      condoPricing: address.condoPricing ?? null,
-      propertyConvenience: address.propertyConvenience ?? null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-
-    return property;
-  }
+  cep = CEPService();
 
   // para ser utilizado integrado ao service de target
   async createAddress(
@@ -127,28 +30,34 @@ export class AddressService {
       !address.city ||
       !address.country
     ) {
-      console.log('Sem dados mínimos');
       return null;
     }
 
+    let cepAddress: ValidatedAddressTranslated | null = null;
+    if (address.postalCode && address.postalCode !== '') {
+      // faz a busca pelo cep
+      cepAddress = await this.cep.get(address.postalCode);
+    }
+
     let relatedLot: InterfaceLot | null = null;
+
+    // se foi criado um lote com o endereço enviado
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
       uf: address.uf,
       country: address.country,
-      lotNumber: address.lotNumber,
+      lotNumber: address.noLotNumber ? '0' : address.lotNumber,
       noLotNumber: address.noLotNumber,
     });
 
-    console.log('foundLots', foundLots);
-
+    // se não encontrou lotes com o endereço enviado
     if (!foundLots || foundLots.list.length <= 0) {
-      console.log('vamos precisar criar o lot');
+      // cria o endereço corrigido com os dados do cep
       const lot = await this.lotRepository.createLot({
-        street: address.street,
-        city: address.city,
-        uf: address.uf,
+        street: cepAddress?.street ?? address.street,
+        city: cepAddress?.city ?? address.city,
+        uf: cepAddress?.uf ?? address.uf,
         country: address.country,
         noLotNumber: address.noLotNumber,
         lotNumber: address.noLotNumber ? '0' : address.lotNumber,
@@ -159,43 +68,79 @@ export class AddressService {
         updatedAt: new Date().toISOString(),
       });
 
-      if (!lot) {
-        console.log('SEM LOT');
-        return null;
-      }
-
       relatedLot = lot;
     } else if (foundLots && foundLots.list.length >= 2) {
-      console.log('lote duplicado');
+      // TODO: log / handle (fila?)
     } else {
-      relatedLot = foundLots[0].id;
+      relatedLot = foundLots.list[0];
     }
 
-    console.log('lotId', relatedLot);
-    if (!relatedLot.id) {
-      console.log('SEM LOT ID');
+    if (!relatedLot || !relatedLot.id) {
       return null;
+    }
+
+    // se o lote encontrado não possui postal code
+    if (
+      (!relatedLot.postalCode || relatedLot.postalCode === '') &&
+      cepAddress
+    ) {
+      // buscar o lote com o endereço corrigido pelo cep
+      const foundLotsWithPostalCode =
+        await this.lotRepository.getAllLotsByAddress({
+          street: cepAddress.street,
+          city: cepAddress.city,
+          uf: cepAddress.uf,
+          country: address.country,
+          lotNumber: address.noLotNumber ? '0' : address.lotNumber,
+          noLotNumber: address.noLotNumber,
+          postalCode: address.postalCode,
+        });
+
+      // se não existe o endereço com o cep corrigido, realiza o update com dados do cep
+      if (
+        !foundLotsWithPostalCode ||
+        foundLotsWithPostalCode.list.length <= 0
+      ) {
+        const updatedLotData = await this.lotRepository.updateLot(
+          relatedLot.id,
+          {
+            postalCode: address.postalCode,
+            street: cepAddress?.street ?? address.street,
+            city: cepAddress?.city ?? address.city,
+            uf: cepAddress?.uf ?? address.uf,
+          },
+        );
+
+        if (!!updatedLotData) {
+          relatedLot = updatedLotData;
+        }
+      } else if (foundLotsWithPostalCode.list.length === 1) {
+        // TODO: log
+        // aqui relatedLot é o lote encontrado como está no banco
+        // vamos substituir a referencia pelo lote encontrado considerando os dados do cep
+        relatedLot = foundLotsWithPostalCode.list[0];
+      }
     }
 
     // se tem complemento mas nao tem propertyNumber ou block
     if (!address.noComplement && !address.propertyNumber && !address.block) {
-      console.log('NO COMPLEMENT DATA');
       return { lot: relatedLot };
     }
 
-    const foundProperties =
-      await this.propertyRepository.getAllPropertiesByLotId(relatedLot.id);
+    const foundProperty = await this.propertyRepository.getOnePropertyByAddress(
+      relatedLot.id,
+      {
+        noComplement: address.noComplement,
+        block: address.block,
+        propertyNumber: address.propertyNumber,
+      },
+    );
 
-    if (foundProperties && foundProperties.list.length >= 1) {
-      const foundProperty = foundProperties.list.find(
-        (prop) => prop.propertyNumber === address.propertyNumber,
-      );
-
-      if (foundProperty) {
-        return { lot: relatedLot, property: foundProperty };
-      }
+    if (foundProperty) {
+      return { lot: relatedLot, property: foundProperty };
     }
 
+    // cria a propriedade se não existir
     const property = await this.propertyRepository.createProperty({
       lotId: relatedLot.id,
       noComplement: address.noComplement,

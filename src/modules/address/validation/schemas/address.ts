@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const createAddressSchema = z.object({
   street: z.string(),
-  lotNumber: z.string(),
+  lotNumber: z.string().optional(),
   noLotNumber: z.boolean(),
   lotName: z.string().optional(),
   postalCode: z.string().optional(),
@@ -13,8 +13,8 @@ export const createAddressSchema = z.object({
   country: z.string(),
   lotConvenience: z.array(z.string()).optional(),
   noComplement: z.boolean(),
-  propertyNumber: z.string(),
-  block: z.string().optional(),
+  propertyNumber: z.string().optional(),
+  block: z.string().optional().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),
