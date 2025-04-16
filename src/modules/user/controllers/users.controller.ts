@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -22,7 +23,13 @@ import {
 } from '../schemas/models/user.interface';
 import { UserService } from '../services/user.service';
 import { addDays } from 'date-fns';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { User } from '../schemas/user.schema';
 import {
   CreateUserFailureException,
@@ -33,6 +40,7 @@ import {
   GetOneUserSuccess,
 } from '../schemas/endpoints/getUsers';
 import { DeleteUserSuccess } from '../schemas/endpoints/deleteUser';
+import { AuthGuard } from 'src/shared/guards/auth.guard';
 
 const GENDERS = ['male', 'female', 'neutral'] as const;
 
@@ -57,7 +65,8 @@ export class UsersController {
     private jwtService: JwtService,
   ) {}
 
-  // @ApiBearerAuth()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UsePipes(new EncryptPasswordPipe())
   @UsePipes(new ZodValidationPipe(createUserSchema))
   @ApiOperation({ summary: 'Cria um novo usuário' })
@@ -116,6 +125,8 @@ export class UsersController {
     status: 200,
     description: 'Usuário encontrado com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('/:id')
   async getById(@Param('id') id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -133,6 +144,8 @@ export class UsersController {
     status: 200,
     description: 'Usuário deletado com sucesso',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     await this.userService.deleteUser(id);
