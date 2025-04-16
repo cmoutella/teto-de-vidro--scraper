@@ -12,9 +12,14 @@ export interface InterfaceSearchAddress {
   country: string;
   block?: string;
   lotName?: string;
-  noNumber?: boolean;
+  noLotNumber?: boolean;
   lotNumber?: string;
   postalCode?: string;
   uf?: string;
   propertyNumber?: string;
+}
+
+export interface CreatedAddressFromTarget {
+  lot: InterfaceLot;
+  property?: InterfaceProperty;
 }

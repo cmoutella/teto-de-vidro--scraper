@@ -16,7 +16,7 @@ export class Address implements InterfaceAddress {
   street: string;
   @ApiProperty()
   @Prop()
-  noNumber: boolean;
+  noLotNumber: boolean;
   @ApiPropertyOptional()
   @Prop()
   lotNumber: string;

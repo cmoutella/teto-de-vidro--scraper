@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
+  CreatedAddressFromTarget,
   InterfaceAddress,
   InterfaceSearchAddress,
 } from '../schemas/models/address.interface';
@@ -16,7 +17,10 @@ export class AddressService {
     private readonly propertyRepository: PropertyRepository,
   ) {}
 
-  async createAddress(address: InterfaceAddress): Promise<InterfaceProperty> {
+  // para ser usado no endpoint
+  async extCreateAddress(
+    address: InterfaceAddress,
+  ): Promise<InterfaceProperty> {
     if (
       !address.street ||
       !address.lotNumber ||
@@ -35,7 +39,7 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
-      noNumber: address.noNumber,
+      noLotNumber: address.noLotNumber,
     });
 
     if (!foundLots || foundLots.list.length <= 0) {
@@ -44,7 +48,7 @@ export class AddressService {
         city: address.city,
         uf: address.uf,
         country: address.country,
-        noNumber: address.noNumber,
+        noLotNumber: address.noLotNumber,
         lotNumber: address.lotNumber,
         neighborhood: address.neighborhood,
         lotName: address.lotName ?? '',
@@ -113,6 +117,105 @@ export class AddressService {
     return property;
   }
 
+  // para ser utilizado integrado ao service de target
+  async createAddress(
+    address: InterfaceAddress,
+  ): Promise<CreatedAddressFromTarget | null> {
+    if (
+      !address.street ||
+      (!address.noLotNumber && !address.lotNumber) ||
+      !address.city ||
+      !address.country
+    ) {
+      console.log('Sem dados mínimos');
+      return null;
+    }
+
+    let relatedLot: InterfaceLot | null = null;
+    const foundLots = await this.lotRepository.getAllLotsByAddress({
+      street: address.street,
+      city: address.city,
+      uf: address.uf,
+      country: address.country,
+      lotNumber: address.lotNumber,
+      noLotNumber: address.noLotNumber,
+    });
+
+    console.log('foundLots', foundLots);
+
+    if (!foundLots || foundLots.list.length <= 0) {
+      console.log('vamos precisar criar o lot');
+      const lot = await this.lotRepository.createLot({
+        street: address.street,
+        city: address.city,
+        uf: address.uf,
+        country: address.country,
+        noLotNumber: address.noLotNumber,
+        lotNumber: address.noLotNumber ? '0' : address.lotNumber,
+        neighborhood: address.neighborhood,
+        lotName: address.lotName ?? '',
+        postalCode: address.postalCode ?? '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      if (!lot) {
+        console.log('SEM LOT');
+        return null;
+      }
+
+      relatedLot = lot;
+    } else if (foundLots && foundLots.list.length >= 2) {
+      console.log('lote duplicado');
+    } else {
+      relatedLot = foundLots[0].id;
+    }
+
+    console.log('lotId', relatedLot);
+    if (!relatedLot.id) {
+      console.log('SEM LOT ID');
+      return null;
+    }
+
+    // se tem complemento mas nao tem propertyNumber ou block
+    if (!address.noComplement && !address.propertyNumber && !address.block) {
+      console.log('NO COMPLEMENT DATA');
+      return { lot: relatedLot };
+    }
+
+    const foundProperties =
+      await this.propertyRepository.getAllPropertiesByLotId(relatedLot.id);
+
+    if (foundProperties && foundProperties.list.length >= 1) {
+      const foundProperty = foundProperties.list.find(
+        (prop) => prop.propertyNumber === address.propertyNumber,
+      );
+
+      if (foundProperty) {
+        return { lot: relatedLot, property: foundProperty };
+      }
+    }
+
+    const property = await this.propertyRepository.createProperty({
+      lotId: relatedLot.id,
+      noComplement: address.noComplement,
+      propertyNumber: address.noComplement ? '0' : address.propertyNumber,
+      block: address.noComplement ? '0' : (address.block ?? null),
+      size: address.size ?? null,
+      rooms: address.rooms ?? null,
+      bathrooms: address.bathrooms ?? null,
+      is_front: address.is_front ?? null,
+      sun: address.sun ?? null,
+      parking: address.parking ?? null,
+      condoPricing: address.condoPricing ?? null,
+      propertyConvenience: address.propertyConvenience ?? null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    return { lot: relatedLot, property };
+  }
+
   async findByAddress(
     address: InterfaceSearchAddress,
   ): Promise<{ lot?: InterfaceLot[]; property?: InterfaceProperty[] }> {
@@ -133,7 +236,7 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
-      noNumber: address.noNumber,
+      noLotNumber: address.noLotNumber,
     });
 
     if (!foundLots || foundLots.list.length <= 0) {

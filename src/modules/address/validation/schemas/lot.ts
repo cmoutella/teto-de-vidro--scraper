@@ -4,7 +4,7 @@ export const createLotSchema = z.object({
   lotName: z.string().optional(),
   street: z.string(),
   lotNumber: z.string(),
-  noNumber: z.boolean(),
+  noLotNumber: z.boolean(),
   postalCode: z.string().optional(),
   neighborhood: z.string().optional(),
   city: z.string().optional(),
@@ -30,7 +30,7 @@ export const searchLotsSchema = z.object({
   block: z.string().optional(),
   lotName: z.string().optional(),
   lotNumber: z.string().optional(),
-  noNumber: z.boolean(),
+  noLotNumber: z.boolean(),
   postalCode: z.string().optional(),
 });
 
