@@ -12,6 +12,7 @@ export const createAddressSchema = z.object({
   uf: z.string(),
   country: z.string(),
   lotConvenience: z.array(z.string()).optional(),
+  noComplement: z.boolean(),
   propertyNumber: z.string(),
   block: z.string().optional(),
   size: z.number().optional(),

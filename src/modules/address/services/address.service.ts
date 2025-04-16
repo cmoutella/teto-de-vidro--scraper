@@ -95,8 +95,9 @@ export class AddressService {
 
     const property = this.propertyRepository.createProperty({
       lotId: lotId,
-      propertyNumber: address.propertyNumber,
-      block: address.block ?? null,
+      noComplement: address.noComplement,
+      propertyNumber: address.noComplement ? '0' : address.propertyNumber,
+      block: address.noComplement ? '0' : (address.block ?? null),
       size: address.size ?? null,
       rooms: address.rooms ?? null,
       bathrooms: address.bathrooms ?? null,

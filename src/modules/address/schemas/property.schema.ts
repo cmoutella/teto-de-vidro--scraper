@@ -13,11 +13,14 @@ export class Property implements InterfaceProperty {
   @Prop()
   lotId: string;
   @ApiPropertyOptional()
+  @Prop({ isRequired: true })
+  noComplement: boolean;
+  @ApiPropertyOptional()
   @Prop({ isRequired: false })
   block?: string;
   @ApiProperty()
-  @Prop()
-  propertyNumber: string;
+  @Prop({ isRequired: false })
+  propertyNumber?: string;
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
   size?: number;

@@ -10,6 +10,7 @@ export const mockCreateAddress101: InterfaceAddress = {
   street: 'Rua dos Bobos',
   lotNumber: '0',
   noNumber: true,
+  noComplement: false,
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
@@ -23,6 +24,7 @@ export const mockCreateAddress102: InterfaceAddress = {
   street: 'Rua dos Bobos',
   noNumber: false,
   lotNumber: '100',
+  noComplement: false,
   propertyNumber: '2',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
@@ -44,6 +46,7 @@ export const mockLot: InterfaceLot = {
 export const mockProperty: InterfaceProperty = {
   id: 'Property1',
   lotId: 'Lote1',
+  noComplement: false,
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],

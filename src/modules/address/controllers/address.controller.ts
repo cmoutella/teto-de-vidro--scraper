@@ -110,6 +110,7 @@ export class AddressController {
       uf,
       country = 'Brasil',
       lotConvenience,
+      noComplement,
       block,
       propertyNumber,
       size,
@@ -133,8 +134,9 @@ export class AddressController {
       uf,
       country,
       lotConvenience: lotConvenience ?? [],
-      block,
-      propertyNumber,
+      noComplement,
+      block: noComplement ? '0' : block,
+      propertyNumber: noComplement ? '0' : propertyNumber,
       size,
       rooms,
       bathrooms,
@@ -392,6 +394,7 @@ export class AddressController {
     @Body()
     {
       lotId,
+      noComplement,
       block,
       propertyNumber,
       size,
@@ -405,8 +408,9 @@ export class AddressController {
   ) {
     return await this.propertyService.createProperty({
       lotId,
-      block,
-      propertyNumber,
+      noComplement,
+      block: noComplement ? '0' : block,
+      propertyNumber: noComplement ? '0' : propertyNumber,
       size,
       rooms,
       bathrooms,
