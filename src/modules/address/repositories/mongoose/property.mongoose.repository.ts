@@ -74,11 +74,16 @@ export class PropertyMongooseRepository implements PropertyRepository {
     return { id: _id.toString(), ...otherData };
   }
 
-  async getOnePropertyByAddress(lotId: string, propertyNumber: string) {
+  async getOnePropertyByAddress(
+    lotId: string,
+    address: { noComplement: boolean; propertyNumber: string; block: string },
+  ) {
     const foundProperty = await this.propertyModel
       .findOne({
         lotId: lotId,
-        propertyNumber: propertyNumber,
+        noComplement: address.noComplement,
+        block: address.block,
+        propertyNumber: address.propertyNumber,
       })
       .lean<LeanDoc<InterfaceProperty>>()
       .exec();

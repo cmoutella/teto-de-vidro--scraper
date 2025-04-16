@@ -1,8 +1,9 @@
 export interface InterfaceProperty {
   id?: string;
   lotId: string;
+  noComplement: boolean;
   block?: string;
-  propertyNumber: string;
+  propertyNumber?: string;
   size?: number;
   rooms?: number;
   bathrooms?: number;
@@ -11,4 +12,6 @@ export interface InterfaceProperty {
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
   propertyConvenience?: string[];
+  createdAt: string;
+  updatedAt: string;
 }

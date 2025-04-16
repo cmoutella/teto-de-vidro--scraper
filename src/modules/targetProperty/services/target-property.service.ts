@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,12 +11,18 @@ import { TargetPropertyRepository } from '../repositories/target-property.reposi
 import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
 import { PaginatedData } from 'src/shared/types/response';
 import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository';
+import { AddressService } from 'src/modules/address/services/address.service';
+import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface';
+import { InterfaceProperty } from 'src/modules/address/schemas/models/property.interface';
 
 @Injectable()
 export class TargetPropertyService {
   constructor(
     private readonly targetPropertyRepository: TargetPropertyRepository,
+    @Inject(forwardRef(() => HuntRepository))
     private readonly huntRepository: HuntRepository,
+    @Inject(forwardRef(() => AddressService))
+    private readonly addressService: AddressService,
   ) {}
 
   async createTargetProperty(
@@ -25,6 +34,8 @@ export class TargetPropertyService {
       );
     }
 
+    // TODO: lidar com o noLotNumber
+    // TODO: lidar com o noPropertyNumber
     if (newProperty.propertyNumber && newProperty.lotNumber) {
       const alreadyCreated =
         await this.targetPropertyRepository.getHuntTargetByFullAddress(
@@ -81,8 +92,37 @@ export class TargetPropertyService {
         });
     }
 
+    // cria ou retorna o endereço
+    const address = await this.addressService.createAddress({
+      ...newProperty,
+      noComplement: false,
+      noLotNumber: false,
+    });
+
+    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>;
+    let relatedProperty: Omit<
+      InterfaceProperty,
+      'id' | 'createdAt' | 'updatedAt' | 'lotId'
+    >;
+    if (address) {
+      if (address.lot) {
+        const { id, createdAt, updatedAt, ...relatedData } = address.lot;
+        relatedLot = relatedData;
+      }
+
+      if (address.property) {
+        const { id, lotId, createdAt, updatedAt, ...relatedData } =
+          address.property;
+        relatedProperty = relatedData;
+      }
+    }
+
     return await this.targetPropertyRepository.createTargetProperty({
       ...newProperty,
+      ...(address?.lot ? { lotId: address.lot.id } : {}),
+      ...(relatedLot ? relatedLot : {}),
+      ...(address?.property ? { propertyId: address.property.id } : {}),
+      ...(relatedProperty ? relatedProperty : {}),
       isActive: true,
     });
   }
@@ -106,11 +146,12 @@ export class TargetPropertyService {
     return property;
   }
 
-  // TODO: tratar duplicidade
   async updateTargetProperty(
     id: string,
     data: Partial<InterfaceTargetProperty>,
   ): Promise<InterfaceTargetProperty> {
+    // TODO: lidar com o noComplement
+    // TODO: lidar com o noLotNumber
     if (data.propertyNumber && data.lotNumber) {
       const alreadyCreated =
         await this.targetPropertyRepository.getHuntTargetByFullAddress(
@@ -170,7 +211,47 @@ export class TargetPropertyService {
         });
     }
 
-    return await this.targetPropertyRepository.updateTargetProperty(id, data);
+    const currentData = await this.getOneTargetById(id);
+
+    // cria ou retorna o endereço
+    const address = await this.addressService.createAddress({
+      ...currentData,
+      ...data,
+      noComplement: false,
+      noLotNumber: false,
+    });
+
+    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>;
+    let relatedProperty: Omit<
+      InterfaceProperty,
+      'id' | 'createdAt' | 'updatedAt' | 'lotId'
+    >;
+    if (address) {
+      if (address.lot) {
+        const { id, createdAt, updatedAt, ...relatedData } = address.lot;
+        relatedLot = relatedData;
+      }
+
+      if (address.property) {
+        const { id, lotId, createdAt, updatedAt, ...relatedData } =
+          address.property;
+        relatedProperty = relatedData;
+      }
+    }
+
+    return await this.targetPropertyRepository.updateTargetProperty(id, {
+      ...data,
+      ...(address?.lot ? { lotId: address.lot.id } : {}),
+      ...(relatedLot ? relatedLot : {}),
+      ...(address?.property ? { propertyId: address.property.id } : {}),
+      ...(relatedProperty ? relatedProperty : {}),
+      isActive: true,
+    });
+
+    // TODO: log
+    // TODO: quando o lotId ou o propertyId são atualizados
+    // deveria atualizar a referencia em todos os comentários?
+    // provavelmente fazer isso através de uma fila
   }
 
   async deleteTargetProperty(id: string): Promise<void> {

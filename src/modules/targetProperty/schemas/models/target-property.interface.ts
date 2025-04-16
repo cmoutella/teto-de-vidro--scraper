@@ -57,7 +57,7 @@ export interface InterfaceTargetProperty {
   city: string;
   uf: string;
   country: string;
-  lotConvenience?: string;
+  lotConvenience?: string[];
   // property identification
   propertyId?: string;
   block?: string;
@@ -69,5 +69,5 @@ export interface InterfaceTargetProperty {
   is_front?: boolean;
   sun?: 'morning' | 'afternoon' | 'none';
   condoPricing?: number;
-  propertyConvenience?: string;
+  propertyConvenience?: string[];
 }

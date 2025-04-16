@@ -47,7 +47,6 @@ export class LotMongooseRepository implements LotRepository {
     return { id: _id.toString(), ...data };
   }
 
-  // TODO
   async getAllLotsByAddress(
     searchBy: InterfaceSearchLot,
     page = 1,
@@ -65,11 +64,13 @@ export class LotMongooseRepository implements LotRepository {
       };
     }
 
-    // TODO
     const foundLots = await this.lotModel
       .find({
         street: searchBy.street,
         city: searchBy.city,
+        uf: searchBy.uf,
+        noLotNumber: searchBy.noLotNumber,
+        lotNumber: searchBy.noLotNumber ? '0' : searchBy.lotNumber,
         country: searchBy.country,
       })
       .skip(offset)
@@ -80,6 +81,9 @@ export class LotMongooseRepository implements LotRepository {
     const totalItems = await this.lotModel.countDocuments({
       street: searchBy.street,
       city: searchBy.city,
+      uf: searchBy.uf,
+      noLotNumber: searchBy.noLotNumber,
+      lotNumber: searchBy.noLotNumber ? '0' : searchBy.lotNumber,
       country: searchBy.country,
     });
 
@@ -88,7 +92,7 @@ export class LotMongooseRepository implements LotRepository {
     const result: PaginatedData<InterfaceLot> = {
       list: foundLots.map((lot) => {
         const lotObj = lot;
-        const { _id, ...data } = lotObj;
+        const { _id, __v, ...data } = lotObj;
 
         return { id: _id.toString(), ...data };
       }),

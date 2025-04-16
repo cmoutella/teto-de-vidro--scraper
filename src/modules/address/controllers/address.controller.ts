@@ -76,15 +76,12 @@ export class AddressController {
    */
 
   /**
-   * CREATE
-   */
-  /**
-   * TODO
-   * - tratar duplicidade
+   * CREATE | dev endpoint
+   * Endpoint para testar o retorno do service chamado no target
    */
   @ApiTags('address')
   @ApiOperation({
-    summary: 'TODO | Tenta criar lot e property',
+    summary: 'Tenta criar lot e property',
     description:
       'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda',
   })
@@ -103,12 +100,14 @@ export class AddressController {
       lotName,
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
       uf,
       country = 'Brasil',
       lotConvenience,
+      noComplement,
       block,
       propertyNumber,
       size,
@@ -125,14 +124,16 @@ export class AddressController {
       lotName,
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
       uf,
       country,
       lotConvenience: lotConvenience ?? [],
-      block,
-      propertyNumber,
+      noComplement,
+      block: noComplement ? '0' : block,
+      propertyNumber: noComplement ? '0' : propertyNumber,
       size,
       rooms,
       bathrooms,
@@ -226,6 +227,7 @@ export class AddressController {
       lotName,
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
@@ -242,12 +244,15 @@ export class AddressController {
       lotName,
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
       uf,
       country,
       lotConvenience: lotConvenience ?? [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   }
 
@@ -286,6 +291,7 @@ export class AddressController {
     {
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
@@ -297,6 +303,7 @@ export class AddressController {
     return await this.lotService.getAllLotsByAddress({
       street,
       lotNumber,
+      noLotNumber,
       postalCode,
       neighborhood,
       city,
@@ -384,6 +391,7 @@ export class AddressController {
     @Body()
     {
       lotId,
+      noComplement,
       block,
       propertyNumber,
       size,
@@ -397,8 +405,9 @@ export class AddressController {
   ) {
     return await this.propertyService.createProperty({
       lotId,
-      block,
-      propertyNumber,
+      noComplement,
+      block: noComplement ? '0' : block,
+      propertyNumber: noComplement ? '0' : propertyNumber,
       size,
       rooms,
       bathrooms,
@@ -410,6 +419,8 @@ export class AddressController {
        * TODO: Implementar conveniências de propriedade
        */
       propertyConvenience: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   }
 

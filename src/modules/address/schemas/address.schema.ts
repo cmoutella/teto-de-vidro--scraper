@@ -10,9 +10,13 @@ export type PropertyDocument = HydratedDocument<Address>;
 
 @Schema()
 export class Address implements InterfaceAddress {
+  // related to Lot
   @ApiProperty()
   @Prop()
   street: string;
+  @ApiProperty()
+  @Prop()
+  noLotNumber: boolean;
   @ApiPropertyOptional()
   @Prop()
   lotNumber: string;
@@ -34,6 +38,11 @@ export class Address implements InterfaceAddress {
   @ApiProperty()
   @Prop()
   lotConvenience: string[];
+
+  // related to property
+  @ApiProperty()
+  @Prop()
+  noComplement: boolean;
   @ApiPropertyOptional()
   @Prop()
   block?: string;

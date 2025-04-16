@@ -11,7 +11,10 @@ export abstract class PropertyRepository {
   abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
   abstract getOnePropertyByAddress(
     lotId: string,
-    propertyNumber: string,
+    {
+      propertyNumber,
+      block,
+    }: { noComplement: boolean; propertyNumber: string; block: string },
   ): Promise<InterfaceProperty>;
 
   abstract createProperty(

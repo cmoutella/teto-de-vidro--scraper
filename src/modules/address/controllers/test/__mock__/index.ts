@@ -9,6 +9,8 @@ export const mockCreateAddress101: InterfaceAddress = {
   neighborhood: 'Narnia',
   street: 'Rua dos Bobos',
   lotNumber: '0',
+  noLotNumber: true,
+  noComplement: false,
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
@@ -20,7 +22,9 @@ export const mockCreateAddress102: InterfaceAddress = {
   country: 'Brazil',
   neighborhood: 'Narnia',
   street: 'Rua dos Bobos',
-  lotNumber: '0',
+  noLotNumber: false,
+  lotNumber: '100',
+  noComplement: false,
   propertyNumber: '2',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
@@ -34,12 +38,18 @@ export const mockLot: InterfaceLot = {
   country: 'Brazil',
   street: 'Rua dos Bobos',
   lotNumber: '0',
+  noLotNumber: true,
+  createdAt: '2025-04-15T20:08:19.698Z',
+  updatedAt: '2025-04-15T20:08:19.698Z',
 };
 
 export const mockProperty: InterfaceProperty = {
   id: 'Property1',
   lotId: 'Lote1',
+  noComplement: false,
   propertyNumber: '1',
   is_front: true,
   propertyConvenience: ['muito engreçada', 'feita com esmero'],
+  createdAt: '2025-04-14T20:08:19.698Z',
+  updatedAt: '2025-04-14T20:08:19.698Z',
 };

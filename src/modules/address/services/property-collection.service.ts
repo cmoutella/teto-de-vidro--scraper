@@ -22,7 +22,11 @@ export class PropertyService {
 
     const foundProperty = await this.propertyRepository.getOnePropertyByAddress(
       newProperty.lotId,
-      newProperty.propertyNumber,
+      {
+        noComplement: newProperty.noComplement,
+        block: newProperty.block,
+        propertyNumber: newProperty.propertyNumber,
+      },
     );
 
     if (!!foundProperty) {

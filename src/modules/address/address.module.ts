@@ -32,5 +32,6 @@ import { PropertyService } from './services/property-collection.service';
     AddressService,
   ],
   controllers: [AddressController],
+  exports: [AddressService, LotRepository, PropertyRepository],
 })
 export class AddressModule {}

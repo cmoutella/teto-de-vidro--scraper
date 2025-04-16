@@ -84,6 +84,9 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiProperty()
   @Prop()
   country: string;
+  @ApiProperty()
+  @Prop()
+  lotConvenience?: string[];
 
   // property
   @ApiPropertyOptional()
@@ -118,7 +121,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   condoPricing?: number;
   @ApiPropertyOptional()
   @Prop()
-  convenience?: string;
+  convenience?: string[];
 }
 
 export const TargetPropertySchema =
