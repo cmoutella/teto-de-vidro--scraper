@@ -3,7 +3,7 @@ export interface InterfaceLot {
   lotName?: string;
   street: string;
   noLotNumber: boolean;
-  lotNumber: string;
+  lotNumber?: string;
   postalCode?: string;
   neighborhood: string;
   city: string;

@@ -72,7 +72,7 @@ const createTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
-  lotConvenience: z.string().optional(),
+  lotConvenience: z.array(z.string()).optional(),
   propertyNumber: z.string().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
@@ -81,7 +81,7 @@ const createTargetPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.string().optional(),
+  propertyConvenience: z.array(z.string()).optional(),
 });
 
 type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>;
@@ -110,7 +110,7 @@ const updateTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
-  lotConvenience: z.string().optional(),
+  lotConvenience: z.array(z.string()).optional(),
   propertyNumber: z.string().optional(),
   size: z.number().optional(),
   rooms: z.number().optional(),
@@ -119,7 +119,7 @@ const updateTargetPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.string().optional(),
+  propertyConvenience: z.array(z.string()).optional(),
 });
 
 type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>;
@@ -142,8 +142,8 @@ export class TargetPropertyController {
     status: 201,
     description: 'Sucesso ao criar Imóvel de interesse',
   })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
   async createTargetProperty(
