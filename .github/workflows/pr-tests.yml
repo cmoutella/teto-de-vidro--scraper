@@ -22,4 +22,4 @@ jobs:
         run: npm ci
 
       - name: Run integration tests
-        run: npm run test:int
+        run: npm run test:integration
