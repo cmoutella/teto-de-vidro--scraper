@@ -14,8 +14,8 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
+  describe('App', () => {
+    it('should return awoke message', () => {
       expect(appController.getHello()).toBe('Teto de Vidro API is on!');
     });
   });

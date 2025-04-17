@@ -5,7 +5,7 @@ const config: Config = {
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'js', 'json'],
   rootDir: './',
-  testRegex: '.*\\.spec\\.ts$',
+  testRegex: '.*\\.(spec|int-spec)\\.ts$',
   transform: {
     '^.+\\.ts$': [
       'ts-jest',

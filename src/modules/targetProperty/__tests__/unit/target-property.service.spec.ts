@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TargetPropertyService } from './target-property.service';
-import { TargetPropertyRepository } from '../repositories/target-property.repository';
+import { TargetPropertyService } from '../../services/target-property.service';
+import { TargetPropertyRepository } from '../../repositories/target-property.repository';
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository';
 import { AddressService } from '@src/modules/address/services/address.service';
 import { APP_GUARD } from '@nestjs/core';
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard';
 
-describe('TargetPropertyService', () => {
+describe('TargetPropertyService | UnitTest', () => {
   let service: TargetPropertyService;
 
   const mockTargetPropertyRepository = {
