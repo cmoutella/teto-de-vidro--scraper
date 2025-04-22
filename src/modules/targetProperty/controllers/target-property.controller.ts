@@ -11,30 +11,30 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-} from '@nestjs/common';
-import { z } from 'zod';
-
-import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
-import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
-import { TargetPropertyService } from '../services/target-property.service';
-import { HuntService } from '../../hunt/services/hunt-collection.service';
-import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
+  UsePipes
+} from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { TargetProperty } from '../schemas/target-property.schema';
-import { CreateTargetPropertySuccess } from '../schemas/endpoints/create';
+  ApiTags
+} from '@nestjs/swagger'
+import { PROPERTY_SUN_LIGHT } from 'src/shared/const'
+import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { z } from 'zod'
+
+import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
+import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe'
+import { HuntService } from '../../hunt/services/hunt-collection.service'
+import { CreateTargetPropertySuccess } from '../schemas/endpoints/create'
+import { DeleteTargetPropertySuccess } from '../schemas/endpoints/delete'
 import {
   GetOneTargetPropertySuccess,
-  GetTargetPropertiesByHuntSuccess,
-} from '../schemas/endpoints/get';
-import { DeleteTargetPropertySuccess } from '../schemas/endpoints/delete';
-import { AuthGuard } from 'src/shared/guards/auth.guard';
+  GetTargetPropertiesByHuntSuccess
+} from '../schemas/endpoints/get'
+import { TargetProperty } from '../schemas/target-property.schema'
+import { TargetPropertyService } from '../services/target-property.service'
 
 const HUNTING_STAGE = [
   'new',
@@ -47,8 +47,8 @@ const HUNTING_STAGE = [
   'quit',
   'submitted',
   'approved',
-  'denied',
-] as const;
+  'denied'
+] as const
 
 const createTargetPropertySchema = z.object({
   huntId: z.string(),
@@ -81,10 +81,10 @@ const createTargetPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.array(z.string()).optional(),
-});
+  propertyConvenience: z.array(z.string()).optional()
+})
 
-type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>;
+type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>
 
 const updateTargetPropertySchema = z.object({
   huntId: z.string(),
@@ -119,10 +119,10 @@ const updateTargetPropertySchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.array(z.string()).optional(),
-});
+  propertyConvenience: z.array(z.string()).optional()
+})
 
-type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>;
+type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
 
 @ApiTags('targetProperty')
 @UseInterceptors(LoggingInterceptor)
@@ -130,17 +130,17 @@ type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>;
 export class TargetPropertyController {
   constructor(
     private readonly targetPropertyService: TargetPropertyService,
-    private readonly huntService: HuntService,
+    private readonly huntService: HuntService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
   @ApiBody({
-    type: TargetProperty,
+    type: TargetProperty
   })
   @ApiResponse({
     type: CreateTargetPropertySuccess,
     status: 201,
-    description: 'Sucesso ao criar Imóvel de interesse',
+    description: 'Sucesso ao criar Imóvel de interesse'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -176,13 +176,13 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
-    }: CreateTargetProperty,
+      propertyConvenience
+    }: CreateTargetProperty
   ) {
-    const hunt = await this.huntService.getOneHuntById(huntId);
+    const hunt = await this.huntService.getOneHuntById(huntId)
 
     if (!hunt) {
-      throw new NotFoundException();
+      throw new NotFoundException()
     }
 
     const createdTargetProperty =
@@ -217,34 +217,34 @@ export class TargetPropertyController {
         condoPricing,
         propertyConvenience,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+        updatedAt: new Date().toISOString()
+      })
 
     if (!createdTargetProperty) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException()
     }
 
-    await this.huntService.addTargetToHunt(huntId, createdTargetProperty.id);
+    await this.huntService.addTargetToHunt(huntId, createdTargetProperty.id)
 
-    return createdTargetProperty;
+    return createdTargetProperty
   }
 
   @ApiOperation({ summary: 'Busca um imóvel target por id' })
   @ApiResponse({
     type: GetOneTargetPropertySuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   async getOneTargetProperty(@Param('id') id: string) {
-    return await this.targetPropertyService.getOneTargetById(id);
+    return await this.targetPropertyService.getOneTargetById(id)
   }
 
   // TODO: confirmar a validação
   @ApiOperation({ summary: 'Atualiza um imóvel target' })
   @ApiBody({
-    type: TargetProperty,
+    type: TargetProperty
   })
   @ApiResponse({ type: CreateTargetPropertySuccess, status: 200 })
   @ApiBearerAuth()
@@ -253,16 +253,16 @@ export class TargetPropertyController {
   async updateTargetProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
-    updateData: UpdateTargetProperty,
+    updateData: UpdateTargetProperty
   ) {
     return await this.targetPropertyService.updateTargetProperty(id, {
       ...updateData,
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: new Date().toISOString()
+    })
   }
 
   @ApiOperation({
-    summary: 'Busca todos os imóvel targets de uma caçada',
+    summary: 'Busca todos os imóvel targets de uma caçada'
   })
   @ApiResponse({ type: GetTargetPropertiesByHuntSuccess, status: 200 })
   @ApiBearerAuth()
@@ -271,24 +271,24 @@ export class TargetPropertyController {
   async getAllTargetsByHunt(
     @Param('huntId') huntId: string,
     @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('limit') limit?: number
   ) {
     return await this.targetPropertyService.getAllTargetsByHunt(
       huntId,
       page,
-      limit,
-    );
+      limit
+    )
   }
 
   @ApiOperation({ summary: 'Deleção de um imóvel target' })
   @ApiResponse({
     type: DeleteTargetPropertySuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteTargetProperty(@Param('id') id: string) {
-    await this.targetPropertyService.deleteTargetProperty(id);
+    await this.targetPropertyService.deleteTargetProperty(id)
   }
 }

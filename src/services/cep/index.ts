@@ -1,29 +1,29 @@
-import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface';
+import type { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface'
 
 export interface ValidatedAddress {
-  cep: string;
-  logradouro: string;
-  complemento: string;
-  bairro: string;
-  localidade: string;
-  uf: string;
-  ibge: string;
+  cep: string
+  logradouro: string
+  complemento: string
+  bairro: string
+  localidade: string
+  uf: string
+  ibge: string
 }
 
 export interface ValidatedAddressTranslated {
-  postalCode: string;
-  street: string;
-  streetNumber: string;
-  neighborhood: string;
-  city: string;
-  uf: string;
+  postalCode: string
+  street: string
+  streetNumber: string
+  neighborhood: string
+  city: string
+  uf: string
 }
 
 export function CEPService() {
-  const CEP_URL = process.env.OPENCEP_API;
+  const CEP_URL = process.env.OPENCEP_API
 
   if (!CEP_URL) {
-    throw new Error('CEP_URL secret not found');
+    throw new Error('CEP_URL secret not found')
   }
 
   function objectTranslate(data: ValidatedAddress) {
@@ -32,43 +32,41 @@ export function CEPService() {
       street: data.logradouro,
       neighborhood: data.bairro,
       city: data.localidade,
-      uf: data.uf,
-    } as ValidatedAddressTranslated;
+      uf: data.uf
+    } as ValidatedAddressTranslated
   }
 
   async function cepFetch(cep: string) {
-    const cleanCEP = cep.replace(/\D/g, '').trim();
+    const cleanCEP = cep.replace(/\D/g, '').trim()
 
-    const data = await fetch(`${CEP_URL}/${cleanCEP}`).then((res) =>
-      res.json(),
-    );
+    const data = await fetch(`${CEP_URL}/${cleanCEP}`).then((res) => res.json())
 
-    if (!data) return null;
+    if (!data) return null
 
-    return objectTranslate(data);
+    return objectTranslate(data)
   }
 
   async function getAddress(cep: string) {
-    const verifiedData = await cepFetch(cep);
+    const verifiedData = await cepFetch(cep)
 
     if (!verifiedData) {
-      return null;
+      return null
     }
 
-    return verifiedData;
+    return verifiedData
   }
 
   async function validateAddress(cep: string, address: InterfaceLot) {
-    const verifiedData = await cepFetch(cep);
+    const verifiedData = await cepFetch(cep)
 
     if (!verifiedData) {
-      return null;
+      return null
     }
 
-    const verifiedDataKeys: string[] = Object.keys(verifiedData);
+    const verifiedDataKeys: string[] = Object.keys(verifiedData)
 
-    return verifiedDataKeys.every((key) => verifiedData[key] === address[key]);
+    return verifiedDataKeys.every((key) => verifiedData[key] === address[key])
   }
 
-  return { get: getAddress, validate: validateAddress };
+  return { get: getAddress, validate: validateAddress }
 }

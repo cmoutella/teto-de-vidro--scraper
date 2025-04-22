@@ -1,48 +1,49 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { InterfaceLot } from './models/lot.interface';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import mongoose, { HydratedDocument } from 'mongoose'
 
-export type LotDocument = HydratedDocument<Lot>;
+import { InterfaceLot } from './models/lot.interface'
+
+export type LotDocument = HydratedDocument<Lot>
 
 @Schema()
 export class Lot implements InterfaceLot {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id?: string;
+  id?: string
   @ApiPropertyOptional()
   @Prop()
-  lotName?: string;
+  lotName?: string
   @ApiProperty()
   @Prop()
-  street: string;
+  street: string
   @ApiProperty()
   @Prop()
-  noLotNumber: boolean;
+  noLotNumber: boolean
   @ApiProperty()
   @Prop()
-  lotNumber: string;
+  lotNumber: string
   @ApiPropertyOptional()
   @Prop()
-  postalCode?: string;
+  postalCode?: string
   @ApiProperty()
   @Prop()
-  neighborhood: string;
+  neighborhood: string
   @ApiProperty()
   @Prop()
-  city: string;
+  city: string
   @ApiProperty()
   @Prop()
-  uf: string;
+  uf: string
   @ApiProperty()
   @Prop()
-  country: string;
+  country: string
   @ApiPropertyOptional()
   @Prop()
-  lotConvenience: string[];
+  lotConvenience: string[]
   @Prop({ idRequired: true })
-  createdAt: string;
+  createdAt: string
   @Prop({ idRequired: true })
-  updatedAt: string;
+  updatedAt: string
 }
 
-export const LotSchema = SchemaFactory.createForClass(Lot);
+export const LotSchema = SchemaFactory.createForClass(Lot)

@@ -1,28 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common'
+import { CEPService, ValidatedAddressTranslated } from 'src/services/cep'
+import { PaginatedData } from 'src/shared/types/response'
+
+import { LotRepository } from '../repositories/lot.repository'
+import { PropertyRepository } from '../repositories/property.repository'
 import {
   CreatedAddressFromTarget,
   InterfaceAddress,
-  InterfaceSearchAddress,
-} from '../schemas/models/address.interface';
-import { LotRepository } from '../repositories/lot.repository';
-import { PropertyRepository } from '../repositories/property.repository';
-import { InterfaceProperty } from '../schemas/models/property.interface';
-import { InterfaceLot } from '../schemas/models/lot.interface';
-import { PaginatedData } from 'src/shared/types/response';
-import { CEPService, ValidatedAddressTranslated } from 'src/services/cep';
+  InterfaceSearchAddress
+} from '../schemas/models/address.interface'
+import { InterfaceLot } from '../schemas/models/lot.interface'
+import { InterfaceProperty } from '../schemas/models/property.interface'
 
 @Injectable()
 export class AddressService {
   constructor(
     private readonly lotRepository: LotRepository,
-    private readonly propertyRepository: PropertyRepository,
+    private readonly propertyRepository: PropertyRepository
   ) {}
 
-  cep = CEPService();
+  cep = CEPService()
 
   // para ser utilizado integrado ao service de target
   async createAddress(
-    address: InterfaceAddress,
+    address: InterfaceAddress
   ): Promise<CreatedAddressFromTarget | null> {
     if (
       !address.street ||
@@ -30,16 +31,16 @@ export class AddressService {
       !address.city ||
       !address.country
     ) {
-      return null;
+      return null
     }
 
-    let cepAddress: ValidatedAddressTranslated | null = null;
+    let cepAddress: ValidatedAddressTranslated | null = null
     if (address.postalCode && address.postalCode !== '') {
       // faz a busca pelo cep
-      cepAddress = await this.cep.get(address.postalCode);
+      cepAddress = await this.cep.get(address.postalCode)
     }
 
-    let relatedLot: InterfaceLot | null = null;
+    let relatedLot: InterfaceLot | null = null
 
     // se foi criado um lote com o endereço enviado
     const foundLots = await this.lotRepository.getAllLotsByAddress({
@@ -48,8 +49,8 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.noLotNumber ? '0' : address.lotNumber,
-      noLotNumber: address.noLotNumber,
-    });
+      noLotNumber: address.noLotNumber
+    })
 
     // se não encontrou lotes com o endereço enviado
     if (!foundLots || foundLots.list.length <= 0) {
@@ -65,18 +66,18 @@ export class AddressService {
         lotName: address.lotName ?? '',
         postalCode: address.postalCode ?? '',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+        updatedAt: new Date().toISOString()
+      })
 
-      relatedLot = lot;
+      relatedLot = lot
     } else if (foundLots && foundLots.list.length >= 2) {
       // TODO: log / handle (fila?)
     } else {
-      relatedLot = foundLots.list[0];
+      relatedLot = foundLots.list[0]
     }
 
     if (!relatedLot || !relatedLot.id) {
-      return null;
+      return null
     }
 
     // se o lote encontrado não possui postal code
@@ -93,8 +94,8 @@ export class AddressService {
           country: address.country,
           lotNumber: address.noLotNumber ? '0' : address.lotNumber,
           noLotNumber: address.noLotNumber,
-          postalCode: address.postalCode,
-        });
+          postalCode: address.postalCode
+        })
 
       // se não existe o endereço com o cep corrigido, realiza o update com dados do cep
       if (
@@ -107,24 +108,24 @@ export class AddressService {
             postalCode: address.postalCode,
             street: cepAddress?.street ?? address.street,
             city: cepAddress?.city ?? address.city,
-            uf: cepAddress?.uf ?? address.uf,
-          },
-        );
+            uf: cepAddress?.uf ?? address.uf
+          }
+        )
 
-        if (!!updatedLotData) {
-          relatedLot = updatedLotData;
+        if (updatedLotData) {
+          relatedLot = updatedLotData
         }
       } else if (foundLotsWithPostalCode.list.length === 1) {
         // TODO: log
         // aqui relatedLot é o lote encontrado como está no banco
         // vamos substituir a referencia pelo lote encontrado considerando os dados do cep
-        relatedLot = foundLotsWithPostalCode.list[0];
+        relatedLot = foundLotsWithPostalCode.list[0]
       }
     }
 
     // se tem complemento mas nao tem propertyNumber ou block
     if (!address.noComplement && !address.propertyNumber && !address.block) {
-      return { lot: relatedLot };
+      return { lot: relatedLot }
     }
 
     const foundProperty = await this.propertyRepository.getOnePropertyByAddress(
@@ -132,12 +133,12 @@ export class AddressService {
       {
         noComplement: address.noComplement,
         block: address.block,
-        propertyNumber: address.propertyNumber,
-      },
-    );
+        propertyNumber: address.propertyNumber
+      }
+    )
 
     if (foundProperty) {
-      return { lot: relatedLot, property: foundProperty };
+      return { lot: relatedLot, property: foundProperty }
     }
 
     // cria a propriedade se não existir
@@ -155,14 +156,14 @@ export class AddressService {
       condoPricing: address.condoPricing ?? null,
       propertyConvenience: address.propertyConvenience ?? null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: new Date().toISOString()
+    })
 
-    return { lot: relatedLot, property };
+    return { lot: relatedLot, property }
   }
 
   async findByAddress(
-    address: InterfaceSearchAddress,
+    address: InterfaceSearchAddress
   ): Promise<{ lot?: InterfaceLot[]; property?: InterfaceProperty[] }> {
     if (
       !address.street ||
@@ -171,8 +172,8 @@ export class AddressService {
       !address.country
     ) {
       throw new BadRequestException(
-        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
-      );
+        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.'
+      )
     }
 
     const foundLots = await this.lotRepository.getAllLotsByAddress({
@@ -181,48 +182,48 @@ export class AddressService {
       uf: address.uf,
       country: address.country,
       lotNumber: address.lotNumber,
-      noLotNumber: address.noLotNumber,
-    });
+      noLotNumber: address.noLotNumber
+    })
 
     if (!foundLots || foundLots.list.length <= 0) {
-      return { lot: [], property: [] };
+      return { lot: [], property: [] }
     }
 
-    let properties: InterfaceProperty[] = [];
+    let properties: InterfaceProperty[] = []
     if (foundLots.list.length === 1) {
       const foundProperties =
-        await this.propertyRepository.getAllPropertiesByLotId(foundLots[0].id);
+        await this.propertyRepository.getAllPropertiesByLotId(foundLots[0].id)
 
       if (address.propertyNumber) {
         const property = foundProperties.list.find(
-          (property) => property.propertyNumber === address.propertyNumber,
-        );
+          (property) => property.propertyNumber === address.propertyNumber
+        )
 
-        properties = [property];
+        properties = [property]
       } else {
-        properties = foundProperties.list;
+        properties = foundProperties.list
       }
     }
 
-    return { lot: foundLots.list ?? [], property: properties };
+    return { lot: foundLots.list ?? [], property: properties }
   }
 
   async findLotsByAddress(
-    address: InterfaceSearchAddress,
+    address: InterfaceSearchAddress
   ): Promise<PaginatedData<InterfaceLot>> {
     if (!address.street || !address.city || !address.country) {
       throw new BadRequestException(
-        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.',
-      );
+        'Um endereço precisa ter no mínimo rua, número, cidade, estado e país.'
+      )
     }
 
     const foundLots = await this.lotRepository.getAllLotsByAddress({
       street: address.street,
       city: address.city,
       country: address.country,
-      uf: address.uf,
-    });
+      uf: address.uf
+    })
 
-    return foundLots;
+    return foundLots
   }
 }

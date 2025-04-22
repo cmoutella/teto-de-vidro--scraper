@@ -1,19 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { TargetPropertyRepository } from '../repositories/target-property.repository';
-import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
-import { PaginatedData } from 'src/shared/types/response';
-import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository';
-import { AddressService } from 'src/modules/address/services/address.service';
-import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface';
-import { InterfaceProperty } from 'src/modules/address/schemas/models/property.interface';
+  NotFoundException
+} from '@nestjs/common'
+import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface'
+import { InterfaceProperty } from 'src/modules/address/schemas/models/property.interface'
+import { AddressService } from 'src/modules/address/services/address.service'
+import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
+import { PaginatedData } from 'src/shared/types/response'
+
+import { TargetPropertyRepository } from '../repositories/target-property.repository'
+import { InterfaceTargetProperty } from '../schemas/models/target-property.interface'
 
 @Injectable()
 export class TargetPropertyService {
@@ -22,16 +22,16 @@ export class TargetPropertyService {
     @Inject(forwardRef(() => HuntRepository))
     private readonly huntRepository: HuntRepository,
     @Inject(forwardRef(() => AddressService))
-    private readonly addressService: AddressService,
+    private readonly addressService: AddressService
   ) {}
 
   async createTargetProperty(
-    newProperty: InterfaceTargetProperty,
+    newProperty: InterfaceTargetProperty
   ): Promise<InterfaceTargetProperty> {
     if (!newProperty.huntId) {
       throw new BadRequestException(
-        'Um imóvel de interesse deve estar associado a uma hunt',
-      );
+        'Um imóvel de interesse deve estar associado a uma hunt'
+      )
     }
 
     // TODO: lidar com o noLotNumber
@@ -47,14 +47,14 @@ export class TargetPropertyService {
             neighborhood: newProperty.neighborhood,
             city: newProperty.city,
             uf: newProperty.uf,
-            country: newProperty.country,
-          },
-        );
+            country: newProperty.country
+          }
+        )
 
       if (alreadyCreated)
         throw new ConflictException({
-          message: 'ALREADY_EXISTS',
-        });
+          message: 'ALREADY_EXISTS'
+        })
     } else if (newProperty.lotNumber && !newProperty.propertyNumber) {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByLot(
@@ -65,14 +65,14 @@ export class TargetPropertyService {
             neighborhood: newProperty.neighborhood,
             city: newProperty.city,
             uf: newProperty.uf,
-            country: newProperty.country,
-          },
-        );
+            country: newProperty.country
+          }
+        )
 
       if (hasTargets)
         throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byLot',
-        });
+          message: 'DUPLICITY_WARNING: byLot'
+        })
     } else {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByStreet(
@@ -82,38 +82,38 @@ export class TargetPropertyService {
             neighborhood: newProperty.neighborhood,
             city: newProperty.city,
             uf: newProperty.uf,
-            country: newProperty.country,
-          },
-        );
+            country: newProperty.country
+          }
+        )
 
       if (hasTargets)
         throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byStreet',
-        });
+          message: 'DUPLICITY_WARNING: byStreet'
+        })
     }
 
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
       ...newProperty,
       noComplement: false,
-      noLotNumber: false,
-    });
+      noLotNumber: false
+    })
 
-    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>;
+    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>
     let relatedProperty: Omit<
       InterfaceProperty,
       'id' | 'createdAt' | 'updatedAt' | 'lotId'
-    >;
+    >
     if (address) {
       if (address.lot) {
-        const { id, createdAt, updatedAt, ...relatedData } = address.lot;
-        relatedLot = relatedData;
+        const { id, createdAt, updatedAt, ...relatedData } = address.lot
+        relatedLot = relatedData
       }
 
       if (address.property) {
         const { id, lotId, createdAt, updatedAt, ...relatedData } =
-          address.property;
-        relatedProperty = relatedData;
+          address.property
+        relatedProperty = relatedData
       }
     }
 
@@ -123,32 +123,32 @@ export class TargetPropertyService {
       ...(relatedLot ? relatedLot : {}),
       ...(address?.property ? { propertyId: address.property.id } : {}),
       ...(relatedProperty ? relatedProperty : {}),
-      isActive: true,
-    });
+      isActive: true
+    })
   }
 
   async getAllTargetsByHunt(
     lotId: string,
     page?: number,
-    limit?: number,
+    limit?: number
   ): Promise<PaginatedData<InterfaceTargetProperty>> {
     return await this.targetPropertyRepository.getAllTargetsByHunt(
       lotId,
       page,
-      limit,
-    );
+      limit
+    )
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
-    const property = await this.targetPropertyRepository.getOneTargetById(id);
+    const property = await this.targetPropertyRepository.getOneTargetById(id)
 
-    if (!property) throw new NotFoundException('Imóvel não encontrado');
-    return property;
+    if (!property) throw new NotFoundException('Imóvel não encontrado')
+    return property
   }
 
   async updateTargetProperty(
     id: string,
-    data: Partial<InterfaceTargetProperty>,
+    data: Partial<InterfaceTargetProperty>
   ): Promise<InterfaceTargetProperty> {
     // TODO: lidar com o noComplement
     // TODO: lidar com o noLotNumber
@@ -163,14 +163,14 @@ export class TargetPropertyService {
             neighborhood: data.neighborhood,
             city: data.city,
             uf: data.uf,
-            country: data.country,
-          },
-        );
+            country: data.country
+          }
+        )
 
       if (alreadyCreated && alreadyCreated.id !== id)
         throw new ConflictException({
-          message: 'ALREADY_EXISTS',
-        });
+          message: 'ALREADY_EXISTS'
+        })
     } else if (data.lotNumber && !data.propertyNumber) {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByLot(data.huntId, {
@@ -179,16 +179,16 @@ export class TargetPropertyService {
           neighborhood: data.neighborhood,
           city: data.city,
           uf: data.uf,
-          country: data.country,
-        });
+          country: data.country
+        })
 
       const existingTargetNotThisOne =
-        hasTargets.length === 1 && hasTargets[0].id !== id;
+        hasTargets.length === 1 && hasTargets[0].id !== id
 
       if (hasTargets && (hasTargets.length >= 2 || existingTargetNotThisOne))
         throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byLot',
-        });
+          message: 'DUPLICITY_WARNING: byLot'
+        })
     } else {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByStreet(
@@ -198,44 +198,44 @@ export class TargetPropertyService {
             neighborhood: data.neighborhood,
             city: data.city,
             uf: data.uf,
-            country: data.country,
-          },
-        );
+            country: data.country
+          }
+        )
 
       const existingTargetNotThisOne =
-        hasTargets.length === 1 && hasTargets[0].id !== id;
+        hasTargets.length === 1 && hasTargets[0].id !== id
 
       if (hasTargets && existingTargetNotThisOne)
         throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byStreet',
-        });
+          message: 'DUPLICITY_WARNING: byStreet'
+        })
     }
 
-    const currentData = await this.getOneTargetById(id);
+    const currentData = await this.getOneTargetById(id)
 
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
       ...currentData,
       ...data,
       noComplement: false,
-      noLotNumber: false,
-    });
+      noLotNumber: false
+    })
 
-    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>;
+    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>
     let relatedProperty: Omit<
       InterfaceProperty,
       'id' | 'createdAt' | 'updatedAt' | 'lotId'
-    >;
+    >
     if (address) {
       if (address.lot) {
-        const { id, createdAt, updatedAt, ...relatedData } = address.lot;
-        relatedLot = relatedData;
+        const { id, createdAt, updatedAt, ...relatedData } = address.lot
+        relatedLot = relatedData
       }
 
       if (address.property) {
         const { id, lotId, createdAt, updatedAt, ...relatedData } =
-          address.property;
-        relatedProperty = relatedData;
+          address.property
+        relatedProperty = relatedData
       }
     }
 
@@ -245,8 +245,8 @@ export class TargetPropertyService {
       ...(relatedLot ? relatedLot : {}),
       ...(address?.property ? { propertyId: address.property.id } : {}),
       ...(relatedProperty ? relatedProperty : {}),
-      isActive: true,
-    });
+      isActive: true
+    })
 
     // TODO: log
     // TODO: quando o lotId ou o propertyId são atualizados
@@ -255,12 +255,11 @@ export class TargetPropertyService {
   }
 
   async deleteTargetProperty(id: string): Promise<void> {
-    const toDelete = await this.targetPropertyRepository.getOneTargetById(id);
-    const deleted =
-      await this.targetPropertyRepository.deleteTargetProperty(id);
+    const toDelete = await this.targetPropertyRepository.getOneTargetById(id)
+    const deleted = await this.targetPropertyRepository.deleteTargetProperty(id)
 
     if (deleted) {
-      await this.huntRepository.removeTargetFromHunt(toDelete.huntId, id);
+      await this.huntRepository.removeTargetFromHunt(toDelete.huntId, id)
     }
   }
 }

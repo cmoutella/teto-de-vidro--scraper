@@ -1,33 +1,32 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
+import { MongooseModule } from '@nestjs/mongoose'
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-import { UsersModule } from './modules/user/user.module';
-import { AddressModule } from './modules/address/address.module';
-import { HuntCollectionModule } from './modules/hunt/hunt-collection.module';
-import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module';
-import { JwtModule } from '@nestjs/jwt';
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { AddressModule } from './modules/address/address.module'
+import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
+import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
+import { UsersModule } from './modules/user/user.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     UsersModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '15d' },
+      signOptions: { expiresIn: '15d' }
     }),
     HuntCollectionModule,
     TargetPropertyCollectionModule,
-    AddressModule,
+    AddressModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

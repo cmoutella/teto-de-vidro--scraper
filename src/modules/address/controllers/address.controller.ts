@@ -9,55 +9,55 @@ import {
   Put,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-} from '@nestjs/common';
+  UsePipes
+} from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags
+} from '@nestjs/swagger'
+import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
+import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
 
-import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor';
-import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe';
-import { AddressService } from '../services/address.service';
+import { Address } from '../schemas/address.schema'
+import { CreateLotSuccess } from '../schemas/endpoints/createLot'
+import { CreatePropertySuccess } from '../schemas/endpoints/createProperty'
+import {
+  GetLotsByCEPSuccess,
+  GetLotsByIdSuccess
+} from '../schemas/endpoints/getLot'
+import {
+  GetPropertyByIdSuccess,
+  GetPropertyByLotSuccess
+} from '../schemas/endpoints/getProperty'
+import { Lot } from '../schemas/lot.schema'
+import { Property } from '../schemas/property.schema'
+import { AddressService } from '../services/address.service'
+import { LotService } from '../services/lot-collection.service'
+import { PropertyService } from '../services/property-collection.service'
 import {
   CreateAddress,
   createAddressSchema,
   SearchAddress,
-  searchAddressSchema,
-} from '../validation/schemas/address';
-import { LotService } from '../services/lot-collection.service';
+  searchAddressSchema
+} from '../validation/schemas/address'
 import {
   CreateLot,
   createLotSchema,
   SearchLots,
   searchLotsSchema,
   UpdateLot,
-  updateLotSchema,
-} from '../validation/schemas/lot';
-import { PropertyService } from '../services/property-collection.service';
+  updateLotSchema
+} from '../validation/schemas/lot'
 import {
   CreateProperty,
   createPropertySchema,
   UpdateProperty,
-  updatePropertySchema,
-} from '../validation/schemas/property';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Address } from '../schemas/address.schema';
-import { Property } from '../schemas/property.schema';
-import { Lot } from '../schemas/lot.schema';
-import {
-  GetLotsByCEPSuccess,
-  GetLotsByIdSuccess,
-} from '../schemas/endpoints/getLot';
-import { CreateLotSuccess } from '../schemas/endpoints/createLot';
-import { CreatePropertySuccess } from '../schemas/endpoints/createProperty';
-import {
-  GetPropertyByIdSuccess,
-  GetPropertyByLotSuccess,
-} from '../schemas/endpoints/getProperty';
-import { AuthGuard } from 'src/shared/guards/auth.guard';
+  updatePropertySchema
+} from '../validation/schemas/property'
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('address')
@@ -65,7 +65,7 @@ export class AddressController {
   constructor(
     private readonly addressService: AddressService,
     private readonly lotService: LotService,
-    private readonly propertyService: PropertyService,
+    private readonly propertyService: PropertyService
   ) {}
 
   /**
@@ -83,12 +83,12 @@ export class AddressController {
   @ApiOperation({
     summary: 'Tenta criar lot e property',
     description:
-      'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda',
+      'A partir das propriedades enviadas busca-se identificar informações mínimas para criar lot e/ou property, caso não estejam criados ainda'
   })
   @ApiBody({
     type: Address,
     description:
-      'Todas as possibilidades de dados possíveis para lot ou property',
+      'Todas as possibilidades de dados possíveis para lot ou property'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -117,8 +117,8 @@ export class AddressController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
-    }: CreateAddress,
+      propertyConvenience
+    }: CreateAddress
   ) {
     return await this.addressService.createAddress({
       lotName,
@@ -141,8 +141,8 @@ export class AddressController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience: propertyConvenience ?? [],
-    });
+      propertyConvenience: propertyConvenience ?? []
+    })
   }
 
   /**
@@ -171,8 +171,8 @@ export class AddressController {
       uf,
       country,
       block,
-      propertyNumber,
-    }: SearchAddress,
+      propertyNumber
+    }: SearchAddress
   ) {
     return await this.addressService.findByAddress({
       lotName,
@@ -184,8 +184,8 @@ export class AddressController {
       uf,
       country,
       block,
-      propertyNumber,
-    });
+      propertyNumber
+    })
   }
 
   /**
@@ -208,14 +208,14 @@ export class AddressController {
   @ApiOperation({
     summary: 'Criação de lotes',
     description:
-      'Endpoint para criação de um lote. Será verificado na API de ceps pelo endereço correto e validado se o lote já está cadastrado',
+      'Endpoint para criação de um lote. Será verificado na API de ceps pelo endereço correto e validado se o lote já está cadastrado'
   })
   @ApiBody({
-    type: Lot,
+    type: Lot
   })
   @ApiResponse({
     type: CreateLotSuccess,
-    status: 201,
+    status: 201
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -233,11 +233,11 @@ export class AddressController {
       city,
       uf,
       country = 'Brasil',
-      lotConvenience,
-    }: CreateLot,
+      lotConvenience
+    }: CreateLot
   ) {
     if (!postalCode) {
-      throw new BadRequestException('CEP é obrigatório');
+      throw new BadRequestException('CEP é obrigatório')
     }
 
     return await this.lotService.createLot({
@@ -252,8 +252,8 @@ export class AddressController {
       country,
       lotConvenience: lotConvenience ?? [],
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: new Date().toISOString()
+    })
   }
 
   /**
@@ -263,13 +263,13 @@ export class AddressController {
   @ApiOperation({ summary: 'Buscar por lote por id' })
   @ApiResponse({
     type: GetLotsByIdSuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get('/lot/:id')
   async getLotById(@Param('id') id: string) {
-    return await this.lotService.getOneLot(id);
+    return await this.lotService.getOneLot(id)
   }
 
   /**
@@ -297,8 +297,8 @@ export class AddressController {
       city,
       uf,
       country,
-      block,
-    }: SearchLots,
+      block
+    }: SearchLots
   ) {
     return await this.lotService.getAllLotsByAddress({
       street,
@@ -309,8 +309,8 @@ export class AddressController {
       city,
       uf,
       country,
-      block,
-    });
+      block
+    })
   }
 
   /**
@@ -319,7 +319,7 @@ export class AddressController {
   @ApiOperation({ summary: 'Buscar por lotes a partir do CEP' })
   @ApiResponse({
     type: GetLotsByCEPSuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -327,9 +327,9 @@ export class AddressController {
   @Get('/lot/cep/:cep')
   async findLotsByCEP(
     @Param('cep')
-    cep: string,
+    cep: string
   ) {
-    return await this.lotService.getAllLotsByCEP(cep);
+    return await this.lotService.getAllLotsByCEP(cep)
   }
 
   /**
@@ -339,7 +339,7 @@ export class AddressController {
   @ApiOperation({ summary: 'Atualizar um lote' })
   @ApiResponse({
     type: CreateLotSuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -347,9 +347,9 @@ export class AddressController {
   async updateLot(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateLotSchema))
-    updateData: UpdateLot,
+    updateData: UpdateLot
   ) {
-    return await this.lotService.updateLot(id, updateData);
+    return await this.lotService.updateLot(id, updateData)
   }
 
   /**
@@ -361,7 +361,7 @@ export class AddressController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Deleção de lote' })
   async deleteLot(@Param('id') id: string) {
-    await this.lotService.deleteLot(id);
+    await this.lotService.deleteLot(id)
   }
 
   /**
@@ -377,11 +377,11 @@ export class AddressController {
   @ApiTags('property')
   @ApiOperation({ summary: 'Cria uma propriedade' })
   @ApiBody({
-    type: Property,
+    type: Property
   })
   @ApiResponse({
     type: CreatePropertySuccess,
-    status: 201,
+    status: 201
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -400,8 +400,8 @@ export class AddressController {
       parking,
       is_front,
       sun,
-      condoPricing,
-    }: CreateProperty,
+      condoPricing
+    }: CreateProperty
   ) {
     return await this.propertyService.createProperty({
       lotId,
@@ -420,8 +420,8 @@ export class AddressController {
        */
       propertyConvenience: [],
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: new Date().toISOString()
+    })
   }
 
   /**
@@ -430,14 +430,14 @@ export class AddressController {
   @ApiOperation({ summary: 'Busca uma propriedade por id' })
   @ApiResponse({
     type: GetPropertyByIdSuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @ApiTags('property')
   @Get('/property/:id')
   async getOnePropertyById(@Param('id') id: string) {
-    return await this.propertyService.getOneProperty(id);
+    return await this.propertyService.getOneProperty(id)
   }
 
   /**
@@ -445,17 +445,17 @@ export class AddressController {
    */
   @ApiTags('property')
   @ApiOperation({
-    summary: 'Busca todas as propriedades de um lote',
+    summary: 'Busca todas as propriedades de um lote'
   })
   @ApiResponse({
     type: GetPropertyByLotSuccess,
-    status: 200,
+    status: 200
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get('/lot/:lotId/properties')
   async getPropertiesByMainAddress(@Param('lotId') lotId: string) {
-    return await this.propertyService.getAllPropertiesByLotId(lotId);
+    return await this.propertyService.getAllPropertiesByLotId(lotId)
   }
 
   /**
@@ -470,9 +470,9 @@ export class AddressController {
   async updateProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePropertySchema))
-    updateData: UpdateProperty,
+    updateData: UpdateProperty
   ) {
-    return await this.propertyService.updateProperty(id, updateData);
+    return await this.propertyService.updateProperty(id, updateData)
   }
 
   /**
@@ -484,6 +484,6 @@ export class AddressController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   async deleteProperty(@Param('id') id: string) {
-    await this.propertyService.deleteProperty(id);
+    await this.propertyService.deleteProperty(id)
   }
 }

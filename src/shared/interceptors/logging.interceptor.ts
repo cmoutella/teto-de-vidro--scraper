@@ -2,27 +2,27 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+  NestInterceptor
+} from '@nestjs/common'
+import { Observable, tap } from 'rxjs'
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest();
+    next: CallHandler<unknown>
+  ): Observable<unknown> | Promise<Observable<unknown>> {
+    const request = context.switchToHttp().getRequest()
 
-    console.log('#####################');
-    console.log('Request received ____');
-    console.log('route', request.route.path);
-    console.log('authorization_sent', !!request.headers.authorization);
+    console.log('#####################')
+    console.log('Request received ____')
+    console.log('route', request.route.path)
+    console.log('authorization_sent', !!request.headers.authorization)
 
-    const now = Date.now();
+    const now = Date.now()
 
     return next
       .handle()
-      .pipe(tap(() => console.log(`___After... ${Date.now() - now}ms`)));
+      .pipe(tap(() => console.log(`___After... ${Date.now() - now}ms`)))
   }
 }

@@ -1,29 +1,30 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import { PublicUserSchema } from '../user.schema';
-import { ApiProperty } from '@nestjs/swagger';
+import { Prop, Schema } from '@nestjs/mongoose'
+import { ApiProperty } from '@nestjs/swagger'
+
+import { PublicUserSchema } from '../user.schema'
 
 @Schema()
 export class CreateUserSuccess {
   @ApiProperty({ default: 201 })
   @Prop()
-  status: number;
+  status: number
   @ApiProperty()
   @Prop()
-  data: PublicUserSchema;
+  data: PublicUserSchema
 }
 
 @Schema()
 export class CreateUserFailureException {
   @ApiProperty()
   @Prop()
-  status: number;
+  status: number
   @ApiProperty()
   @Prop()
-  timestamp: string;
+  timestamp: string
   @ApiProperty()
   @Prop()
-  message: string;
+  message: string
   @ApiProperty()
   @Prop()
-  path: string;
+  path: string
 }

@@ -1,73 +1,73 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import type { DeleteResult } from 'mongodb';
-import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
-import { TargetPropertyRepository } from '../target-property.repository';
-import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface';
-import { TargetProperty } from '../../schemas/target-property.schema';
-import { PaginatedData } from 'src/shared/types/response';
-import { LeanDoc } from 'src/shared/types/mongoose';
+import { InjectModel } from '@nestjs/mongoose'
+import type { DeleteResult } from 'mongodb'
+import { Model } from 'mongoose'
+import { DEFAULT_LIMIT } from 'src/shared/const/pagination'
+import { LeanDoc } from 'src/shared/types/mongoose'
+import { PaginatedData } from 'src/shared/types/response'
+
+import { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
+import { TargetProperty } from '../../schemas/target-property.schema'
+import { TargetPropertyRepository } from '../target-property.repository'
 
 export class TargetPropertyMongooseRepository
   implements TargetPropertyRepository
 {
   constructor(
     @InjectModel(TargetProperty.name)
-    private targetPropertyModel: Model<TargetProperty>,
+    private targetPropertyModel: Model<TargetProperty>
   ) {}
 
   async createTargetProperty(
-    newTarget: InterfaceTargetProperty,
+    newTarget: InterfaceTargetProperty
   ): Promise<TargetProperty> {
-    const createProperty = new this.targetPropertyModel(newTarget);
+    const createProperty = new this.targetPropertyModel(newTarget)
 
-    await createProperty.save();
+    await createProperty.save()
 
-    if (!createProperty) return null;
+    if (!createProperty) return null
 
     const created = await this.targetPropertyModel
       .findById(createProperty._id)
       .lean<LeanDoc<TargetProperty>>()
-      .exec();
+      .exec()
 
-    const { _id: id, __v, ...otherData } = created;
+    const { _id: id, __v, ...otherData } = created
 
-    return { id: id.toString(), ...otherData };
+    return { id: id.toString(), ...otherData }
   }
 
   async getAllTargetsByHunt(
     huntId: string,
     page = 1,
-    limit = DEFAULT_LIMIT,
+    limit = DEFAULT_LIMIT
   ): Promise<PaginatedData<InterfaceTargetProperty>> {
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit
 
     const foundProperties = await this.targetPropertyModel
       .find({ huntId: huntId })
       .skip(offset)
       .limit(limit)
       .lean<LeanDoc<TargetProperty>[]>()
-      .exec();
+      .exec()
 
     const totalItems = await this.targetPropertyModel.countDocuments({
-      huntId: huntId,
-    });
-    const totalPages = Math.ceil(totalItems / limit);
+      huntId: huntId
+    })
+    const totalPages = Math.ceil(totalItems / limit)
 
     const result = {
       list: foundProperties.map((property) => {
-        const { _id: id, __v, ...otherData } = property;
+        const { _id: id, __v, ...otherData } = property
 
-        return { id: id.toString(), ...otherData };
+        return { id: id.toString(), ...otherData }
       }),
       totalItems,
       totalPages,
       currentPage: page,
-      perPage: limit,
-    };
+      perPage: limit
+    }
 
-    return result;
+    return result
   }
 
   async getHuntTargetByFullAddress(
@@ -81,7 +81,7 @@ export class TargetPropertyMongooseRepository
       | 'country'
       | 'lotNumber'
       | 'propertyNumber'
-    >,
+    >
   ): Promise<InterfaceTargetProperty> {
     const foundProperties = await this.targetPropertyModel
       .find({
@@ -92,16 +92,16 @@ export class TargetPropertyMongooseRepository
         neighborhood: address.neighborhood,
         city: address.city,
         uf: address.uf,
-        country: address.country,
+        country: address.country
       })
       .lean<LeanDoc<TargetProperty>[]>()
-      .exec();
+      .exec()
 
     if (foundProperties.length <= 0) {
-      return null;
+      return null
     }
 
-    return foundProperties[0];
+    return foundProperties[0]
   }
 
   async getHuntTargetsByLot(
@@ -109,7 +109,7 @@ export class TargetPropertyMongooseRepository
     address: Pick<
       InterfaceTargetProperty,
       'neighborhood' | 'street' | 'city' | 'uf' | 'country' | 'lotNumber'
-    >,
+    >
   ): Promise<InterfaceTargetProperty[]> {
     const foundProperties = await this.targetPropertyModel
       .find({
@@ -119,16 +119,16 @@ export class TargetPropertyMongooseRepository
         neighborhood: address.neighborhood,
         city: address.city,
         uf: address.uf,
-        country: address.country,
+        country: address.country
       })
       .lean<LeanDoc<TargetProperty>[]>()
-      .exec();
+      .exec()
 
     if (foundProperties.length <= 0) {
-      return null;
+      return null
     }
 
-    return foundProperties;
+    return foundProperties
   }
 
   async getHuntTargetsByStreet(
@@ -136,7 +136,7 @@ export class TargetPropertyMongooseRepository
     address: Pick<
       InterfaceTargetProperty,
       'neighborhood' | 'street' | 'city' | 'uf' | 'country'
-    >,
+    >
   ): Promise<InterfaceTargetProperty[]> {
     const foundProperties = await this.targetPropertyModel
       .find({
@@ -145,49 +145,49 @@ export class TargetPropertyMongooseRepository
         neighborhood: address.neighborhood,
         city: address.city,
         uf: address.uf,
-        country: address.country,
+        country: address.country
       })
       .lean<LeanDoc<TargetProperty>[]>()
-      .exec();
+      .exec()
 
     if (foundProperties.length <= 0) {
-      return null;
+      return null
     }
 
-    return foundProperties;
+    return foundProperties
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
     const property = await this.targetPropertyModel
       .findById(id)
       .lean<LeanDoc<TargetProperty>>()
-      .exec();
+      .exec()
 
-    if (!property) return null;
+    if (!property) return null
 
-    const { _id, __v, ...otherData } = property;
+    const { _id, __v, ...otherData } = property
 
-    return { id: _id.toString(), ...otherData };
+    return { id: _id.toString(), ...otherData }
   }
 
   async updateTargetProperty(
     id: string,
-    data: Partial<InterfaceTargetProperty>,
+    data: Partial<InterfaceTargetProperty>
   ): Promise<InterfaceTargetProperty> {
-    const foundProperty = this.getOneTargetById(id);
+    const foundProperty = this.getOneTargetById(id)
 
     if (!foundProperty) {
-      return null;
+      return null
     }
 
     await this.targetPropertyModel
       .updateOne({ _id: id }, { ...foundProperty, ...data })
-      .exec();
+      .exec()
 
-    return await this.getOneTargetById(id);
+    return await this.getOneTargetById(id)
   }
 
   async deleteTargetProperty(id: string): Promise<DeleteResult> {
-    return await this.targetPropertyModel.deleteOne({ _id: id }).exec();
+    return await this.targetPropertyModel.deleteOne({ _id: id }).exec()
   }
 }

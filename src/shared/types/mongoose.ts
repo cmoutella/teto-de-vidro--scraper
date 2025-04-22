@@ -1,6 +1,6 @@
-import { ObjectId } from 'mongoose';
+import type { ObjectId } from 'mongoose'
 
 export type LeanDoc<T> = T & {
-  _id: ObjectId;
-  __v?: number;
-};
+  _id: ObjectId
+  __v?: number
+}

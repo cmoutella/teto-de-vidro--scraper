@@ -1,86 +1,86 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { LotRepository } from '../repositories/lot.repository';
+  NotFoundException
+} from '@nestjs/common'
+import { CEPService } from 'src/services/cep'
+import { PaginatedData } from 'src/shared/types/response'
+
+import { LotRepository } from '../repositories/lot.repository'
 import {
   InterfaceLot,
-  InterfaceSearchLot,
-} from '../schemas/models/lot.interface';
-import { CEPService } from 'src/services/cep';
-import { Lot } from '../schemas/lot.schema';
-import { PaginatedData } from 'src/shared/types/response';
+  InterfaceSearchLot
+} from '../schemas/models/lot.interface'
 
 @Injectable()
 export class LotService {
   constructor(private readonly lotRepository: LotRepository) {}
 
   async createLot(newLot: InterfaceLot): Promise<InterfaceLot> {
-    const cep = CEPService();
-    const verifiedAddress = await cep.get(newLot.postalCode);
+    const cep = CEPService()
+    const verifiedAddress = await cep.get(newLot.postalCode)
 
     if (!verifiedAddress) {
-      throw new BadRequestException('CEP inválido');
+      throw new BadRequestException('CEP inválido')
     }
 
-    const newLotIsValid = await cep.validate(newLot.postalCode, newLot);
+    const newLotIsValid = await cep.validate(newLot.postalCode, newLot)
 
-    const validLot = newLotIsValid ? newLot : { ...newLot, ...verifiedAddress };
+    const validLot = newLotIsValid ? newLot : { ...newLot, ...verifiedAddress }
 
-    if (!!validLot.lotNumber) {
+    if (validLot.lotNumber) {
       const foundLot = await this.lotRepository.getOneLotByAddress(
         validLot.postalCode,
-        validLot.lotNumber,
-      );
+        validLot.lotNumber
+      )
 
       if (foundLot) {
-        return foundLot;
+        return foundLot
       }
     } else {
       // TODO: tratar endereço sem numero
     }
 
-    const createdLot = await this.lotRepository.createLot(validLot);
+    const createdLot = await this.lotRepository.createLot(validLot)
 
-    return createdLot;
+    return createdLot
   }
 
   async getAllLotsByAddress(
     addressParams: InterfaceSearchLot,
     page?: number,
-    limit?: number,
+    limit?: number
   ): Promise<PaginatedData<InterfaceLot>> {
     return await this.lotRepository.getAllLotsByAddress(
       addressParams,
       page,
-      limit,
-    );
+      limit
+    )
   }
 
   async getAllLotsByCEP(
     cep: string,
     page?: number,
-    limit?: number,
+    limit?: number
   ): Promise<PaginatedData<InterfaceLot>> {
-    return await this.lotRepository.getAllLotsByCEP(cep, page, limit);
+    return await this.lotRepository.getAllLotsByCEP(cep, page, limit)
   }
 
   async getOneLot(id: string): Promise<InterfaceLot> {
-    const Lot = await this.lotRepository.getOneLot(id);
+    const Lot = await this.lotRepository.getOneLot(id)
 
-    if (!Lot) throw new NotFoundException('Endereço não encontrado');
-    return Lot;
+    if (!Lot) throw new NotFoundException('Endereço não encontrado')
+    return Lot
   }
 
   async updateLot(
     id: string,
-    data: Partial<InterfaceLot>,
+    data: Partial<InterfaceLot>
   ): Promise<InterfaceLot> {
-    return await this.lotRepository.updateLot(id, data);
+    return await this.lotRepository.updateLot(id, data)
   }
 
   async deleteLot(id: string): Promise<void> {
-    await this.lotRepository.deleteLot(id);
+    await this.lotRepository.deleteLot(id)
   }
 }

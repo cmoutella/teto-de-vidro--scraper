@@ -9,10 +9,10 @@ export type PropertyHuntingStage =
   | 'quit'
   | 'submitted'
   | 'approved'
-  | 'denied';
+  | 'denied'
 
 export const huntingStageTranslation: {
-  [key in PropertyHuntingStage]: string;
+  [key in PropertyHuntingStage]: string
 } = {
   new: 'Novo',
   iniciated: 'Mandei mensagem',
@@ -24,50 +24,50 @@ export const huntingStageTranslation: {
   quit: 'Desisti',
   submitted: 'Ficha enviada',
   approved: 'Ficha aprovada',
-  denied: 'Ficha negada',
-};
+  denied: 'Ficha negada'
+}
 
 // TODO connect to Lot in address
 export interface InterfaceTargetProperty {
-  id?: string;
+  id?: string
 
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string
+  updatedAt: string
 
-  huntId: string;
-  adURL: string;
-  nickname?: string;
-  sellPrice: number;
-  rentPrice: number;
-  iptu: number;
-  priority?: number;
-  huntingStage: PropertyHuntingStage;
-  isActive?: boolean;
-  visitDate?: string;
-  realtor?: string;
-  realtorContact?: string;
+  huntId: string
+  adURL: string
+  nickname?: string
+  sellPrice: number
+  rentPrice: number
+  iptu: number
+  priority?: number
+  huntingStage: PropertyHuntingStage
+  isActive?: boolean
+  visitDate?: string
+  realtor?: string
+  realtorContact?: string
 
   // lot identification
-  lotId?: string;
-  lotName?: string;
-  street: string;
-  lotNumber?: string;
-  postalCode?: string;
-  neighborhood: string;
-  city: string;
-  uf: string;
-  country: string;
-  lotConvenience?: string[];
+  lotId?: string
+  lotName?: string
+  street: string
+  lotNumber?: string
+  postalCode?: string
+  neighborhood: string
+  city: string
+  uf: string
+  country: string
+  lotConvenience?: string[]
   // property identification
-  propertyId?: string;
-  block?: string;
-  propertyNumber?: string;
-  size?: number;
-  rooms?: number;
-  bathrooms?: number;
-  parking?: number;
-  is_front?: boolean;
-  sun?: 'morning' | 'afternoon' | 'none';
-  condoPricing?: number;
-  propertyConvenience?: string[];
+  propertyId?: string
+  block?: string
+  propertyNumber?: string
+  size?: number
+  rooms?: number
+  bathrooms?: number
+  parking?: number
+  is_front?: boolean
+  sun?: 'morning' | 'afternoon' | 'none'
+  condoPricing?: number
+  propertyConvenience?: string[]
 }

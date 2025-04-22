@@ -1,30 +1,31 @@
-import { PaginatedData } from 'src/shared/types/response';
-import { InterfaceProperty } from '../schemas/models/property.interface';
+import type { PaginatedData } from 'src/shared/types/response'
+
+import type { InterfaceProperty } from '../schemas/models/property.interface'
 
 export abstract class PropertyRepository {
   abstract getAllPropertiesByLotId(
     lotId: string,
     page?: number,
-    limit?: number,
-  ): Promise<PaginatedData<InterfaceProperty>>;
+    limit?: number
+  ): Promise<PaginatedData<InterfaceProperty>>
 
-  abstract getOnePropertyById(id: string): Promise<InterfaceProperty>;
+  abstract getOnePropertyById(id: string): Promise<InterfaceProperty>
   abstract getOnePropertyByAddress(
     lotId: string,
     {
       propertyNumber,
-      block,
-    }: { noComplement: boolean; propertyNumber: string; block: string },
-  ): Promise<InterfaceProperty>;
+      block
+    }: { noComplement: boolean; propertyNumber: string; block: string }
+  ): Promise<InterfaceProperty>
 
   abstract createProperty(
-    newProperty: InterfaceProperty,
-  ): Promise<InterfaceProperty>;
+    newProperty: InterfaceProperty
+  ): Promise<InterfaceProperty>
 
   abstract updateProperty(
     id: string,
-    data: Partial<InterfaceProperty>,
-  ): Promise<InterfaceProperty>;
+    data: Partial<InterfaceProperty>
+  ): Promise<InterfaceProperty>
 
-  abstract deleteProperty(id: string): Promise<void>;
+  abstract deleteProperty(id: string): Promise<void>
 }

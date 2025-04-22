@@ -1,23 +1,24 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import { PublicUserSchema } from '../user.schema';
-import { ApiProperty } from '@nestjs/swagger';
+import { Prop, Schema } from '@nestjs/mongoose'
+import { ApiProperty } from '@nestjs/swagger'
+
+import { PublicUserSchema } from '../user.schema'
 
 @Schema()
 export class GetAllUsersSuccess {
   @ApiProperty({ default: 200 })
   @Prop()
-  status: number;
+  status: number
   @ApiProperty({ isArray: true })
   @Prop()
-  data: PublicUserSchema;
+  data: PublicUserSchema
 }
 
 @Schema()
 export class GetOneUserSuccess {
   @ApiProperty({ default: 200 })
   @Prop()
-  status: number;
+  status: number
   @ApiProperty()
   @Prop()
-  data: PublicUserSchema;
+  data: PublicUserSchema
 }
