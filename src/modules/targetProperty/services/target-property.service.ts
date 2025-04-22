@@ -128,18 +128,25 @@ export class TargetPropertyService {
   }
 
   async getAllTargetsByHunt(
-    lotId: string,
+    huntId: string,
     page?: number,
     limit?: number
   ): Promise<PaginatedData<InterfaceTargetProperty>> {
+    if (!huntId) {
+      throw new BadRequestException('Necessário informar huntId')
+    }
+
     return await this.targetPropertyRepository.getAllTargetsByHunt(
-      lotId,
+      huntId,
       page,
       limit
     )
   }
 
   async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
+    if (!id) {
+      throw new BadRequestException('Id is required')
+    }
     const property = await this.targetPropertyRepository.getOneTargetById(id)
 
     if (!property) throw new NotFoundException('Imóvel não encontrado')
@@ -150,6 +157,10 @@ export class TargetPropertyService {
     id: string,
     data: Partial<InterfaceTargetProperty>
   ): Promise<InterfaceTargetProperty> {
+    if (!id) {
+      throw new BadRequestException('Id is required')
+    }
+
     // TODO: lidar com o noComplement
     // TODO: lidar com o noLotNumber
     if (data.propertyNumber && data.lotNumber) {
