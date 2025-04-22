@@ -19,7 +19,7 @@
     "format:check": "prettier --check --cache \"src/**/*.{js,ts}\" ",
     "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.{js,ts}\"",
     "test": "jest --config jest.config.ts",
-    "test:unit": "jest --config jest.config.ts --testRegex \".*\\.int-spec\\.ts$\"",
+    "test:unit": "jest --config jest.config.ts --testRegex \".*\\.spec\\.ts$\"",
     "test:integration": "jest --config jest.config.ts --testRegex \".*\\.int-spec\\.ts$\"",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
