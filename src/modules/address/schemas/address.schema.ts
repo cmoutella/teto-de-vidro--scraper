@@ -1,109 +1,110 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { HydratedDocument } from 'mongoose'
+
 import {
   InterfaceAddress,
-  InterfaceSearchAddress,
-} from './models/address.interface';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+  InterfaceSearchAddress
+} from './models/address.interface'
 
-export type PropertyDocument = HydratedDocument<Address>;
+export type PropertyDocument = HydratedDocument<Address>
 
 @Schema()
 export class Address implements InterfaceAddress {
   // related to Lot
   @ApiProperty()
   @Prop()
-  street: string;
+  street: string
   @ApiProperty()
   @Prop()
-  noLotNumber: boolean;
+  noLotNumber: boolean
   @ApiPropertyOptional()
   @Prop()
-  lotNumber: string;
+  lotNumber: string
   @ApiProperty()
   @Prop()
-  postalCode: string;
+  postalCode: string
   @ApiProperty()
   @Prop()
-  neighborhood: string;
+  neighborhood: string
   @ApiProperty()
   @Prop()
-  city: string;
+  city: string
   @ApiProperty()
   @Prop()
-  uf: string;
+  uf: string
   @ApiProperty()
   @Prop()
-  country: string;
+  country: string
   @ApiProperty()
   @Prop()
-  lotConvenience: string[];
+  lotConvenience: string[]
 
   // related to property
   @ApiProperty()
   @Prop()
-  noComplement: boolean;
+  noComplement: boolean
   @ApiPropertyOptional()
   @Prop()
-  block?: string;
+  block?: string
   @ApiPropertyOptional()
   @Prop()
-  propertyNumber: string;
+  propertyNumber: string
   @ApiPropertyOptional()
   @Prop()
-  size: number;
+  size: number
   @ApiPropertyOptional()
   @Prop()
-  rooms: number;
+  rooms: number
   @ApiPropertyOptional()
   @Prop()
-  bathrooms: number;
+  bathrooms: number
   @ApiPropertyOptional()
   @Prop()
-  parking: number;
+  parking: number
   @ApiPropertyOptional()
   @Prop()
-  is_front: boolean;
+  is_front: boolean
   @ApiPropertyOptional()
   @Prop()
-  sun: 'morning' | 'afternoon' | 'none';
+  sun: 'morning' | 'afternoon' | 'none'
   @ApiPropertyOptional()
   @Prop()
-  condoPricing: number;
+  condoPricing: number
   @ApiPropertyOptional()
   @Prop()
-  propertyConvenience: string[];
+  propertyConvenience: string[]
 }
 
-export const AddressSchema = SchemaFactory.createForClass(Address);
+export const AddressSchema = SchemaFactory.createForClass(Address)
 
 @Schema()
 export class SearchAddress implements InterfaceSearchAddress {
   @ApiProperty()
   @Prop()
-  street: string;
+  street: string
   @ApiProperty()
   @Prop()
-  lotNumber: string;
+  lotNumber: string
   @ApiProperty()
   @Prop()
-  postalCode: string;
+  postalCode: string
   @ApiProperty()
   @Prop()
-  neighborhood: string;
+  neighborhood: string
   @ApiProperty()
   @Prop()
-  city: string;
+  city: string
   @ApiProperty()
   @Prop()
-  country: string;
+  country: string
   @ApiProperty()
   @Prop()
-  lotConvenience: string[];
+  lotConvenience: string[]
   @ApiProperty()
   @Prop()
-  block: string;
+  block: string
   @ApiProperty()
   @Prop()
-  propertyNumber: string;
+  propertyNumber: string
 }

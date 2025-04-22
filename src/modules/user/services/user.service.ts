@@ -2,13 +2,14 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
-import { UserRepository } from '../repositories/user.repository';
+  BadRequestException
+} from '@nestjs/common'
+
+import { UserRepository } from '../repositories/user.repository'
 import {
   InterfaceUser,
-  PublicInterfaceUser,
-} from '../schemas/models/user.interface';
+  PublicInterfaceUser
+} from '../schemas/models/user.interface'
 
 @Injectable()
 export class UserService {
@@ -16,40 +17,40 @@ export class UserService {
 
   async createUser(user: InterfaceUser): Promise<PublicInterfaceUser> {
     if (!user.nickName || !user.password || !user.email || !user.birthDate) {
-      throw new BadRequestException('Username or password missing');
+      throw new BadRequestException('Username or password missing')
     }
 
-    const existingUser = await this.userRepository.getByEmail(user.email);
+    const existingUser = await this.userRepository.getByEmail(user.email)
 
     if (existingUser) {
-      throw new ConflictException('Nome de usuário em uso');
+      throw new ConflictException('Nome de usuário em uso')
     }
 
-    return await this.userRepository.createUser(user);
+    return await this.userRepository.createUser(user)
   }
 
   async getAllUsers(): Promise<PublicInterfaceUser[]> {
-    return await this.userRepository.getAllUsers();
+    return await this.userRepository.getAllUsers()
   }
 
   async getByEmail(email: string): Promise<InterfaceUser> {
-    const user = await this.userRepository.getByEmail(email);
+    const user = await this.userRepository.getByEmail(email)
 
-    console.log('user', user);
-    if (!user) throw new NotFoundException('Usuário não encontrado');
+    console.log('user', user)
+    if (!user) throw new NotFoundException('Usuário não encontrado')
 
-    return user;
+    return user
   }
 
   async getById(id: string): Promise<InterfaceUser> {
-    const user = await this.userRepository.getById(id);
-    if (!user) throw new NotFoundException();
-    return user;
+    const user = await this.userRepository.getById(id)
+    if (!user) throw new NotFoundException()
+    return user
   }
 
   async deleteUser(id: string): Promise<void> {
-    const user = await this.userRepository.getById(id);
-    if (!user) throw new NotFoundException();
-    await this.userRepository.deleteUser(id);
+    const user = await this.userRepository.getById(id)
+    if (!user) throw new NotFoundException()
+    await this.userRepository.deleteUser(id)
   }
 }

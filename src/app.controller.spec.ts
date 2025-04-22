@@ -1,22 +1,24 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import type { TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
+
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
 
 describe('AppController', () => {
-  let appController: AppController;
+  let appController: AppController
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
-    }).compile();
+      providers: [AppService]
+    }).compile()
 
-    appController = app.get<AppController>(AppController);
-  });
+    appController = app.get<AppController>(AppController)
+  })
 
   describe('App', () => {
     it('should return awoke message', () => {
-      expect(appController.getHello()).toBe('Teto de Vidro API is on!');
-    });
-  });
-});
+      expect(appController.getHello()).toBe('Teto de Vidro API is on!')
+    })
+  })
+})

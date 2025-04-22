@@ -1,54 +1,55 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { InterfaceProperty } from './models/property.interface';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import mongoose, { HydratedDocument } from 'mongoose'
 
-export type PropertyDocument = HydratedDocument<Property>;
+import { InterfaceProperty } from './models/property.interface'
+
+export type PropertyDocument = HydratedDocument<Property>
 
 @Schema()
 export class Property implements InterfaceProperty {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id?: string;
+  id?: string
   @ApiProperty()
   @Prop()
-  lotId: string;
+  lotId: string
   @ApiPropertyOptional()
   @Prop({ isRequired: true })
-  noComplement: boolean;
+  noComplement: boolean
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  block?: string;
+  block?: string
   @ApiProperty()
   @Prop({ isRequired: false })
-  propertyNumber?: string;
+  propertyNumber?: string
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  size?: number;
+  size?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  rooms?: number;
+  rooms?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  bathrooms?: number;
+  bathrooms?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  parking?: number;
+  parking?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  is_front?: boolean;
+  is_front?: boolean
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  sun?: 'morning' | 'afternoon' | 'none';
+  sun?: 'morning' | 'afternoon' | 'none'
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  condoPricing?: number;
+  condoPricing?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  propertyConvenience?: string[];
+  propertyConvenience?: string[]
   @Prop({ idRequired: true })
-  createdAt: string;
+  createdAt: string
   @Prop({ idRequired: true })
-  updatedAt: string;
+  updatedAt: string
 }
 
-export const PropertySchema = SchemaFactory.createForClass(Property);
+export const PropertySchema = SchemaFactory.createForClass(Property)

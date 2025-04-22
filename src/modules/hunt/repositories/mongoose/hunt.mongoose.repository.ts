@@ -1,97 +1,98 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { DEFAULT_LIMIT } from 'src/shared/const/pagination';
-import { HuntRepository } from '../hunt.repository';
-import { Hunt } from '../../schemas/hunt.schema';
-import { InterfaceHunt } from '../../schemas/models/hunt.interface';
-import { InternalServerErrorException } from '@nestjs/common';
-import { PaginatedData } from 'src/shared/types/response';
-import { LeanDoc } from 'src/shared/types/mongoose';
+import { InternalServerErrorException } from '@nestjs/common'
+import { InjectModel } from '@nestjs/mongoose'
+import { Model } from 'mongoose'
+import { DEFAULT_LIMIT } from 'src/shared/const/pagination'
+import { LeanDoc } from 'src/shared/types/mongoose'
+import { PaginatedData } from 'src/shared/types/response'
+
+import { Hunt } from '../../schemas/hunt.schema'
+import { InterfaceHunt } from '../../schemas/models/hunt.interface'
+import { HuntRepository } from '../hunt.repository'
 
 export class HuntMongooseRepository implements HuntRepository {
   constructor(@InjectModel(Hunt.name) private huntModel: Model<Hunt>) {}
 
   async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null> {
-    const createHunt = new this.huntModel(newHunt);
+    const createHunt = new this.huntModel(newHunt)
 
-    await createHunt.save();
+    await createHunt.save()
 
     const created = await this.huntModel
       .findById(createHunt._id)
       .lean<LeanDoc<InterfaceHunt>>()
-      .exec();
+      .exec()
 
-    const { _id, __v, ...data } = created;
+    const { _id, __v, ...data } = created
 
-    return { id: _id, ...data } as InterfaceHunt;
+    return { id: _id, ...data } as InterfaceHunt
   }
 
   // ordenar por mais recentemente alterado
   async getAllHuntsByUser(
     userId: string,
     page = 1,
-    limit = DEFAULT_LIMIT,
+    limit = DEFAULT_LIMIT
   ): Promise<PaginatedData<InterfaceHunt>> {
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit
 
     const foundHunts = await this.huntModel
       .find({ creatorId: userId })
       .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceHunt>[]>()
-      .exec();
+      .exec()
 
     const totalItems = await this.huntModel.countDocuments({
-      creatorId: userId,
-    });
+      creatorId: userId
+    })
 
-    const totalPages = Math.ceil(totalItems / limit);
+    const totalPages = Math.ceil(totalItems / limit)
 
     const result: PaginatedData<InterfaceHunt> = {
       list: foundHunts.map((hunt) => {
-        const { _id: id, __v, ...otherData } = hunt;
+        const { _id: id, __v, ...otherData } = hunt
 
-        return { id: id.toString(), ...otherData };
+        return { id: id.toString(), ...otherData }
       }),
       totalItems,
       totalPages,
       currentPage: page,
-      perPage: limit,
-    };
+      perPage: limit
+    }
 
-    return result;
+    return result
   }
 
   async addTargetToHunt(huntId: string, targetId: string): Promise<void> {
-    const hunt = await this.getOneHuntById(huntId);
+    const hunt = await this.getOneHuntById(huntId)
 
-    if (!hunt) return;
+    if (!hunt) return
 
     const data = await this.huntModel
       .updateOne(
         { _id: huntId },
-        { ...hunt, targets: [...hunt.targets, targetId] },
+        { ...hunt, targets: [...hunt.targets, targetId] }
       )
-      .exec();
+      .exec()
 
     if (!data) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException()
     }
   }
 
   async removeTargetFromHunt(huntId: string, targetId: string): Promise<void> {
-    const hunt = await this.huntModel.findById(huntId).exec();
+    const hunt = await this.huntModel.findById(huntId).exec()
 
-    if (!hunt) return;
+    if (!hunt) return
 
-    const removed = hunt.targets.filter((el) => el !== targetId);
+    const removed = hunt.targets.filter((el) => el !== targetId)
 
     const data = await this.huntModel
       .updateOne({ _id: huntId }, { targets: removed })
-      .exec();
+      .exec()
 
     if (!data) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException()
     }
   }
 
@@ -99,35 +100,35 @@ export class HuntMongooseRepository implements HuntRepository {
     const found = await this.huntModel
       .findById(id)
       .lean<LeanDoc<InterfaceHunt>>()
-      .exec();
+      .exec()
 
     if (!found) {
-      return null;
+      return null
     }
 
-    const { _id, __v, ...otherData } = found;
+    const { _id, __v, ...otherData } = found
 
-    return { id: _id.toString(), ...otherData };
+    return { id: _id.toString(), ...otherData }
   }
 
   async updateHunt(
     id: string,
-    data: Partial<InterfaceHunt>,
+    data: Partial<InterfaceHunt>
   ): Promise<InterfaceHunt> {
-    const foundHunt = await this.getOneHuntById(id);
+    const foundHunt = await this.getOneHuntById(id)
 
     if (!foundHunt) {
-      return null;
+      return null
     }
 
     await this.huntModel
       .updateOne({ _id: id }, { ...foundHunt, ...data })
-      .exec();
+      .exec()
 
-    return await this.getOneHuntById(id);
+    return await this.getOneHuntById(id)
   }
 
   async deleteHunt(id: string): Promise<void> {
-    await this.huntModel.deleteOne({ _id: id }).exec();
+    await this.huntModel.deleteOne({ _id: id }).exec()
   }
 }

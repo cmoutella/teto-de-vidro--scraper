@@ -1,5 +1,5 @@
-import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
-import { z } from 'zod';
+import { PROPERTY_SUN_LIGHT } from 'src/shared/const'
+import { z } from 'zod'
 
 export const createPropertySchema = z.object({
   lotId: z.string(),
@@ -12,10 +12,10 @@ export const createPropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  condoPricing: z.number().optional(),
-});
+  condoPricing: z.number().optional()
+})
 
-export type CreateProperty = z.infer<typeof createPropertySchema>;
+export type CreateProperty = z.infer<typeof createPropertySchema>
 
 export const updatePropertySchema = z.object({
   noComplement: z.boolean(),
@@ -26,7 +26,7 @@ export const updatePropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  condoPricing: z.number().optional(),
-});
+  condoPricing: z.number().optional()
+})
 
-export type UpdateProperty = z.infer<typeof updatePropertySchema>;
+export type UpdateProperty = z.infer<typeof updatePropertySchema>

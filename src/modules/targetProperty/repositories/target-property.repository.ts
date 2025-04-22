@@ -1,13 +1,14 @@
-import type { DeleteResult } from 'mongodb';
-import { InterfaceTargetProperty } from '../schemas/models/target-property.interface';
-import { PaginatedData } from 'src/shared/types/response';
+import type { DeleteResult } from 'mongodb'
+import type { PaginatedData } from 'src/shared/types/response'
+
+import type { InterfaceTargetProperty } from '../schemas/models/target-property.interface'
 
 export abstract class TargetPropertyRepository {
   abstract getAllTargetsByHunt(
     huntId: string,
     page?: number,
-    limit?: number,
-  ): Promise<PaginatedData<InterfaceTargetProperty>>;
+    limit?: number
+  ): Promise<PaginatedData<InterfaceTargetProperty>>
 
   abstract getHuntTargetByFullAddress(
     huntId: string,
@@ -20,35 +21,35 @@ export abstract class TargetPropertyRepository {
       | 'country'
       | 'lotNumber'
       | 'propertyNumber'
-    >,
-  ): Promise<InterfaceTargetProperty>;
+    >
+  ): Promise<InterfaceTargetProperty>
 
   abstract getHuntTargetsByLot(
     huntId: string,
     address: Pick<
       InterfaceTargetProperty,
       'neighborhood' | 'street' | 'city' | 'uf' | 'country' | 'lotNumber'
-    >,
-  ): Promise<InterfaceTargetProperty[]>;
+    >
+  ): Promise<InterfaceTargetProperty[]>
 
   abstract getHuntTargetsByStreet(
     huntId: string,
     address: Pick<
       InterfaceTargetProperty,
       'neighborhood' | 'street' | 'city' | 'uf' | 'country'
-    >,
-  ): Promise<InterfaceTargetProperty[]>;
+    >
+  ): Promise<InterfaceTargetProperty[]>
 
-  abstract getOneTargetById(id: string): Promise<InterfaceTargetProperty>;
+  abstract getOneTargetById(id: string): Promise<InterfaceTargetProperty>
 
   abstract createTargetProperty(
-    newTargetProperty: InterfaceTargetProperty,
-  ): Promise<InterfaceTargetProperty>;
+    newTargetProperty: InterfaceTargetProperty
+  ): Promise<InterfaceTargetProperty>
 
   abstract updateTargetProperty(
     id: string,
-    data: Partial<InterfaceTargetProperty>,
-  ): Promise<InterfaceTargetProperty>;
+    data: Partial<InterfaceTargetProperty>
+  ): Promise<InterfaceTargetProperty>
 
-  abstract deleteTargetProperty(id: string): Promise<DeleteResult>;
+  abstract deleteTargetProperty(id: string): Promise<DeleteResult>
 }

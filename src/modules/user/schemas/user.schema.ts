@@ -1,60 +1,61 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { InterfaceUser } from './models/user.interface';
-import { ApiProperty } from '@nestjs/swagger';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { ApiProperty } from '@nestjs/swagger'
+import mongoose, { HydratedDocument } from 'mongoose'
 
-export type UserDocument = HydratedDocument<User>;
+import { InterfaceUser } from './models/user.interface'
+
+export type UserDocument = HydratedDocument<User>
 
 @Schema()
 export class User implements InterfaceUser {
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id?: string;
+  id?: string
   @ApiProperty()
   @Prop()
-  nickName: string;
+  nickName: string
   @ApiProperty()
   @Prop()
-  name: string;
+  name: string
   @ApiProperty()
   @Prop()
-  password: string;
+  password: string
   @ApiProperty()
   @Prop()
-  profession: string;
+  profession: string
   @ApiProperty()
   @Prop()
-  gender: 'male' | 'female' | 'neutral';
+  gender: 'male' | 'female' | 'neutral'
   @ApiProperty()
   @Prop()
-  birthDate: string;
+  birthDate: string
   @ApiProperty()
   @Prop()
-  email: string;
+  email: string
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User)
 
 export class PublicUserSchema {
   @ApiProperty()
   @Prop()
-  id: string;
+  id: string
   @ApiProperty()
   @Prop()
-  nickName: string;
+  nickName: string
   @ApiProperty()
   @Prop()
-  name: string;
+  name: string
   @ApiProperty()
   @Prop()
-  profession: string;
+  profession: string
   @ApiProperty()
   @Prop()
-  gender: string;
+  gender: string
   @ApiProperty()
   @Prop()
-  birthDate: string;
+  birthDate: string
   @ApiProperty()
   @Prop()
-  email: string;
+  email: string
 }

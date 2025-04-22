@@ -1,5 +1,5 @@
-import { PROPERTY_SUN_LIGHT } from 'src/shared/const';
-import { z } from 'zod';
+import { PROPERTY_SUN_LIGHT } from 'src/shared/const'
+import { z } from 'zod'
 
 export const createAddressSchema = z.object({
   street: z.string(),
@@ -22,10 +22,10 @@ export const createAddressSchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.array(z.string()).optional(),
-});
+  propertyConvenience: z.array(z.string()).optional()
+})
 
-export type CreateAddress = z.infer<typeof createAddressSchema>;
+export type CreateAddress = z.infer<typeof createAddressSchema>
 
 export const searchAddressSchema = z.object({
   street: z.string(),
@@ -37,7 +37,7 @@ export const searchAddressSchema = z.object({
   lotName: z.string().optional(),
   lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
-  propertyNumber: z.string(),
-});
+  propertyNumber: z.string()
+})
 
-export type SearchAddress = z.infer<typeof searchAddressSchema>;
+export type SearchAddress = z.infer<typeof searchAddressSchema>

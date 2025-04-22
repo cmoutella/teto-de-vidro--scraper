@@ -9,34 +9,34 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-} from '@nestjs/common';
-import { z } from 'zod';
-
-import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor';
-import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe';
-import { HuntService } from '../services/hunt-collection.service';
+  UsePipes
+} from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Hunt } from '../schemas/hunt.schema';
-import { CreateHuntSuccess } from '../schemas/endpoints/createHunt';
+  ApiTags
+} from '@nestjs/swagger'
+import { AuthGuard } from 'src/shared/guards/auth.guard'
+import { z } from 'zod'
+
+import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
+import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe'
+import { CreateHuntSuccess } from '../schemas/endpoints/createHunt'
+import { DeleteHuntSuccess } from '../schemas/endpoints/deleteHunt'
 import {
   FindHuntByIdSuccess,
-  FindHuntsByIdUserSuccess,
-} from '../schemas/endpoints/getHunts';
-import { DeleteHuntSuccess } from '../schemas/endpoints/deleteHunt';
+  FindHuntsByIdUserSuccess
+} from '../schemas/endpoints/getHunts'
 import {
   UpdateHuntBody,
-  UpdateHuntSuccess,
-} from '../schemas/endpoints/updateHunt';
-import { AuthGuard } from 'src/shared/guards/auth.guard';
+  UpdateHuntSuccess
+} from '../schemas/endpoints/updateHunt'
+import { Hunt } from '../schemas/hunt.schema'
+import { HuntService } from '../services/hunt-collection.service'
 
-const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const;
+const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const
 
 const createHuntSchema = z.object({
   creatorId: z.string(),
@@ -47,10 +47,10 @@ const createHuntSchema = z.object({
   maxBudget: z.number().optional(),
   livingPeople: z.number().optional(),
   livingPets: z.number().optional(),
-  type: z.enum(CONTRACT_TYPE).optional(),
-});
+  type: z.enum(CONTRACT_TYPE).optional()
+})
 
-type CreateHunt = z.infer<typeof createHuntSchema>;
+type CreateHunt = z.infer<typeof createHuntSchema>
 
 const updateHuntSchema = z.object({
   invitedUsers: z.array(z.string()).optional(),
@@ -60,10 +60,10 @@ const updateHuntSchema = z.object({
   maxBudget: z.number().optional(),
   livingPeople: z.number().optional(),
   livingPets: z.number().optional(),
-  type: z.enum(CONTRACT_TYPE).optional(),
-});
+  type: z.enum(CONTRACT_TYPE).optional()
+})
 
-type UpdateHunt = z.infer<typeof updateHuntSchema>;
+type UpdateHunt = z.infer<typeof updateHuntSchema>
 
 @ApiTags('hunt')
 @UseInterceptors(LoggingInterceptor)
@@ -74,12 +74,12 @@ export class HuntController {
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
     type: Hunt,
-    description: 'Dados necessários para criação da hunt',
+    description: 'Dados necessários para criação da hunt'
   })
   @ApiResponse({
     type: CreateHuntSuccess,
     status: 201,
-    description: 'Hunt criada com sucesso',
+    description: 'Hunt criada com sucesso'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -96,8 +96,8 @@ export class HuntController {
       movingExpected,
       type,
       minBudget,
-      maxBudget,
-    }: CreateHunt,
+      maxBudget
+    }: CreateHunt
   ) {
     return await this.huntService.createHunt({
       createdAt: new Date().toISOString(),
@@ -111,32 +111,32 @@ export class HuntController {
       minBudget,
       maxBudget,
       type,
-      targets: [],
-    });
+      targets: []
+    })
   }
 
   @ApiOperation({ summary: 'Busca de caçada por id' })
   @ApiResponse({
     type: FindHuntByIdSuccess,
     status: 200,
-    description: 'Hunt encontrada com sucesso',
+    description: 'Hunt encontrada com sucesso'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   async getOneHuntById(@Param('id') id: string) {
-    return await this.huntService.getOneHuntById(id);
+    return await this.huntService.getOneHuntById(id)
   }
 
   @ApiOperation({ summary: 'Atualização de uma caçada' })
   @ApiBody({
     type: UpdateHuntBody,
-    description: 'Dados para atualização de uma caçada',
+    description: 'Dados para atualização de uma caçada'
   })
   @ApiResponse({
     type: UpdateHuntSuccess,
     status: 200,
-    description: 'Sucesso na atualização da Hunt',
+    description: 'Sucesso na atualização da Hunt'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -144,19 +144,19 @@ export class HuntController {
   async updateHunt(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateHuntSchema))
-    updateData: UpdateHunt,
+    updateData: UpdateHunt
   ) {
     return await this.huntService.updateHunt(id, {
       ...updateData,
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: new Date().toISOString()
+    })
   }
 
   @ApiOperation({ summary: 'Busca todas as caçadas de um usuário' })
   @ApiResponse({
     type: FindHuntsByIdUserSuccess,
     status: 200,
-    description: 'Hunts do usuário encontradas com sucesso',
+    description: 'Hunts do usuário encontradas com sucesso'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -164,21 +164,21 @@ export class HuntController {
   async getAllHuntsByUser(
     @Param('userId') userId: string,
     @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('limit') limit?: number
   ) {
-    return await this.huntService.getAllHuntsByUser(userId, page, limit);
+    return await this.huntService.getAllHuntsByUser(userId, page, limit)
   }
 
   @ApiOperation({ summary: 'Deleção de uma caçada' })
   @ApiResponse({
     type: DeleteHuntSuccess,
     status: 200,
-    description: 'Hunt deletada com sucesso',
+    description: 'Hunt deletada com sucesso'
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHunt(@Param('id') id: string) {
-    await this.huntService.deleteHunt(id);
+    await this.huntService.deleteHunt(id)
   }
 }
