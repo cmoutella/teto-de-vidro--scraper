@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
@@ -10,13 +9,16 @@ import { TargetPropertyRepository } from '../../repositories/target-property.rep
 import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
 import { TargetPropertyService } from '../../services/target-property.service'
 
+const huntID = 'hunt123'
+const lotId = 'lot-123'
+const propertyId = 'property-123'
 const baseProperty: InterfaceTargetProperty = {
   adURL: '',
   sellPrice: 0,
   rentPrice: 0,
   condoPricing: 0,
   iptu: 0,
-  huntId: 'hunt123',
+  huntId: huntID,
   street: 'Rua A',
   neighborhood: 'Bairro B',
   city: 'Cidade C',
@@ -50,7 +52,7 @@ describe('TargetPropertyService | UnitTest', () => {
   }
 
   const mockAddressService = {
-    validateZipCode: jest.fn()
+    createAddress: jest.fn()
   }
 
   beforeEach(async () => {
@@ -84,77 +86,215 @@ describe('TargetPropertyService | UnitTest', () => {
   })
 
   describe('createTargetProperty', () => {
-    it('should throw BadRequestException if huntId is missing', async () => {
-      await expect(
-        service.createTargetProperty({
+    it('should return falsy if huntId is missing', async () => {
+      const created = await service.createTargetProperty({
+        ...baseProperty,
+        huntId: undefined
+      } as InterfaceTargetProperty)
+
+      expect(created).toBeFalsy()
+    })
+
+    it('should register address', async () => {
+      mockAddressService.createAddress.mockResolvedValue({
+        lot: { id: lotId },
+        property: { id: propertyId }
+      })
+
+      const input = {
+        ...baseProperty,
+        huntId: huntID
+      }
+
+      mockTargetPropertyRepository.createTargetProperty.mockResolvedValue({
+        ...input,
+        lotId: 'lot-123',
+        propertyId: 'property-123',
+        isActive: true
+      })
+
+      await service.createTargetProperty(baseProperty)
+
+      expect(mockAddressService.createAddress).toHaveBeenCalled()
+    })
+
+    it('should call repository to create a new target property', async () => {
+      mockAddressService.createAddress.mockResolvedValue({
+        lot: { id: lotId },
+        property: { id: propertyId }
+      })
+
+      const input = {
+        ...baseProperty,
+        huntId: huntID
+      }
+
+      mockTargetPropertyRepository.createTargetProperty.mockResolvedValue({
+        ...input,
+        lotId: 'lot-123',
+        propertyId: 'property-123',
+        isActive: true
+      })
+
+      await service.createTargetProperty(baseProperty)
+
+      expect(mockAddressService.createAddress).toHaveBeenCalled()
+      expect(
+        mockTargetPropertyRepository.createTargetProperty
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
           ...baseProperty,
-          huntId: undefined
-        } as InterfaceTargetProperty)
-      ).rejects.toThrow(BadRequestException)
+          huntId: huntID,
+          lotId: lotId,
+          propertyId: propertyId,
+          isActive: true
+        })
+      )
     })
 
-    it.skip('should throw ConflictException ALREADY_EXISTS if target already exists in hunt', async () => {
-      // targetRepository.getHuntTargetByFullAddress.mockResolvedValueOnce({})
-      // await expect(service.createTargetProperty(baseProperty)).rejects.toThrow(
-      //   ConflictException
-      // )
-    })
+    it('should return created target', async () => {
+      mockAddressService.createAddress.mockResolvedValue({
+        lot: { id: lotId },
+        property: { id: propertyId }
+      })
 
-    it.skip('should throw ConflictException DUPLICITY_WARNING if target with similar address already exists in hunt', async () => {
-      // targetRepository.getHuntTargetByFullAddress.mockResolvedValueOnce({})
-      // await expect(service.createTargetProperty(baseProperty)).rejects.toThrow(
-      //   ConflictException
-      // )
-    })
+      const input = {
+        ...baseProperty,
+        huntId: huntID
+      }
 
-    it.skip('should call address service to register and get address ids', () => {})
+      mockTargetPropertyRepository.createTargetProperty.mockResolvedValue({
+        ...input,
+        lotId: 'lot-123',
+        propertyId: 'property-123',
+        isActive: true
+      })
+
+      const result = await service.createTargetProperty(baseProperty)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          ...baseProperty,
+          lotId: lotId,
+          propertyId: propertyId,
+          isActive: true
+        })
+      )
+    })
   })
 
   describe('getAllTargetsByHunt', () => {
-    it('should throw BadRequestException if huntId is missing', async () => {
-      await expect(
-        service.getAllTargetsByHunt(undefined, 1, 10)
-      ).rejects.toThrow(BadRequestException)
+    it('should return falsy if huntId is missing', async () => {
+      const found = await service.getAllTargetsByHunt(undefined, 1, 10)
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should call repository function getAllTargetsByHunt', async () => {
+      await await service.getAllTargetsByHunt('abc', 1, 10)
+
+      expect(
+        mockTargetPropertyRepository.getAllTargetsByHunt
+      ).toHaveBeenCalledWith('abc', 1, 10)
     })
   })
 
   describe('getOneTargetById', () => {
-    it('should throw BadRequestException if id is missing', async () => {
-      await expect(service.getOneTargetById(undefined)).rejects.toThrow(
-        BadRequestException
-      )
+    it('should return falsy if id is missing', async () => {
+      const found = await service.getOneTargetById(undefined)
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should call repository getAllTargetsByHunt', async () => {
+      await await service.getOneTargetById('abc')
+
+      expect(
+        mockTargetPropertyRepository.getOneTargetById
+      ).toHaveBeenCalledWith('abc')
     })
   })
 
   describe('updateTargetProperty', () => {
-    it('should throw BadRequestException if id is missing', async () => {
-      await expect(service.updateTargetProperty(undefined, {})).rejects.toThrow(
-        BadRequestException
+    it('should return falsy if id is missing', async () => {
+      const found = await service.updateTargetProperty(undefined, {
+        ...baseProperty,
+        street: 'street-123'
+      })
+
+      expect(found).toBeFalsy()
+    })
+
+    // TODO: melhorar esse teste quando entrar noLotNumber e noComplement
+    it('should register updated address', async () => {
+      mockAddressService.createAddress.mockResolvedValue({
+        lot: { id: lotId },
+        property: { id: propertyId }
+      })
+
+      const input = {
+        ...baseProperty,
+        huntId: huntID
+      }
+
+      mockTargetPropertyRepository.updateTargetProperty.mockResolvedValue({
+        ...input,
+        lotId: 'lot-123',
+        propertyId: 'property-123',
+        isActive: true
+      })
+
+      await service.updateTargetProperty('abc', baseProperty)
+
+      expect(mockAddressService.createAddress).toHaveBeenCalled()
+    })
+
+    it('should call repository to update the target property', async () => {
+      mockAddressService.createAddress.mockResolvedValue({
+        lot: { id: lotId },
+        property: { id: propertyId }
+      })
+
+      const input = {
+        ...baseProperty,
+        huntId: huntID
+      }
+
+      mockTargetPropertyRepository.updateTargetProperty.mockResolvedValue({
+        ...input,
+        lotId: 'lot-123',
+        propertyId: 'property-123',
+        isActive: true
+      })
+
+      await service.updateTargetProperty('abc', baseProperty)
+
+      expect(
+        mockTargetPropertyRepository.updateTargetProperty
+      ).toHaveBeenCalledWith(
+        'abc',
+        expect.objectContaining({
+          ...baseProperty,
+          huntId: huntID,
+          lotId: lotId,
+          propertyId: propertyId,
+          isActive: true
+        })
       )
-    })
-
-    it.skip('should verify if there is already a target with the final updated data before updating', () => {
-      // verifica se os métodos getHuntTargetByFullAddress, getHuntTargetsByLot e getHuntTargetsByStreet do targetPropertyRepository estão sendo chamados
-    })
-
-    it.skip('should run createAddress on target address update', () => {
-      // verificar se o método createAddress do addressService está sendo chamado
     })
   })
 
   describe('deleteTargetProperty', () => {
-    it('should throw BadRequestException if id is missing', async () => {
-      await expect(service.updateTargetProperty(undefined, {})).rejects.toThrow(
-        BadRequestException
-      )
+    it('should return falsy if id is missing', async () => {
+      const deleted = await service.deleteTargetProperty(undefined)
+
+      expect(deleted).toBeFalsy()
     })
 
-    it.skip('should remove target Id from hunt targets', () => {
-      // verificar se removeTargetFromHunt do huntRepository está sendo chamado
-    })
+    it('should return true if deleted success', async () => {
+      const deleted = await service.deleteTargetProperty('abc')
 
-    it.skip('should delete target instance', () => {
-      // verificar se deleteTargetProperty do targetPropertyRepository está sendo chamado
+      expect(deleted).toBeTruthy()
     })
   })
 })

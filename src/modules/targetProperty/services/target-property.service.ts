@@ -1,10 +1,8 @@
 import {
-  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
-  Injectable,
-  NotFoundException
+  Injectable
 } from '@nestjs/common'
 import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface'
 import { InterfaceProperty } from 'src/modules/address/schemas/models/property.interface'
@@ -27,72 +25,11 @@ export class TargetPropertyService {
 
   async createTargetProperty(
     newProperty: InterfaceTargetProperty
-  ): Promise<InterfaceTargetProperty> {
+  ): Promise<InterfaceTargetProperty | undefined> {
     if (!newProperty.huntId) {
-      throw new BadRequestException(
-        'Um imóvel de interesse deve estar associado a uma hunt'
-      )
+      return undefined
     }
 
-    // TODO: lidar com o noLotNumber
-    // TODO: lidar com o noPropertyNumber
-    if (newProperty.propertyNumber && newProperty.lotNumber) {
-      const alreadyCreated =
-        await this.targetPropertyRepository.getHuntTargetByFullAddress(
-          newProperty.huntId,
-          {
-            propertyNumber: newProperty.propertyNumber,
-            lotNumber: newProperty.lotNumber,
-            street: newProperty.street,
-            neighborhood: newProperty.neighborhood,
-            city: newProperty.city,
-            uf: newProperty.uf,
-            country: newProperty.country
-          }
-        )
-
-      if (alreadyCreated)
-        throw new ConflictException({
-          message: 'ALREADY_EXISTS'
-        })
-    } else if (newProperty.lotNumber && !newProperty.propertyNumber) {
-      const hasTargets =
-        await this.targetPropertyRepository.getHuntTargetsByLot(
-          newProperty.huntId,
-          {
-            lotNumber: newProperty.lotNumber,
-            street: newProperty.street,
-            neighborhood: newProperty.neighborhood,
-            city: newProperty.city,
-            uf: newProperty.uf,
-            country: newProperty.country
-          }
-        )
-
-      if (hasTargets)
-        throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byLot'
-        })
-    } else {
-      const hasTargets =
-        await this.targetPropertyRepository.getHuntTargetsByStreet(
-          newProperty.huntId,
-          {
-            street: newProperty.street,
-            neighborhood: newProperty.neighborhood,
-            city: newProperty.city,
-            uf: newProperty.uf,
-            country: newProperty.country
-          }
-        )
-
-      if (hasTargets)
-        throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byStreet'
-        })
-    }
-
-    // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
       ...newProperty,
       noComplement: false,
@@ -127,13 +64,72 @@ export class TargetPropertyService {
     })
   }
 
+  async preventDuplicity(targetToValidate: InterfaceTargetProperty) {
+    // TODO: lidar com o noLotNumber e noComplement
+    if (targetToValidate.propertyNumber && targetToValidate.lotNumber) {
+      const alreadyCreated =
+        await this.targetPropertyRepository.getHuntTargetByFullAddress(
+          targetToValidate.huntId,
+          {
+            propertyNumber: targetToValidate.propertyNumber,
+            lotNumber: targetToValidate.lotNumber,
+            street: targetToValidate.street,
+            neighborhood: targetToValidate.neighborhood,
+            city: targetToValidate.city,
+            uf: targetToValidate.uf,
+            country: targetToValidate.country
+          }
+        )
+
+      if (alreadyCreated)
+        throw new ConflictException({
+          message: 'ALREADY_EXISTS'
+        })
+    } else if (targetToValidate.lotNumber && !targetToValidate.propertyNumber) {
+      const hasTargets =
+        await this.targetPropertyRepository.getHuntTargetsByLot(
+          targetToValidate.huntId,
+          {
+            lotNumber: targetToValidate.lotNumber,
+            street: targetToValidate.street,
+            neighborhood: targetToValidate.neighborhood,
+            city: targetToValidate.city,
+            uf: targetToValidate.uf,
+            country: targetToValidate.country
+          }
+        )
+
+      if (hasTargets)
+        throw new ConflictException({
+          message: 'DUPLICITY_WARNING: byLot'
+        })
+    } else {
+      const hasTargets =
+        await this.targetPropertyRepository.getHuntTargetsByStreet(
+          targetToValidate.huntId,
+          {
+            street: targetToValidate.street,
+            neighborhood: targetToValidate.neighborhood,
+            city: targetToValidate.city,
+            uf: targetToValidate.uf,
+            country: targetToValidate.country
+          }
+        )
+
+      if (hasTargets)
+        throw new ConflictException({
+          message: 'DUPLICITY_WARNING: byStreet'
+        })
+    }
+  }
+
   async getAllTargetsByHunt(
     huntId: string,
     page?: number,
     limit?: number
-  ): Promise<PaginatedData<InterfaceTargetProperty>> {
+  ): Promise<PaginatedData<InterfaceTargetProperty> | undefined> {
     if (!huntId) {
-      throw new BadRequestException('Necessário informar huntId')
+      return undefined
     }
 
     return await this.targetPropertyRepository.getAllTargetsByHunt(
@@ -143,90 +139,26 @@ export class TargetPropertyService {
     )
   }
 
-  async getOneTargetById(id: string): Promise<InterfaceTargetProperty> {
+  async getOneTargetById(
+    id: string
+  ): Promise<InterfaceTargetProperty | undefined> {
     if (!id) {
-      throw new BadRequestException('Id is required')
+      return undefined
     }
-    const property = await this.targetPropertyRepository.getOneTargetById(id)
 
-    if (!property) throw new NotFoundException('Imóvel não encontrado')
+    const property = await this.targetPropertyRepository.getOneTargetById(id)
     return property
   }
 
   async updateTargetProperty(
     id: string,
-    data: Partial<InterfaceTargetProperty>
+    data: InterfaceTargetProperty
   ): Promise<InterfaceTargetProperty> {
     if (!id) {
-      throw new BadRequestException('Id is required')
+      return null
     }
-
-    // TODO: lidar com o noComplement
-    // TODO: lidar com o noLotNumber
-    if (data.propertyNumber && data.lotNumber) {
-      const alreadyCreated =
-        await this.targetPropertyRepository.getHuntTargetByFullAddress(
-          data.huntId,
-          {
-            propertyNumber: data.propertyNumber,
-            lotNumber: data.lotNumber,
-            street: data.street,
-            neighborhood: data.neighborhood,
-            city: data.city,
-            uf: data.uf,
-            country: data.country
-          }
-        )
-
-      if (alreadyCreated && alreadyCreated.id !== id)
-        throw new ConflictException({
-          message: 'ALREADY_EXISTS'
-        })
-    } else if (data.lotNumber && !data.propertyNumber) {
-      const hasTargets =
-        await this.targetPropertyRepository.getHuntTargetsByLot(data.huntId, {
-          lotNumber: data.lotNumber,
-          street: data.street,
-          neighborhood: data.neighborhood,
-          city: data.city,
-          uf: data.uf,
-          country: data.country
-        })
-
-      const existingTargetNotThisOne =
-        hasTargets.length === 1 && hasTargets[0].id !== id
-
-      if (hasTargets && (hasTargets.length >= 2 || existingTargetNotThisOne))
-        throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byLot'
-        })
-    } else {
-      const hasTargets =
-        await this.targetPropertyRepository.getHuntTargetsByStreet(
-          data.huntId,
-          {
-            street: data.street,
-            neighborhood: data.neighborhood,
-            city: data.city,
-            uf: data.uf,
-            country: data.country
-          }
-        )
-
-      const existingTargetNotThisOne =
-        hasTargets.length === 1 && hasTargets[0].id !== id
-
-      if (hasTargets && existingTargetNotThisOne)
-        throw new ConflictException({
-          message: 'DUPLICITY_WARNING: byStreet'
-        })
-    }
-
-    const currentData = await this.getOneTargetById(id)
-
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
-      ...currentData,
       ...data,
       noComplement: false,
       noLotNumber: false
@@ -265,12 +197,17 @@ export class TargetPropertyService {
     // provavelmente fazer isso através de uma fila
   }
 
-  async deleteTargetProperty(id: string): Promise<void> {
-    const toDelete = await this.targetPropertyRepository.getOneTargetById(id)
-    const deleted = await this.targetPropertyRepository.deleteTargetProperty(id)
+  async deleteTargetProperty(id: string): Promise<boolean> {
+    if (!id) {
+      return false
+    }
 
-    if (deleted) {
-      await this.huntRepository.removeTargetFromHunt(toDelete.huntId, id)
+    try {
+      await this.targetPropertyRepository.deleteTargetProperty(id)
+
+      return true
+    } catch (_err) {
+      return false
     }
   }
 }

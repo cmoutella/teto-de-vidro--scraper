@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -33,6 +34,7 @@ import {
   GetOneTargetPropertySuccess,
   GetTargetPropertiesByHuntSuccess
 } from '../schemas/endpoints/get'
+import { InterfaceTargetProperty } from '../schemas/models/target-property.interface'
 import { TargetProperty } from '../schemas/target-property.schema'
 import { TargetPropertyService } from '../services/target-property.service'
 
@@ -179,46 +181,54 @@ export class TargetPropertyController {
       propertyConvenience
     }: CreateTargetProperty
   ) {
+    if (!huntId) {
+      throw new BadRequestException('É necessário vincular a uma huntId')
+    }
+
     const hunt = await this.huntService.getOneHuntById(huntId)
 
     if (!hunt) {
-      throw new NotFoundException()
+      throw new NotFoundException('A hunt informada não existe')
     }
 
+    const targetData = {
+      huntId,
+      adURL,
+      sellPrice,
+      rentPrice,
+      iptu,
+      nickname,
+      priority,
+      realtor,
+      realtorContact,
+      huntingStage: 'new',
+      lotName,
+      street,
+      lotNumber,
+      postalCode,
+      neighborhood,
+      city,
+      uf,
+      country,
+      lotConvenience,
+      block,
+      propertyNumber,
+      size,
+      rooms,
+      bathrooms,
+      parking,
+      is_front,
+      sun,
+      condoPricing,
+      propertyConvenience,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    await this.targetPropertyService.preventDuplicity(targetData as never)
+
     const createdTargetProperty =
-      await this.targetPropertyService.createTargetProperty({
-        huntId,
-        adURL,
-        sellPrice,
-        rentPrice,
-        iptu,
-        nickname,
-        priority,
-        realtor,
-        realtorContact,
-        huntingStage: 'new',
-        lotName,
-        street,
-        lotNumber,
-        postalCode,
-        neighborhood,
-        city,
-        uf,
-        country,
-        lotConvenience,
-        block,
-        propertyNumber,
-        size,
-        rooms,
-        bathrooms,
-        parking,
-        is_front,
-        sun,
-        condoPricing,
-        propertyConvenience,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      })
+      await this.targetPropertyService.createTargetProperty(targetData as never)
 
     if (!createdTargetProperty) {
       throw new InternalServerErrorException()
@@ -255,10 +265,25 @@ export class TargetPropertyController {
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
     updateData: UpdateTargetProperty
   ) {
-    return await this.targetPropertyService.updateTargetProperty(id, {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const currentData = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!currentData) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    const finalData: InterfaceTargetProperty = {
+      ...currentData,
       ...updateData,
       updatedAt: new Date().toISOString()
-    })
+    }
+
+    await this.targetPropertyService.preventDuplicity(finalData)
+
+    return await this.targetPropertyService.updateTargetProperty(id, finalData)
   }
 
   @ApiOperation({
@@ -273,6 +298,10 @@ export class TargetPropertyController {
     @Query('page') page?: number,
     @Query('limit') limit?: number
   ) {
+    if (!huntId) {
+      throw new BadRequestException('Necessário informar huntId')
+    }
+
     return await this.targetPropertyService.getAllTargetsByHunt(
       huntId,
       page,
@@ -289,6 +318,22 @@ export class TargetPropertyController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteTargetProperty(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const toDelete = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!toDelete) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    const deleted = await this.targetPropertyService.deleteTargetProperty(id)
+
+    if (deleted) {
+      await this.huntService.removeTargetFromHunt(toDelete.huntId, id)
+    }
+
     await this.targetPropertyService.deleteTargetProperty(id)
   }
 }
