@@ -1,8 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  forwardRef,
   Get,
+  Inject,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -18,6 +22,8 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
+import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
+import { UserService } from '@src/modules/user/services/user.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { z } from 'zod'
 
@@ -69,7 +75,13 @@ type UpdateHunt = z.infer<typeof updateHuntSchema>
 @UseInterceptors(LoggingInterceptor)
 @Controller('hunt')
 export class HuntController {
-  constructor(private readonly huntService: HuntService) {}
+  constructor(
+    private readonly huntService: HuntService,
+    @Inject(forwardRef(() => TargetPropertyService))
+    private readonly targetPropertyService: TargetPropertyService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService
+  ) {}
 
   @ApiOperation({ summary: 'Cria uma caça por imóvel' })
   @ApiBody({
@@ -99,6 +111,17 @@ export class HuntController {
       maxBudget
     }: CreateHunt
   ) {
+    if (!creatorId) {
+      throw new BadRequestException(
+        'É necessário um usuário para criar uma hunt'
+      )
+    }
+
+    const user = await this.userService.getById(creatorId)
+    if (!user) {
+      throw new NotFoundException('Usuário não existe')
+    }
+
     return await this.huntService.createHunt({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -125,7 +148,17 @@ export class HuntController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async getOneHuntById(@Param('id') id: string) {
-    return await this.huntService.getOneHuntById(id)
+    if (!id) {
+      throw new BadRequestException('É necessário informar a id da hunt')
+    }
+
+    const found = await this.huntService.getOneHuntById(id)
+
+    if (!found) {
+      throw new NotFoundException('Hunt não encontrada')
+    }
+
+    return found
   }
 
   @ApiOperation({ summary: 'Atualização de uma caçada' })
@@ -146,6 +179,16 @@ export class HuntController {
     @Body(new ZodValidationPipe(updateHuntSchema))
     updateData: UpdateHunt
   ) {
+    if (!id) {
+      throw new BadRequestException('É necessário informar a id da hunt')
+    }
+
+    const found = await this.huntService.getOneHuntById(id)
+
+    if (!found) {
+      throw new NotFoundException('A hunt não existe')
+    }
+
     return await this.huntService.updateHunt(id, {
       ...updateData,
       updatedAt: new Date().toISOString()
@@ -166,6 +209,10 @@ export class HuntController {
     @Query('page') page?: number,
     @Query('limit') limit?: number
   ) {
+    if (!userId) {
+      throw new BadRequestException('É necessário informar a id do usuário')
+    }
+
     return await this.huntService.getAllHuntsByUser(userId, page, limit)
   }
 
@@ -179,6 +226,22 @@ export class HuntController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHunt(@Param('id') id: string) {
-    await this.huntService.deleteHunt(id)
+    if (!id) {
+      throw new BadRequestException('É necessário informar a id da hunt')
+    }
+
+    const toDelete = await this.huntService.getOneHuntById(id)
+
+    if (!toDelete) {
+      throw new NotFoundException('Hunt não encontrada')
+    }
+
+    const deleted = await this.huntService.deleteHunt(id)
+
+    if (deleted) {
+      toDelete.targets.forEach(async (target) => {
+        await this.targetPropertyService.deleteTargetProperty(target)
+      })
+    }
   }
 }

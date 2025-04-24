@@ -30,13 +30,13 @@ describe('HuntService | UnitTest', () => {
   }
 
   const mockHuntRepository = {
-    addTargetToHunt: jest.fn(),
-    getAllHuntsByUser: jest.fn(),
-    removeTargetFromHunt: jest.fn(),
     createHunt: jest.fn(),
     updateHunt: jest.fn(),
     getOneHuntById: jest.fn(),
-    deleteHunt: jest.fn()
+    getAllHuntsByUser: jest.fn(),
+    deleteHunt: jest.fn(),
+    addTargetToHunt: jest.fn(),
+    removeTargetFromHunt: jest.fn()
   }
 
   beforeEach(async () => {
