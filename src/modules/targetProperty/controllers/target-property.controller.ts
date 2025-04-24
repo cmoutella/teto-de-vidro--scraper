@@ -248,6 +248,10 @@ export class TargetPropertyController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async getOneTargetProperty(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
     return await this.targetPropertyService.getOneTargetById(id)
   }
 
@@ -330,10 +334,9 @@ export class TargetPropertyController {
 
     const deleted = await this.targetPropertyService.deleteTargetProperty(id)
 
+    console.log('ue cralho', deleted)
     if (deleted) {
       await this.huntService.removeTargetFromHunt(toDelete.huntId, id)
     }
-
-    await this.targetPropertyService.deleteTargetProperty(id)
   }
 }

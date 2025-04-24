@@ -81,10 +81,11 @@ export class TargetPropertyService {
           }
         )
 
-      if (alreadyCreated)
+      if (alreadyCreated) {
         throw new ConflictException({
           message: 'ALREADY_EXISTS'
         })
+      }
     } else if (targetToValidate.lotNumber && !targetToValidate.propertyNumber) {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByLot(
@@ -99,10 +100,11 @@ export class TargetPropertyService {
           }
         )
 
-      if (hasTargets)
+      if (hasTargets) {
         throw new ConflictException({
           message: 'DUPLICITY_WARNING: byLot'
         })
+      }
     } else {
       const hasTargets =
         await this.targetPropertyRepository.getHuntTargetsByStreet(
@@ -116,11 +118,14 @@ export class TargetPropertyService {
           }
         )
 
-      if (hasTargets)
+      if (hasTargets) {
         throw new ConflictException({
           message: 'DUPLICITY_WARNING: byStreet'
         })
+      }
     }
+
+    return true
   }
 
   async getAllTargetsByHunt(
