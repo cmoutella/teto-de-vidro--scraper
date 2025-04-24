@@ -46,6 +46,11 @@ const baseProperty: InterfaceTargetProperty = {
   updatedAt: new Date().toISOString()
 }
 
+/**
+ * TODO
+ * - testar autenticação
+ * - testar validação com zod
+ */
 describe('TargetPropertyController | Integration Test', () => {
   let controller: TargetPropertyController
   let mongod: MongoMemoryServer
@@ -115,6 +120,8 @@ describe('TargetPropertyController | Integration Test', () => {
       .overrideGuard(AuthGuard)
       .useClass(MockAuthGuard)
       .compile()
+
+    jest.clearAllMocks()
 
     controller = module.get<TargetPropertyController>(TargetPropertyController)
   })
@@ -276,6 +283,16 @@ describe('TargetPropertyController | Integration Test', () => {
       await expect(controller.deleteTargetProperty('abc')).rejects.toThrow(
         NotFoundException
       )
+    })
+
+    it('should NOT remove target from hunt if delete success', async () => {
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue({
+        huntId: 'h123'
+      })
+      mockTargetPropertyService.deleteTargetProperty.mockResolvedValue(false)
+
+      await controller.deleteTargetProperty('abc')
+      expect(mockHuntService.removeTargetFromHunt).not.toHaveBeenCalled()
     })
 
     it('should remove target from hunt if delete success', async () => {
