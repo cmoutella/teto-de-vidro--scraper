@@ -1,3 +1,4 @@
+import type { INestApplication } from '@nestjs/common'
 import {
   BadRequestException,
   ConflictException,
@@ -9,11 +10,13 @@ import { Test } from '@nestjs/testing'
 import { HuntMongooseRepository } from '@src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
+import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { Types } from 'mongoose'
 import { AddressService } from 'src/modules/address/services/address.service'
 import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
 import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
+import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import { TargetPropertyController } from '../../controllers/target-property.controller'
@@ -26,6 +29,7 @@ import {
 import { TargetPropertyService } from '../../services/target-property.service'
 
 const huntID = new Types.ObjectId().toHexString()
+const targetId = new Types.ObjectId().toHexString()
 const baseProperty: InterfaceTargetProperty = {
   adURL: '',
   sellPrice: 0,
@@ -48,12 +52,12 @@ const baseProperty: InterfaceTargetProperty = {
 
 /**
  * TODO
- * - testar autenticação
  * - testar validação com zod
  */
 describe('TargetPropertyController | Integration Test', () => {
   let controller: TargetPropertyController
   let mongod: MongoMemoryServer
+  let app: INestApplication
 
   const mockHuntService = {
     getOneHuntById: jest.fn(),
@@ -121,22 +125,65 @@ describe('TargetPropertyController | Integration Test', () => {
       .useClass(MockAuthGuard)
       .compile()
 
-    jest.clearAllMocks()
-
     controller = module.get<TargetPropertyController>(TargetPropertyController)
+    app = module.createNestApplication()
+    app.useGlobalInterceptors(new ResponseInterceptor())
+    await app.init()
+  })
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
   })
 
   afterAll(async () => {
     await mongoose.disconnect()
     await mongod.stop()
+    await app.close()
   })
 
   it('should be defined', () => {
-    MockAuthGuard.allow = true
     expect(controller).toBeDefined()
   })
 
   describe('createTargetProperty', () => {
+    it('should return created target if success', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty
+        })
+        .expect(201)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('status')
+          expect(res.body).toHaveProperty('data')
+          expect(res.body.data).toHaveProperty('id')
+        })
+    })
+
+    it('should return validation error if zod validation failed', async () => {
+      MockAuthGuard.allow = true
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty,
+          huntId: undefined
+        } as InterfaceTargetProperty)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('message')
+          expect(res.body).toHaveProperty('error')
+        })
+    })
+
     it('should throw BadRequestException if huntId is missing', async () => {
       MockAuthGuard.allow = true
       await expect(
@@ -179,16 +226,15 @@ describe('TargetPropertyController | Integration Test', () => {
       ).rejects.toThrow(ConflictException)
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(
-        controller.createTargetProperty({
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
           ...baseProperty
-        } as InterfaceTargetProperty)
-      ).rejects.toThrow(BadRequestException)
+        })
+        .expect(403)
     })
   })
 
@@ -201,14 +247,13 @@ describe('TargetPropertyController | Integration Test', () => {
       ).rejects.toThrow(BadRequestException)
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.getAllTargetsByHunt(huntID)).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .get(`/target-property/search/${huntID}`)
+        .send()
+        .expect(403)
     })
   })
 
@@ -221,14 +266,13 @@ describe('TargetPropertyController | Integration Test', () => {
       )
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.getOneTargetProperty('abc')).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .get(`/target-property/${targetId}`)
+        .send()
+        .expect(403)
     })
   })
 
@@ -257,16 +301,15 @@ describe('TargetPropertyController | Integration Test', () => {
       // TODO: test preventDuplicity
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(
-        controller.updateTargetProperty('abc', {
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}`)
+        .send({
           ...baseProperty
-        } as InterfaceTargetProperty)
-      ).rejects.toThrow(BadRequestException)
+        })
+        .expect(403)
     })
   })
 
@@ -305,14 +348,13 @@ describe('TargetPropertyController | Integration Test', () => {
       expect(mockHuntService.removeTargetFromHunt).toHaveBeenCalled()
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.deleteTargetProperty('abc')).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .delete(`/target-property/${targetId}`)
+        .send()
+        .expect(403)
     })
   })
 })

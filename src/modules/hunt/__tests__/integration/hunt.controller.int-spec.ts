@@ -1,3 +1,4 @@
+import type { INestApplication } from '@nestjs/common'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
@@ -9,6 +10,7 @@ import {
 } from '@src/modules/targetProperty/schemas/target-property.schema'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { UserService } from '@src/modules/user/services/user.service'
+import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { Types } from 'mongoose'
 import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
@@ -16,12 +18,14 @@ import { HuntMongooseRepository } from 'src/modules/hunt/repositories/mongoose/h
 import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import { HuntService } from 'src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
+import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import { HuntController } from '../../controllers/hunt-collection.controller'
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
 
 const userId = new Types.ObjectId().toHexString()
+const huntId = new Types.ObjectId().toHexString()
 const mockTargets = ['target-1', 'target-2']
 const huntMock: InterfaceHunt = {
   creatorId: userId,
@@ -33,12 +37,12 @@ const huntMock: InterfaceHunt = {
 
 /**
  * TODO
- * - testar autenticação
  * - testar validação com zod
  */
 describe('HuntController | Integration Test', () => {
   let controller: HuntController
   let mongod: MongoMemoryServer
+  let app: INestApplication
 
   const mockHuntService = {
     createHunt: jest.fn(),
@@ -106,22 +110,65 @@ describe('HuntController | Integration Test', () => {
       .useClass(MockAuthGuard)
       .compile()
 
-    jest.clearAllMocks()
-
     controller = module.get<HuntController>(HuntController)
+    app = module.createNestApplication()
+    app.useGlobalInterceptors(new ResponseInterceptor())
+    await app.init()
+  })
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
   })
 
   afterAll(async () => {
     await mongoose.disconnect()
     await mongod.stop()
+    await app.close()
   })
 
   it('should be defined', () => {
-    MockAuthGuard.allow = true
     expect(controller).toBeDefined()
   })
 
-  describe('createTargetProperty', () => {
+  describe('createHunt', () => {
+    it('should return created target if success', async () => {
+      MockAuthGuard.allow = true
+
+      mockUserService.getById.mockResolvedValue(true)
+      mockHuntService.createHunt.mockResolvedValue({
+        ...huntMock,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/hunt') // a rota que você quer testar
+        .send({
+          ...huntMock
+        })
+        .expect(201)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('status')
+          expect(res.body).toHaveProperty('data')
+          expect(res.body.data).toHaveProperty('id')
+        })
+    })
+
+    it('should return validation error if zod validation failed', async () => {
+      MockAuthGuard.allow = true
+
+      await request(app.getHttpServer())
+        .post('/hunt') // a rota que você quer testar
+        .send({
+          ...huntMock,
+          creatorId: undefined
+        } as InterfaceHunt)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('message')
+          expect(res.body).toHaveProperty('error')
+        })
+    })
+
     it('should throw BadRequestException if huntId is missing', async () => {
       MockAuthGuard.allow = true
 
@@ -146,16 +193,15 @@ describe('HuntController | Integration Test', () => {
       expect(mockUserService.getById).toHaveBeenCalled()
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(
-        controller.createHunt({
+      await request(app.getHttpServer())
+        .post('/hunt')
+        .send({
           ...huntMock
-        } as InterfaceHunt)
-      ).rejects.toThrow(BadRequestException)
+        })
+        .expect(403)
     })
   })
 
@@ -168,14 +214,13 @@ describe('HuntController | Integration Test', () => {
       ).rejects.toThrow(BadRequestException)
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.getAllHuntsByUser(userId)).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .get(`/hunt/search/${userId}`)
+        .send()
+        .expect(403)
     })
   })
 
@@ -188,14 +233,13 @@ describe('HuntController | Integration Test', () => {
       )
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.getOneHuntById('abc')).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .get(`/hunt/${huntId}`)
+        .send()
+        .expect(403)
     })
   })
 
@@ -222,20 +266,19 @@ describe('HuntController | Integration Test', () => {
       ).rejects.toThrow(NotFoundException)
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(
-        controller.updateHunt('abc', {
+      await request(app.getHttpServer())
+        .put(`/hunt/${huntId}`)
+        .send({
           ...huntMock
-        } as InterfaceHunt)
-      ).rejects.toThrow(BadRequestException)
+        })
+        .expect(403)
     })
   })
 
-  describe('deleteTargetProperty', () => {
+  describe('deleteHunt', () => {
     it('should throw BadRequestException if id is missing', async () => {
       await expect(controller.deleteHunt(undefined)).rejects.toThrow(
         BadRequestException
@@ -276,14 +319,13 @@ describe('HuntController | Integration Test', () => {
       ).toHaveBeenCalledTimes(mockTargets.length)
     })
 
-    it.skip('should require authorization in request headers', async () => {
+    it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
-      mockHuntService.getOneHuntById.mockResolvedValue(true)
-
-      await expect(controller.deleteHunt('abc')).rejects.toThrow(
-        BadRequestException
-      )
+      await request(app.getHttpServer())
+        .delete(`/hunt/${huntId}`)
+        .send()
+        .expect(403)
     })
   })
 })
