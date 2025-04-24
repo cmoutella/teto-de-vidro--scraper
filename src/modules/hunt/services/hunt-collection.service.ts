@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
-import { TargetPropertyRepository } from 'src/modules/targetProperty/repositories/target-property.repository'
+import { Injectable } from '@nestjs/common'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { HuntRepository } from '../repositories/hunt.repository'
@@ -13,17 +6,11 @@ import { InterfaceHunt } from '../schemas/models/hunt.interface'
 
 @Injectable()
 export class HuntService {
-  constructor(
-    private readonly huntRepository: HuntRepository,
-    @Inject(forwardRef(() => TargetPropertyRepository))
-    private readonly targetPropertyRepository: TargetPropertyRepository
-  ) {}
+  constructor(private readonly huntRepository: HuntRepository) {}
 
-  async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null> {
+  async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | undefined> {
     if (!newHunt.creatorId) {
-      throw new BadRequestException(
-        'É necessário um usuário para criar uma hunt'
-      )
+      return undefined
     }
 
     return await this.huntRepository.createHunt(newHunt)
@@ -33,46 +20,70 @@ export class HuntService {
     userId: string,
     page?: number,
     limit?: number
-  ): Promise<PaginatedData<InterfaceHunt>> {
+  ): Promise<PaginatedData<InterfaceHunt> | undefined> {
+    if (!userId) return undefined
+
     return await this.huntRepository.getAllHuntsByUser(userId, page, limit)
   }
 
-  async addTargetToHunt(huntId: string, targetId: string): Promise<void> {
-    return await this.huntRepository.addTargetToHunt(huntId, targetId)
+  async addTargetToHunt(huntId: string, targetId: string): Promise<boolean> {
+    if (!huntId) return undefined
+    if (!targetId) return undefined
+
+    try {
+      await this.huntRepository.addTargetToHunt(huntId, targetId)
+
+      return true
+    } catch (_err) {
+      return false
+    }
   }
 
-  async removeTargetFromHunt(huntId: string, targetId: string): Promise<void> {
-    return await this.huntRepository.removeTargetFromHunt(huntId, targetId)
+  async removeTargetFromHunt(
+    huntId: string,
+    targetId: string
+  ): Promise<boolean> {
+    if (!huntId) return undefined
+    if (!targetId) return undefined
+
+    try {
+      await this.huntRepository.removeTargetFromHunt(huntId, targetId)
+
+      return true
+    } catch (_err) {
+      return false
+    }
   }
 
-  async getOneHuntById(id: string): Promise<InterfaceHunt> {
+  async getOneHuntById(id: string): Promise<InterfaceHunt | undefined> {
+    if (!id) return undefined
+
     const hunt = await this.huntRepository.getOneHuntById(id)
 
-    if (!hunt) throw new NotFoundException('Hunt não encontrada')
+    if (!hunt) return undefined
     return hunt
   }
 
   async updateHunt(
     id: string,
     data: Partial<InterfaceHunt>
-  ): Promise<InterfaceHunt> {
+  ): Promise<InterfaceHunt | undefined> {
+    if (!id) return undefined
+
     return await this.huntRepository.updateHunt(id, data)
   }
 
-  async deleteHunt(id: string): Promise<void> {
-    const huntData = await this.getOneHuntById(id)
-
-    if (!huntData) {
-      throw new NotFoundException('Hunt não encontrada')
+  async deleteHunt(id: string): Promise<boolean> {
+    if (!id) {
+      return undefined
     }
 
-    console.log(huntData.targets)
-    huntData.targets.forEach(async (target) => {
-      console.log('removendo target', target)
-      await this.targetPropertyRepository.deleteTargetProperty(target)
-    })
+    try {
+      await this.huntRepository.deleteHunt(id)
 
-    console.log('agora a hunt')
-    await this.huntRepository.deleteHunt(id)
+      return true
+    } catch (_err) {
+      return false
+    }
   }
 }

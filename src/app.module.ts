@@ -8,7 +8,7 @@ import { AppService } from './app.service'
 import { AddressModule } from './modules/address/address.module'
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
-import { UsersModule } from './modules/user/user.module'
+import { UsersCollectionModule } from './modules/user/user.module'
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { UsersModule } from './modules/user/user.module'
       isGlobal: true
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
-    UsersModule,
+    UsersCollectionModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
