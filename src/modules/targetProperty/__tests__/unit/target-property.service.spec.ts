@@ -1,9 +1,7 @@
-import { APP_GUARD } from '@nestjs/core'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { AddressService } from '@src/modules/address/services/address.service'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
-import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
@@ -70,13 +68,11 @@ describe('TargetPropertyService | UnitTest', () => {
         {
           provide: AddressService,
           useValue: mockAddressService
-        },
-        {
-          provide: APP_GUARD,
-          useClass: MockAuthGuard
         }
       ]
     }).compile()
+
+    jest.clearAllMocks()
 
     service = module.get<TargetPropertyService>(TargetPropertyService)
   })
