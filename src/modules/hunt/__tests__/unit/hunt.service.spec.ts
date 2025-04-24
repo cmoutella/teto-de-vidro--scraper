@@ -173,8 +173,6 @@ describe('HuntService | UnitTest', () => {
     it('should return true if deleted success', async () => {
       const deleted = await service.deleteHunt('abc')
 
-      console.log('test deleted', deleted)
-
       expect(deleted).toBeTruthy()
     })
   })
