@@ -69,6 +69,12 @@ export class TargetProperty implements InterfaceTargetProperty {
   street: string
   @ApiPropertyOptional()
   @Prop()
+  noName: string
+  @ApiProperty()
+  @Prop()
+  noLotNumber: boolean
+  @ApiPropertyOptional()
+  @Prop()
   lotNumber?: string
   @ApiPropertyOptional()
   @Prop()
@@ -93,6 +99,9 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiPropertyOptional()
   @Prop()
   propertyId?: string
+  @ApiProperty()
+  @Prop()
+  noComplement: boolean
   @ApiPropertyOptional()
   @Prop()
   block?: string
@@ -122,7 +131,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   condoPricing?: number
   @ApiPropertyOptional()
   @Prop()
-  convenience?: string[]
+  propertyConvenience?: string[]
 }
 
 export const TargetPropertySchema = SchemaFactory.createForClass(TargetProperty)

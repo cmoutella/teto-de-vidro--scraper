@@ -60,40 +60,38 @@ const createTargetPropertySchema = z.object({
   iptu: z.number().optional(),
 
   nickname: z.string().optional(),
-  priority: z.number().optional(),
-  realtor: z.string().optional(),
-  realtorContact: z.string().optional(),
-
-  city: z.string(),
+  street: z.string(),
   neighborhood: z.string(),
+  city: z.string(),
   uf: z.string(),
   country: z.string(),
-
-  block: z.string().optional(),
-  street: z.string(),
-  lotName: z.string().optional(),
-  lotNumber: z.string().optional(),
   postalCode: z.string().optional(),
+  condoPricing: z.number().optional(),
+
+  lotName: z.string().optional(),
+  noLotNumber: z.boolean(),
+  lotNumber: z.string().optional(),
   lotConvenience: z.array(z.string()).optional(),
+
+  noComplement: z.boolean(),
+  block: z.string().optional(),
   propertyNumber: z.string().optional(),
+
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  condoPricing: z.number().optional(),
-  propertyConvenience: z.array(z.string()).optional()
+  propertyConvenience: z.array(z.string()).optional(),
+
+  realtor: z.string().optional(),
+  realtorContact: z.string().optional()
 })
 
 type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>
 
 const updateTargetPropertySchema = z.object({
-  huntId: z.string(),
-  sellPrice: z.number().optional(),
-  rentPrice: z.number().optional(),
-  iptu: z.number().optional(),
-
   nickname: z.string().optional(),
   priority: z.number().optional(),
   huntingStage: z.enum(HUNTING_STAGE).optional(),
@@ -101,26 +99,35 @@ const updateTargetPropertySchema = z.object({
   realtor: z.string().optional(),
   realtorContact: z.string().optional(),
   visitDate: z.string().optional(),
+  huntId: z.string(),
 
-  city: z.string().optional(),
-  country: z.string().optional(),
-  uf: z.string().optional(),
-  neighborhood: z.string().optional(),
+  sellPrice: z.number().optional(),
+  rentPrice: z.number().optional(),
+  iptu: z.number().optional(),
+  condoPricing: z.number().optional(),
 
-  block: z.string().optional(),
   street: z.string().optional(),
-  lotName: z.string().optional(),
-  lotNumber: z.string().optional(),
+  neighborhood: z.string().optional(),
+  city: z.string().optional(),
+  uf: z.string().optional(),
+  country: z.string().optional(),
   postalCode: z.string().optional(),
+
+  lotName: z.string().optional(),
+  noLotNumber: z.boolean().optional(),
+  lotNumber: z.string().optional(),
   lotConvenience: z.array(z.string()).optional(),
+
+  noComplement: z.boolean().optional(),
+  block: z.string().optional(),
   propertyNumber: z.string().optional(),
+
   size: z.number().optional(),
   rooms: z.number().optional(),
   bathrooms: z.number().optional(),
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  condoPricing: z.number().optional(),
   propertyConvenience: z.array(z.string()).optional()
 })
 
@@ -157,11 +164,11 @@ export class TargetPropertyController {
       rentPrice,
       iptu,
       nickname,
-      priority,
       realtor,
       realtorContact,
       lotName,
       street,
+      noLotNumber,
       lotNumber,
       postalCode,
       neighborhood,
@@ -169,6 +176,7 @@ export class TargetPropertyController {
       uf,
       country,
       lotConvenience,
+      noComplement,
       block,
       propertyNumber,
       size,
@@ -198,12 +206,12 @@ export class TargetPropertyController {
       rentPrice,
       iptu,
       nickname,
-      priority,
       realtor,
       realtorContact,
       huntingStage: 'new',
       lotName,
       street,
+      noLotNumber,
       lotNumber,
       postalCode,
       neighborhood,
@@ -211,6 +219,7 @@ export class TargetPropertyController {
       uf,
       country,
       lotConvenience,
+      noComplement,
       block,
       propertyNumber,
       size,

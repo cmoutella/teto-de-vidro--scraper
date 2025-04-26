@@ -31,9 +31,7 @@ export class TargetPropertyService {
     }
 
     const address = await this.addressService.createAddress({
-      ...newProperty,
-      noComplement: false,
-      noLotNumber: false
+      ...newProperty
     })
 
     let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>
@@ -164,9 +162,7 @@ export class TargetPropertyService {
     }
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
-      ...data,
-      noComplement: false,
-      noLotNumber: false
+      ...data
     })
 
     let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>

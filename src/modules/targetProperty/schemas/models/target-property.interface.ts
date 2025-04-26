@@ -47,19 +47,24 @@ export interface InterfaceTargetProperty {
   realtor?: string
   realtorContact?: string
 
-  // lot identification
-  lotId?: string
-  lotName?: string
+  //general address
   street: string
-  lotNumber?: string
-  postalCode?: string
   neighborhood: string
+  postalCode?: string
   city: string
   uf: string
   country: string
+
+  // lot identification
+  lotId?: string
+  lotName?: string
+  noLotNumber: boolean
+  lotNumber?: string
   lotConvenience?: string[]
+
   // property identification
   propertyId?: string
+  noComplement: boolean
   block?: string
   propertyNumber?: string
   size?: number
