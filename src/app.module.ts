@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AddressModule } from './modules/address/address.module'
+import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
 import { UsersCollectionModule } from './modules/user/user.module'
@@ -24,7 +25,8 @@ import { UsersCollectionModule } from './modules/user/user.module'
     }),
     HuntCollectionModule,
     TargetPropertyCollectionModule,
-    AddressModule
+    AddressModule,
+    AmenitiesCollectionModule
   ],
   controllers: [AppController],
   providers: [AppService]
