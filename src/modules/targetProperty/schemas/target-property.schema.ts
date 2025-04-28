@@ -11,6 +11,7 @@ export type PropertyDocument = HydratedDocument<TargetProperty>
 
 @Schema()
 export class TargetProperty implements InterfaceTargetProperty {
+  lotName?: string
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id?: string
@@ -53,12 +54,19 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiPropertyOptional()
   @Prop()
   visitDate?: string
+
+  // contact
   @ApiPropertyOptional()
   @Prop()
-  realtor?: string
+  contactName?: string
   @ApiPropertyOptional()
   @Prop()
-  realtorContact?: string
+  contactWhatzap?: string
+  @Prop()
+  realState?: string
+  @ApiPropertyOptional()
+  @Prop()
+  realStatePhoneNumber?: string
 
   // para vincular ou criar um endereço
   // lot

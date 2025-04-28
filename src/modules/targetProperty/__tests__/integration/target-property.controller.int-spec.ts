@@ -69,6 +69,7 @@ describe('TargetPropertyController | Integration Test', () => {
 
   const mockTargetPropertyService = {
     createTargetProperty: jest.fn(),
+    updateTargetProperty: jest.fn(),
     preventDuplicity: jest.fn(),
     getOneTargetById: jest.fn(),
     deleteTargetProperty: jest.fn()
@@ -208,24 +209,36 @@ describe('TargetPropertyController | Integration Test', () => {
       ).rejects.toThrow(NotFoundException)
     })
 
-    it.skip('should throw ConflictException ALREADY_EXISTS if target already exists in hunt', async () => {
+    it('should test for duplicity within the hunt', async () => {
       MockAuthGuard.allow = true
 
-      mockTargetPropertyRepository.getHuntTargetByFullAddress.mockResolvedValue(
-        true
-      )
       mockHuntService.getOneHuntById.mockResolvedValue(true)
-      mockTargetPropertyService.createTargetProperty.mockResolvedValue(
-        baseProperty
-      )
-      // TODO: prevent duplicity
-      // expect(mockTargetPropertyService.preventDuplicity).toHaveBeenCalled()
 
-      await expect(
-        controller.createTargetProperty({
+      await controller.createTargetProperty({
+        ...baseProperty
+      } as InterfaceTargetProperty)
+
+      expect(mockTargetPropertyService.preventDuplicity).toHaveBeenCalled()
+    })
+
+    it('should throw ConflictException ALREADY_EXISTS if target already exists in hunt', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+
+      mockTargetPropertyService.preventDuplicity.mockImplementation(() => {
+        throw new ConflictException({ message: 'ALREADY_EXISTS' })
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
           ...baseProperty
-        } as InterfaceTargetProperty)
-      ).rejects.toThrow(ConflictException)
+        })
+        .expect(409)
+        .expect((res) => {
+          expect(res.body.message).toContain('ALREADY_EXISTS')
+        })
     })
 
     it('should require authorization in request headers', async () => {
@@ -279,6 +292,10 @@ describe('TargetPropertyController | Integration Test', () => {
   })
 
   describe('updateTargetProperty', () => {
+    afterEach(async () => {
+      jest.clearAllMocks()
+    })
+
     it('should throw BadRequestException if id is missing', async () => {
       MockAuthGuard.allow = true
       await expect(
@@ -288,19 +305,70 @@ describe('TargetPropertyController | Integration Test', () => {
       ).rejects.toThrow(BadRequestException)
     })
 
+    it('should NOT call preventDuplicity if address info NOT changed', async () => {
+      MockAuthGuard.allow = true
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue({
+        ...baseProperty
+      })
+
+      await controller.updateTargetProperty('abc', {
+        ...baseProperty,
+        nickname: 'ChangedName'
+      } as InterfaceTargetProperty)
+
+      await expect(
+        mockTargetPropertyService.preventDuplicity
+      ).not.toHaveBeenCalled()
+    })
+
+    it('should call preventDuplicity if address info changed', async () => {
+      MockAuthGuard.allow = true
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue({
+        ...baseProperty
+      })
+
+      mockTargetPropertyService.preventDuplicity.mockResolvedValue(true)
+
+      await controller.updateTargetProperty('abc', {
+        ...baseProperty,
+        street: 'Rua dos bobos'
+      } as InterfaceTargetProperty)
+
+      await expect(
+        mockTargetPropertyService.preventDuplicity
+      ).toHaveBeenCalled()
+    })
+
+    it('should throw ConflictException ALREADY_EXISTS if target already exists in hunt', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(baseProperty)
+
+      mockTargetPropertyService.preventDuplicity.mockImplementation(() => {
+        throw new ConflictException({ message: 'ALREADY_EXISTS' })
+      })
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}`)
+        .send({
+          ...baseProperty,
+          street: 'Rua dos bobos'
+        })
+        .expect(409)
+        .expect((res) => {
+          expect(res.body.message).toContain('ALREADY_EXISTS')
+        })
+    })
+
     it('should throw NotFoundException if no Target found for the id', async () => {
       MockAuthGuard.allow = true
-      mockTargetPropertyService.getOneTargetById(false)
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(false)
 
       await expect(
         controller.updateTargetProperty('abc', {
           ...baseProperty
         } as InterfaceTargetProperty)
       ).rejects.toThrow(NotFoundException)
-    })
-
-    it.skip('should throw ConflictException ALREADY_EXISTS if target already exists in hunt', () => {
-      // TODO: test preventDuplicity
     })
 
     it('should require authorization in request headers', async () => {
@@ -323,7 +391,7 @@ describe('TargetPropertyController | Integration Test', () => {
     })
 
     it('should throw NotFoundExceptions if no Target found for the id', async () => {
-      mockTargetPropertyService.getOneTargetById(false)
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(false)
 
       await expect(controller.deleteTargetProperty('abc')).rejects.toThrow(
         NotFoundException

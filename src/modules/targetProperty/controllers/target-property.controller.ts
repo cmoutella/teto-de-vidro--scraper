@@ -34,7 +34,10 @@ import {
   GetOneTargetPropertySuccess,
   GetTargetPropertiesByHuntSuccess
 } from '../schemas/endpoints/get'
-import { InterfaceTargetProperty } from '../schemas/models/target-property.interface'
+import {
+  addressRelatedFields,
+  InterfaceTargetProperty
+} from '../schemas/models/target-property.interface'
 import { TargetProperty } from '../schemas/target-property.schema'
 import { TargetPropertyService } from '../services/target-property.service'
 
@@ -85,8 +88,8 @@ const createTargetPropertySchema = z.object({
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   propertyConvenience: z.array(z.string()).optional(),
 
-  realtor: z.string().optional(),
-  realtorContact: z.string().optional()
+  contactName: z.string().optional(),
+  contactWhatzap: z.string().optional()
 })
 
 type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>
@@ -96,10 +99,9 @@ const updateTargetPropertySchema = z.object({
   priority: z.number().optional(),
   huntingStage: z.enum(HUNTING_STAGE).optional(),
   isActive: z.boolean().optional(),
-  realtor: z.string().optional(),
-  realtorContact: z.string().optional(),
+  contactName: z.string().optional(),
+  contactWhatzap: z.string().optional(),
   visitDate: z.string().optional(),
-  huntId: z.string(),
 
   sellPrice: z.number().optional(),
   rentPrice: z.number().optional(),
@@ -164,8 +166,8 @@ export class TargetPropertyController {
       rentPrice,
       iptu,
       nickname,
-      realtor,
-      realtorContact,
+      contactName,
+      contactWhatzap,
       lotName,
       street,
       noLotNumber,
@@ -206,8 +208,8 @@ export class TargetPropertyController {
       rentPrice,
       iptu,
       nickname,
-      realtor,
-      realtorContact,
+      contactName,
+      contactWhatzap,
       huntingStage: 'new',
       lotName,
       street,
@@ -264,7 +266,6 @@ export class TargetPropertyController {
     return await this.targetPropertyService.getOneTargetById(id)
   }
 
-  // TODO: confirmar a validação
   @ApiOperation({ summary: 'Atualiza um imóvel target' })
   @ApiBody({
     type: TargetProperty
@@ -288,13 +289,30 @@ export class TargetPropertyController {
       throw new NotFoundException('Target não encontrado')
     }
 
+    const changedData: Partial<InterfaceTargetProperty> = {}
+
+    for (const key in updateData) {
+      if (
+        updateData[key] !== currentData[key] &&
+        updateData[key] != null &&
+        updateData[key] != undefined
+      ) {
+        changedData[key] = updateData[key]
+      }
+    }
+
     const finalData: InterfaceTargetProperty = {
       ...currentData,
       ...updateData,
       updatedAt: new Date().toISOString()
     }
 
-    await this.targetPropertyService.preventDuplicity(finalData)
+    const hasAddressUpdate = Object.keys(changedData).some((key) =>
+      addressRelatedFields.includes(key as never)
+    )
+    if (hasAddressUpdate) {
+      await this.targetPropertyService.preventDuplicity(finalData)
+    }
 
     return await this.targetPropertyService.updateTargetProperty(id, finalData)
   }
@@ -343,7 +361,6 @@ export class TargetPropertyController {
 
     const deleted = await this.targetPropertyService.deleteTargetProperty(id)
 
-    console.log('ue cralho', deleted)
     if (deleted) {
       await this.huntService.removeTargetFromHunt(toDelete.huntId, id)
     }
