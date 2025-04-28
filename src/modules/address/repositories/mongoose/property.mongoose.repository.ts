@@ -13,8 +13,13 @@ export class PropertyMongooseRepository implements PropertyRepository {
     @InjectModel(Property.name) private propertyModel: Model<Property>
   ) {}
 
-  async createProperty(newProperty: InterfaceProperty): Promise<Property> {
-    const createProperty = new this.propertyModel(newProperty)
+  async createProperty(
+    newProperty: Omit<InterfaceProperty, 'propertyAmenities'>
+  ): Promise<Property> {
+    const createProperty = new this.propertyModel({
+      ...newProperty,
+      propertyAmenities: []
+    })
 
     await createProperty.save()
 

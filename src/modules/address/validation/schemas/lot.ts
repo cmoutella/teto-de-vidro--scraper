@@ -10,7 +10,7 @@ export const createLotSchema = z.object({
   city: z.string().optional(),
   uf: z.string().optional(),
   country: z.string().optional(),
-  lotConvenience: z.array(z.string()).optional()
+  lotAmenities: z.array(z.string()).optional()
 })
 
 export type CreateLot = z.infer<typeof createLotSchema>

@@ -41,7 +41,10 @@ export class LotService {
       // TODO: tratar endereço sem numero
     }
 
-    const createdLot = await this.lotRepository.createLot(validLot)
+    const createdLot = await this.lotRepository.createLot({
+      ...validLot,
+      lotAmenities: []
+    })
 
     return createdLot
   }

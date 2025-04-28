@@ -154,7 +154,6 @@ export class AddressService {
       sun: address.sun ?? null,
       parking: address.parking ?? null,
       condoPricing: address.condoPricing ?? null,
-      propertyConvenience: address.propertyConvenience ?? null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     })

@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import mongoose, { HydratedDocument } from 'mongoose'
 
 import { InterfaceProperty } from './models/property.interface'
+import { AddressAmenity } from './models/shared/shared.interface'
 
 export type PropertyDocument = HydratedDocument<Property>
 
@@ -45,7 +46,7 @@ export class Property implements InterfaceProperty {
   condoPricing?: number
   @ApiPropertyOptional()
   @Prop({ isRequired: false })
-  propertyConvenience?: string[]
+  propertyAmenities?: AddressAmenity[]
   @Prop({ idRequired: true })
   createdAt: string
   @Prop({ idRequired: true })

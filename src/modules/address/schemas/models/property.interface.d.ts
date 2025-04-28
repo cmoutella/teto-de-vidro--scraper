@@ -1,3 +1,4 @@
+import type { AddressAmenity } from './shared/shared.interface'
 export interface InterfaceProperty {
   id?: string
   lotId: string
@@ -11,7 +12,7 @@ export interface InterfaceProperty {
   is_front?: boolean
   sun?: 'morning' | 'afternoon' | 'none'
   condoPricing?: number
-  propertyConvenience?: string[]
+  propertyAmenities?: AddressAmenity[]
   createdAt: string
   updatedAt: string
 }

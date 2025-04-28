@@ -15,8 +15,10 @@ import { LotRepository } from '../lot.repository'
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
 
-  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
-    const createLot = new this.lotModel(newLot)
+  async createLot(
+    newLot: Omit<InterfaceLot, 'lotAmenities'>
+  ): Promise<InterfaceLot | null> {
+    const createLot = new this.lotModel({ ...newLot, lotAmenities: [] })
 
     await createLot.save()
 
