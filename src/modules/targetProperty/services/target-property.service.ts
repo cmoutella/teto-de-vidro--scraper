@@ -4,10 +4,7 @@ import {
   Inject,
   Injectable
 } from '@nestjs/common'
-import { InterfaceLot } from 'src/modules/address/schemas/models/lot.interface'
-import { InterfaceProperty } from 'src/modules/address/schemas/models/property.interface'
 import { AddressService } from 'src/modules/address/services/address.service'
-import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { TargetPropertyRepository } from '../repositories/target-property.repository'
@@ -17,8 +14,6 @@ import { InterfaceTargetProperty } from '../schemas/models/target-property.inter
 export class TargetPropertyService {
   constructor(
     private readonly targetPropertyRepository: TargetPropertyRepository,
-    @Inject(forwardRef(() => HuntRepository))
-    private readonly huntRepository: HuntRepository,
     @Inject(forwardRef(() => AddressService))
     private readonly addressService: AddressService
   ) {}
@@ -30,36 +25,26 @@ export class TargetPropertyService {
       return undefined
     }
 
+    const {
+      lotAmenities: _lotAmenities,
+      propertyAmenities: _propertyAmenities,
+      ...targetAddress
+    } = newProperty
+
     const address = await this.addressService.createAddress({
-      ...newProperty
+      ...targetAddress
     })
 
-    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>
-    let relatedProperty: Omit<
-      InterfaceProperty,
-      'id' | 'createdAt' | 'updatedAt' | 'lotId'
-    >
-    if (address) {
-      if (address.lot) {
-        const { id, createdAt, updatedAt, ...relatedData } = address.lot
-        relatedLot = relatedData
-      }
-
-      if (address.property) {
-        const { id, lotId, createdAt, updatedAt, ...relatedData } =
-          address.property
-        relatedProperty = relatedData
-      }
-    }
-
-    return await this.targetPropertyRepository.createTargetProperty({
+    const created = await this.targetPropertyRepository.createTargetProperty({
       ...newProperty,
       ...(address?.lot ? { lotId: address.lot.id } : {}),
-      ...(relatedLot ? relatedLot : {}),
       ...(address?.property ? { propertyId: address.property.id } : {}),
-      ...(relatedProperty ? relatedProperty : {}),
       isActive: true
     })
+
+    // TODO: atualizar lot e property com as respectivas amenities
+
+    return created
   }
 
   async preventDuplicity(targetToValidate: InterfaceTargetProperty) {
@@ -160,37 +145,27 @@ export class TargetPropertyService {
     if (!id) {
       return null
     }
+
+    const {
+      lotAmenities: _lotAmenities,
+      propertyAmenities: _propertyAmenities,
+      ...targetAddress
+    } = data
+
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
-      ...data
+      ...targetAddress
     })
-
-    let relatedLot: Omit<InterfaceLot, 'id' | 'createdAt' | 'updatedAt'>
-    let relatedProperty: Omit<
-      InterfaceProperty,
-      'id' | 'createdAt' | 'updatedAt' | 'lotId'
-    >
-    if (address) {
-      if (address.lot) {
-        const { id, createdAt, updatedAt, ...relatedData } = address.lot
-        relatedLot = relatedData
-      }
-
-      if (address.property) {
-        const { id, lotId, createdAt, updatedAt, ...relatedData } =
-          address.property
-        relatedProperty = relatedData
-      }
-    }
 
     return await this.targetPropertyRepository.updateTargetProperty(id, {
       ...data,
       ...(address?.lot ? { lotId: address.lot.id } : {}),
-      ...(relatedLot ? relatedLot : {}),
       ...(address?.property ? { propertyId: address.property.id } : {}),
-      ...(relatedProperty ? relatedProperty : {}),
       isActive: true
     })
+
+    //TODO:
+    // fazer o update de lotAmenities e propertyAmenities
 
     // TODO: log
     // TODO: quando o lotId ou o propertyId são atualizados

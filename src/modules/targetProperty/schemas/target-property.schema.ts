@@ -4,7 +4,8 @@ import mongoose, { HydratedDocument } from 'mongoose'
 
 import {
   InterfaceTargetProperty,
-  PropertyHuntingStage
+  PropertyHuntingStage,
+  TargetAmenity
 } from './models/target-property.interface'
 
 export type PropertyDocument = HydratedDocument<TargetProperty>
@@ -101,7 +102,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   country: string
   @ApiProperty()
   @Prop()
-  lotConvenience?: string[]
+  lotAmenities?: TargetAmenity[]
 
   // property
   @ApiPropertyOptional()
@@ -139,7 +140,7 @@ export class TargetProperty implements InterfaceTargetProperty {
   condoPricing?: number
   @ApiPropertyOptional()
   @Prop()
-  propertyConvenience?: string[]
+  propertyAmenities?: TargetAmenity[]
 }
 
 export const TargetPropertySchema = SchemaFactory.createForClass(TargetProperty)

@@ -21,7 +21,11 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import { PROPERTY_SUN_LIGHT } from 'src/shared/const'
+import {
+  AMENITY_FROM,
+  AMENITY_REPORTED_BY,
+  PROPERTY_SUN_LIGHT
+} from 'src/shared/const'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { z } from 'zod'
 
@@ -74,7 +78,17 @@ const createTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   noLotNumber: z.boolean(),
   lotNumber: z.string().optional(),
-  lotConvenience: z.array(z.string()).optional(),
+  lotAmenities: z
+    .array(
+      z.object({
+        relatedId: z.string().optional(),
+        reportedBy: z.enum(AMENITY_REPORTED_BY),
+        userId: z.string().optional(),
+        label: z.string().optional(),
+        amenityOf: z.enum(AMENITY_FROM).optional()
+      })
+    )
+    .optional(),
 
   noComplement: z.boolean(),
   block: z.string().optional(),
@@ -86,7 +100,17 @@ const createTargetPropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  propertyConvenience: z.array(z.string()).optional(),
+  propertyAmenities: z
+    .array(
+      z.object({
+        relatedId: z.string(),
+        reportedBy: z.enum(AMENITY_REPORTED_BY),
+        userId: z.string().optional(),
+        label: z.string(),
+        amenityOf: z.enum(AMENITY_FROM).optional()
+      })
+    )
+    .optional(),
 
   contactName: z.string().optional(),
   contactWhatzap: z.string().optional()
@@ -118,7 +142,6 @@ const updateTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   noLotNumber: z.boolean().optional(),
   lotNumber: z.string().optional(),
-  lotConvenience: z.array(z.string()).optional(),
 
   noComplement: z.boolean().optional(),
   block: z.string().optional(),
@@ -129,8 +152,7 @@ const updateTargetPropertySchema = z.object({
   bathrooms: z.number().optional(),
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
-  sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  propertyConvenience: z.array(z.string()).optional()
+  sun: z.enum(PROPERTY_SUN_LIGHT).optional()
 })
 
 type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
@@ -177,7 +199,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotConvenience,
+      lotAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -188,7 +210,7 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience
+      propertyAmenities
     }: CreateTargetProperty
   ) {
     if (!huntId) {
@@ -220,7 +242,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotConvenience,
+      lotAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -231,7 +253,7 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
+      propertyAmenities,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -310,6 +332,7 @@ export class TargetPropertyController {
     const hasAddressUpdate = Object.keys(changedData).some((key) =>
       addressRelatedFields.includes(key as never)
     )
+
     if (hasAddressUpdate) {
       await this.targetPropertyService.preventDuplicity(finalData)
     }

@@ -1,3 +1,5 @@
+import type { InterfaceAmenity } from '@src/modules/amenity/schemas/models/amenity.interface'
+
 export type PropertyHuntingStage =
   | 'new'
   | 'iniciated'
@@ -56,7 +58,17 @@ export const addressRelatedFields: (keyof AddressRelatedFields)[] = [
   'uf'
 ]
 
-// TODO connect to Lot in address
+export type AmenityReport = 'user' | 'ad'
+export interface TargetAmenity
+  extends Omit<
+    InterfaceAmenity,
+    'id' | 'createdAt' | 'updatedAt' | 'label' | 'amenityOf'
+  > {
+  relatedId: string
+  reportedBy: AmenityReport
+  userId?: string
+}
+
 export interface InterfaceTargetProperty {
   id?: string
 
@@ -93,7 +105,7 @@ export interface InterfaceTargetProperty {
   noLotNumber: boolean
   lotNumber?: string
   // TODO falta achar um lugar pra colocar isso no front
-  lotConvenience?: string[]
+  lotAmenities?: TargetAmenity[]
 
   // property identification
   propertyId?: string
@@ -109,5 +121,14 @@ export interface InterfaceTargetProperty {
   is_front?: boolean
   sun?: 'morning' | 'afternoon' | 'none'
   condoPricing?: number
-  propertyConvenience?: string[]
+  propertyAmenities?: TargetAmenity[]
+}
+
+export interface CreateTargetProperty
+  extends Omit<
+    InterfaceTargetProperty,
+    'id' | 'lotAmenities' | 'propertyAmenities'
+  > {
+  lotAmenities: Pick<TargetAmenity, 'relatedId' | 'reportedBy'>
+  propertyAmenities: Pick<TargetAmenity, 'relatedId' | 'reportedBy'>
 }
