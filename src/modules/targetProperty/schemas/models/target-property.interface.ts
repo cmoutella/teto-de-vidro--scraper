@@ -104,8 +104,6 @@ export interface InterfaceTargetProperty {
   lotName?: string
   noLotNumber: boolean
   lotNumber?: string
-  // TODO falta achar um lugar pra colocar isso no front
-  lotAmenities?: TargetAmenity[]
 
   // property identification
   propertyId?: string
@@ -117,11 +115,12 @@ export interface InterfaceTargetProperty {
   bathrooms?: number
   parking?: number
 
+  targetAmenities?: TargetAmenity[]
+
   // TODO: falta achar um lugar pra colocar isso no front
   is_front?: boolean
   sun?: 'morning' | 'afternoon' | 'none'
   condoPricing?: number
-  propertyAmenities?: TargetAmenity[]
 }
 
 export interface CreateTargetProperty

@@ -100,9 +100,10 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiProperty()
   @Prop()
   country: string
+
   @ApiProperty()
   @Prop()
-  lotAmenities?: TargetAmenity[]
+  targetAmenities?: TargetAmenity[]
 
   // property
   @ApiPropertyOptional()
@@ -138,9 +139,6 @@ export class TargetProperty implements InterfaceTargetProperty {
   @ApiPropertyOptional()
   @Prop()
   condoPricing?: number
-  @ApiPropertyOptional()
-  @Prop()
-  propertyAmenities?: TargetAmenity[]
 }
 
 export const TargetPropertySchema = SchemaFactory.createForClass(TargetProperty)

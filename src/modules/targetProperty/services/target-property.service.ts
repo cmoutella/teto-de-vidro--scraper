@@ -25,15 +25,7 @@ export class TargetPropertyService {
       return undefined
     }
 
-    const {
-      lotAmenities: _lotAmenities,
-      propertyAmenities: _propertyAmenities,
-      ...targetAddress
-    } = newProperty
-
-    const address = await this.addressService.createAddress({
-      ...targetAddress
-    })
+    const address = await this.addressService.createAddress(newProperty)
 
     const created = await this.targetPropertyRepository.createTargetProperty({
       ...newProperty,
@@ -146,15 +138,9 @@ export class TargetPropertyService {
       return null
     }
 
-    const {
-      lotAmenities: _lotAmenities,
-      propertyAmenities: _propertyAmenities,
-      ...targetAddress
-    } = data
-
     // cria ou retorna o endereço
     const address = await this.addressService.createAddress({
-      ...targetAddress
+      ...data
     })
 
     return await this.targetPropertyRepository.updateTargetProperty(id, {
