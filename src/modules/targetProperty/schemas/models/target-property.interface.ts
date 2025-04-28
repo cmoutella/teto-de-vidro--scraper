@@ -27,6 +27,35 @@ export const huntingStageTranslation: {
   denied: 'Ficha negada'
 }
 
+export type AddressRelatedFields = Pick<
+  InterfaceTargetProperty,
+  | 'block'
+  | 'city'
+  | 'country'
+  | 'lotNumber'
+  | 'neighborhood'
+  | 'noComplement'
+  | 'noLotNumber'
+  | 'postalCode'
+  | 'propertyNumber'
+  | 'street'
+  | 'uf'
+>
+
+export const addressRelatedFields: (keyof AddressRelatedFields)[] = [
+  'block',
+  'city',
+  'country',
+  'lotNumber',
+  'neighborhood',
+  'noComplement',
+  'noLotNumber',
+  'postalCode',
+  'propertyNumber',
+  'street',
+  'uf'
+]
+
 // TODO connect to Lot in address
 export interface InterfaceTargetProperty {
   id?: string
@@ -44,8 +73,11 @@ export interface InterfaceTargetProperty {
   huntingStage: PropertyHuntingStage
   isActive?: boolean
   visitDate?: string
-  realtor?: string
-  realtorContact?: string
+
+  realState?: string
+  realStatePhoneNumber?: string
+  contactName?: string
+  contactWhatzap?: string
 
   //general address
   street: string
@@ -60,6 +92,7 @@ export interface InterfaceTargetProperty {
   lotName?: string
   noLotNumber: boolean
   lotNumber?: string
+  // TODO falta achar um lugar pra colocar isso no front
   lotConvenience?: string[]
 
   // property identification
@@ -71,6 +104,8 @@ export interface InterfaceTargetProperty {
   rooms?: number
   bathrooms?: number
   parking?: number
+
+  // TODO: falta achar um lugar pra colocar isso no front
   is_front?: boolean
   sun?: 'morning' | 'afternoon' | 'none'
   condoPricing?: number
