@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 
 import { AmenityRepository } from '../repositories/amenity.repository'
-import { InterfaceAmenity } from '../schemas/models/amenity.interface'
+import {
+  InterfaceAmenity,
+  SearchAmenity
+} from '../schemas/models/amenity.interface'
 
 @Injectable()
 export class AmenityService {
@@ -42,7 +45,17 @@ export class AmenityService {
     return amenity
   }
 
-  // TODO: async getCompleteData()
+  async getCompleteAmenitiesData(amenities: SearchAmenity[]) {
+    const amenitiesFullData = await Promise.all(
+      amenities.map(async (amenity) => {
+        const fullData = await this.getOneAmenityById(amenity.id)
+
+        return { ...fullData, ...amenity }
+      })
+    )
+
+    return amenitiesFullData
+  }
 
   async updateAmenity(
     id: string,

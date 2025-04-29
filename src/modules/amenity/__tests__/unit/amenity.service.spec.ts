@@ -19,7 +19,16 @@ const otherAmenity: InterfaceAmenity = {
   updatedAt: new Date().toISOString()
 }
 
-describe('HuntService | UnitTest', () => {
+const oneMoreAmenity: InterfaceAmenity = {
+  id: 'varanda',
+  label: 'Varanda',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+}
+
+const mockAllAmenities = [baseAmenity, otherAmenity, oneMoreAmenity]
+
+describe('AmenityService | UnitTest', () => {
   let service: AmenityService
 
   const mockAmenityRepository = {
@@ -129,6 +138,26 @@ describe('HuntService | UnitTest', () => {
       expect(mockAmenityRepository.getOneAmenityById).toHaveBeenCalledWith(
         'abc'
       )
+    })
+  })
+
+  describe('getCompleteAmenitiesData', () => {
+    it('should get complete info on amenities', async () => {
+      jest
+        .spyOn(service, 'getOneAmenityById')
+        .mockImplementation(async (id) =>
+          mockAllAmenities.find((el) => el.id === id)
+        )
+
+      const result = await service.getCompleteAmenitiesData([
+        { id: oneMoreAmenity.id, amenityOf: 'property' },
+        { id: baseAmenity.id, amenityOf: 'lot' }
+      ])
+
+      expect(result).toStrictEqual([
+        { ...oneMoreAmenity, amenityOf: 'property' },
+        { ...baseAmenity, amenityOf: 'lot' }
+      ])
     })
   })
 

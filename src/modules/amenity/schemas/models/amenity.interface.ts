@@ -7,3 +7,6 @@ export interface InterfaceAmenity {
   createdAt: string
   updatedAt: string
 }
+
+export type SearchAmenity = Record<string, string> &
+  Pick<InterfaceAmenity, 'id'>
