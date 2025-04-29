@@ -28,6 +28,34 @@ export class AmenityMongooseRepository implements AmenityRepository {
     return { id: _id.toString(), ...data }
   }
 
+  async createManyAmenities(
+    amenities: Pick<InterfaceAmenity, 'id'>[]
+  ): Promise<{
+    success: string[]
+    failed: { data: string; error?: string }[]
+  } | null> {
+    const success: string[] = []
+    const failed: { data: string; error?: string }[] = []
+
+    for (const amenity of amenities) {
+      const alreadyExists = await this.getOneAmenityById(amenity.id)
+      if (alreadyExists) {
+        failed.push({ data: amenity.id, error: 'Já existe' })
+      }
+      try {
+        const createAmenity = new this.amenityModel(amenity)
+
+        await createAmenity.save()
+
+        success.push(createAmenity.toObject().id)
+      } catch (_error) {
+        failed.push({ data: amenity.id })
+      }
+    }
+
+    return { success, failed }
+  }
+
   async getOneAmenityById(id: string): Promise<InterfaceAmenity> {
     const data = await this.amenityModel
       .findById(id)

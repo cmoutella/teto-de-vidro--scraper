@@ -6,8 +6,15 @@ export abstract class AmenityRepository {
   abstract getOneAmenityByLabel(label: string): Promise<InterfaceAmenity>
 
   abstract createAmenity(
-    newLot: InterfaceAmenity
+    newAmenity: InterfaceAmenity
   ): Promise<InterfaceAmenity | null>
+
+  abstract createManyAmenities(
+    amenities: Pick<InterfaceAmenity, 'id'>[]
+  ): Promise<{
+    success: string[]
+    failed: { data: string; error?: string }[]
+  } | null>
 
   abstract updateAmenity(
     id: string,

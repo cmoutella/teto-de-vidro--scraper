@@ -14,6 +14,18 @@ export class AmenityService {
     return createdAmenity
   }
 
+  async createManyAmenities(
+    amenities: Pick<InterfaceAmenity, 'id'>[]
+  ): Promise<{
+    success: string[]
+    failed: { data: string; error?: string }[]
+  } | null> {
+    const createdAmenity =
+      await this.amenityRepository.createManyAmenities(amenities)
+
+    return createdAmenity
+  }
+
   async getOneAmenityById(id: string): Promise<InterfaceAmenity> {
     const amenity = await this.amenityRepository.getOneAmenityById(id)
 
@@ -27,6 +39,8 @@ export class AmenityService {
     if (!amenity) throw new NotFoundException('Endereço não encontrado')
     return amenity
   }
+
+  // TODO: async getCompleteData()
 
   async updateAmenity(
     id: string,
