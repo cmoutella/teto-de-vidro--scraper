@@ -27,6 +27,8 @@ export class AmenityService {
   }
 
   async getOneAmenityById(id: string): Promise<InterfaceAmenity> {
+    if (!id) return undefined
+
     const amenity = await this.amenityRepository.getOneAmenityById(id)
 
     if (!amenity) throw new NotFoundException('Endereço não encontrado')
@@ -49,7 +51,17 @@ export class AmenityService {
     return await this.amenityRepository.updateAmenity(id, data)
   }
 
-  async deleteAmenity(id: string): Promise<void> {
-    await this.amenityRepository.deleteAmenity(id)
+  async deleteAmenity(id: string): Promise<boolean> {
+    if (!id) {
+      return false
+    }
+
+    try {
+      await this.amenityRepository.deleteAmenity(id)
+
+      return true
+    } catch {
+      return false
+    }
   }
 }
