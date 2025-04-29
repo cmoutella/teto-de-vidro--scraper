@@ -62,9 +62,8 @@ export type AmenityReport = 'user' | 'ad'
 export interface TargetAmenity
   extends Omit<
     InterfaceAmenity,
-    'id' | 'createdAt' | 'updatedAt' | 'label' | 'amenityOf'
+    'createdAt' | 'updatedAt' | 'label' | 'amenityOf'
   > {
-  relatedId: string
   reportedBy: AmenityReport
   userId?: string
 }
@@ -121,13 +120,4 @@ export interface InterfaceTargetProperty {
   is_front?: boolean
   sun?: 'morning' | 'afternoon' | 'none'
   condoPricing?: number
-}
-
-export interface CreateTargetProperty
-  extends Omit<
-    InterfaceTargetProperty,
-    'id' | 'lotAmenities' | 'propertyAmenities'
-  > {
-  lotAmenities: Pick<TargetAmenity, 'relatedId' | 'reportedBy'>
-  propertyAmenities: Pick<TargetAmenity, 'relatedId' | 'reportedBy'>
 }

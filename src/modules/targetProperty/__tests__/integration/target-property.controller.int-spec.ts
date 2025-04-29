@@ -7,6 +7,11 @@ import {
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import {
+  Amenity,
+  AmenitySchema
+} from '@src/modules/amenity/schemas/amenity.schema'
+import { AmenityService } from '@src/modules/amenity/services/amenity.service'
 import { HuntMongooseRepository } from '@src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
@@ -21,7 +26,10 @@ import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import { TargetPropertyController } from '../../controllers/target-property.controller'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
-import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
+import type {
+  InterfaceTargetProperty,
+  TargetAmenity
+} from '../../schemas/models/target-property.interface'
 import {
   TargetProperty,
   TargetPropertySchema
@@ -86,6 +94,11 @@ describe('TargetPropertyController | Integration Test', () => {
     deleteTargetProperty: jest.fn()
   }
 
+  const mockAmenityService = {
+    createManyAmenities: jest.fn(),
+    getOneAmenityById: jest.fn()
+  }
+
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const uri = mongod.getUri()
@@ -95,7 +108,8 @@ describe('TargetPropertyController | Integration Test', () => {
         MongooseModule.forRoot(uri),
         MongooseModule.forFeature([
           { name: TargetProperty.name, schema: TargetPropertySchema },
-          { name: Hunt.name, schema: HuntSchema }
+          { name: Hunt.name, schema: HuntSchema },
+          { name: Amenity.name, schema: AmenitySchema }
         ])
       ],
       controllers: [TargetPropertyController],
@@ -107,6 +121,10 @@ describe('TargetPropertyController | Integration Test', () => {
         {
           provide: HuntService,
           useValue: mockHuntService
+        },
+        {
+          provide: AmenityService,
+          useValue: mockAmenityService
         },
         {
           provide: TargetPropertyRepository,
@@ -136,6 +154,10 @@ describe('TargetPropertyController | Integration Test', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks()
+  })
+
+  afterEach(async () => {
+    jest.resetAllMocks()
   })
 
   afterAll(async () => {
@@ -214,9 +236,11 @@ describe('TargetPropertyController | Integration Test', () => {
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
 
-      await controller.createTargetProperty({
-        ...baseProperty
-      } as InterfaceTargetProperty)
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty
+        })
 
       expect(mockTargetPropertyService.preventDuplicity).toHaveBeenCalled()
     })
@@ -239,6 +263,46 @@ describe('TargetPropertyController | Integration Test', () => {
         .expect((res) => {
           expect(res.body.message).toContain('ALREADY_EXISTS')
         })
+    })
+
+    it('should try to create received amenities', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty,
+          targetAmenities: [
+            { id: 'elevator', reportedBy: 'ad' },
+            { id: 'portaria-24h', reportedBy: 'ad' }
+          ] as TargetAmenity[]
+        })
+
+      expect(mockAmenityService.createManyAmenities).toHaveBeenCalled()
+    })
+
+    it('should try NOT to create if NO amenities were received', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty
+        })
+
+      expect(mockAmenityService.createManyAmenities).not.toHaveBeenCalled()
     })
 
     it('should require authorization in request headers', async () => {

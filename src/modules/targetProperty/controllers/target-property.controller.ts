@@ -21,11 +21,8 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import {
-  AMENITY_FROM,
-  AMENITY_REPORTED_BY,
-  PROPERTY_SUN_LIGHT
-} from 'src/shared/const'
+import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { AMENITY_REPORTED_BY, PROPERTY_SUN_LIGHT } from 'src/shared/const'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { z } from 'zod'
 
@@ -78,14 +75,12 @@ const createTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   noLotNumber: z.boolean(),
   lotNumber: z.string().optional(),
-  lotAmenities: z
+  targetAmenities: z
     .array(
       z.object({
         relatedId: z.string().optional(),
         reportedBy: z.enum(AMENITY_REPORTED_BY),
-        userId: z.string().optional(),
-        label: z.string().optional(),
-        amenityOf: z.enum(AMENITY_FROM).optional()
+        userId: z.string().optional()
       })
     )
     .optional(),
@@ -100,18 +95,6 @@ const createTargetPropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  propertyAmenities: z
-    .array(
-      z.object({
-        relatedId: z.string(),
-        reportedBy: z.enum(AMENITY_REPORTED_BY),
-        userId: z.string().optional(),
-        label: z.string(),
-        amenityOf: z.enum(AMENITY_FROM).optional()
-      })
-    )
-    .optional(),
-
   contactName: z.string().optional(),
   contactWhatzap: z.string().optional()
 })
@@ -163,7 +146,8 @@ type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
 export class TargetPropertyController {
   constructor(
     private readonly targetPropertyService: TargetPropertyService,
-    private readonly huntService: HuntService
+    private readonly huntService: HuntService,
+    private readonly amenityService: AmenityService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
@@ -199,7 +183,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotAmenities,
+      targetAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -209,8 +193,7 @@ export class TargetPropertyController {
       parking,
       is_front,
       sun,
-      condoPricing,
-      propertyAmenities
+      condoPricing
     }: CreateTargetProperty
   ) {
     if (!huntId) {
@@ -242,7 +225,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotAmenities,
+      targetAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -253,12 +236,19 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing,
-      propertyAmenities,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
 
     await this.targetPropertyService.preventDuplicity(targetData as never)
+
+    if (targetAmenities && targetAmenities.length >= 1) {
+      this.amenityService.createManyAmenities(
+        targetAmenities.map((amenity) => {
+          return { id: amenity.relatedId }
+        })
+      )
+    }
 
     const createdTargetProperty =
       await this.targetPropertyService.createTargetProperty(targetData as never)
@@ -269,7 +259,25 @@ export class TargetPropertyController {
 
     await this.huntService.addTargetToHunt(huntId, createdTargetProperty.id)
 
-    return createdTargetProperty
+    const amenitiesFullData = []
+    if (
+      createdTargetProperty.targetAmenities &&
+      createdTargetProperty.targetAmenities.length >= 1
+    ) {
+      // TODO: make it reusable
+      createdTargetProperty.targetAmenities.forEach(async (amenity) => {
+        const amenityCentralData = await this.amenityService.getOneAmenityById(
+          amenity.id
+        )
+
+        amenitiesFullData.push({
+          ...amenityCentralData,
+          ...createdTargetProperty.targetAmenities
+        })
+      })
+    }
+
+    return { ...createdTargetProperty, targetAmenities: amenitiesFullData }
   }
 
   @ApiOperation({ summary: 'Busca um imóvel target por id' })
