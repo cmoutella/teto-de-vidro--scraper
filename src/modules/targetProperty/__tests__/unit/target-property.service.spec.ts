@@ -4,7 +4,10 @@ import { AddressService } from '@src/modules/address/services/address.service'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
 
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
-import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
+import type {
+  InterfaceTargetProperty,
+  TargetAmenity
+} from '../../schemas/models/target-property.interface'
 import { TargetPropertyService } from '../../services/target-property.service'
 
 const huntID = 'hunt123'
@@ -31,6 +34,8 @@ const baseProperty: InterfaceTargetProperty = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 }
+
+const amenity1: TargetAmenity = { id: 'elevator', reportedBy: 'ad' }
 
 describe('TargetPropertyService | UnitTest', () => {
   let service: TargetPropertyService
@@ -77,6 +82,10 @@ describe('TargetPropertyService | UnitTest', () => {
     jest.clearAllMocks()
 
     service = module.get<TargetPropertyService>(TargetPropertyService)
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
   })
 
   it('should be defined', () => {
@@ -181,38 +190,6 @@ describe('TargetPropertyService | UnitTest', () => {
     })
   })
 
-  describe('getAllTargetsByHunt', () => {
-    it('should return falsy if huntId is missing', async () => {
-      const found = await service.getAllTargetsByHunt(undefined, 1, 10)
-
-      expect(found).toBeFalsy()
-    })
-
-    it('should call repository function getAllTargetsByHunt', async () => {
-      await await service.getAllTargetsByHunt('abc', 1, 10)
-
-      expect(
-        mockTargetPropertyRepository.getAllTargetsByHunt
-      ).toHaveBeenCalledWith('abc', 1, 10)
-    })
-  })
-
-  describe('getOneTargetById', () => {
-    it('should return falsy if id is missing', async () => {
-      const found = await service.getOneTargetById(undefined)
-
-      expect(found).toBeFalsy()
-    })
-
-    it('should call repository getAllTargetsByHunt', async () => {
-      await await service.getOneTargetById('abc')
-
-      expect(
-        mockTargetPropertyRepository.getOneTargetById
-      ).toHaveBeenCalledWith('abc')
-    })
-  })
-
   describe('updateTargetProperty', () => {
     it('should return falsy if id is missing', async () => {
       const found = await service.updateTargetProperty(undefined, {
@@ -279,6 +256,64 @@ describe('TargetPropertyService | UnitTest', () => {
           isActive: true
         })
       )
+    })
+  })
+
+  describe('getOneTargetById', () => {
+    it('should return falsy if id is missing', async () => {
+      const found = await service.getOneTargetById(undefined)
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should call repository getAllTargetsByHunt', async () => {
+      await await service.getOneTargetById('abc')
+
+      expect(
+        mockTargetPropertyRepository.getOneTargetById
+      ).toHaveBeenCalledWith('abc')
+    })
+  })
+
+  describe('getAllTargetsByHunt', () => {
+    it('should return falsy if huntId is missing', async () => {
+      const found = await service.getAllTargetsByHunt(undefined, 1, 10)
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should call repository function getAllTargetsByHunt', async () => {
+      await await service.getAllTargetsByHunt('abc', 1, 10)
+
+      expect(
+        mockTargetPropertyRepository.getAllTargetsByHunt
+      ).toHaveBeenCalledWith('abc', 1, 10)
+    })
+  })
+
+  describe('addAmenityToTarget', () => {
+    it('should return falsy if id is missing', async () => {
+      const found = await service.addAmenityToTarget(undefined, amenity1)
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should return object with amenities added', async () => {
+      mockTargetPropertyRepository.getOneTargetById.mockResolvedValue(
+        baseProperty
+      )
+
+      const targetId = 'target-123'
+      await service.addAmenityToTarget(targetId, amenity1)
+
+      const expectedUpdatedValue = {
+        ...baseProperty,
+        targetAmenities: [amenity1]
+      }
+
+      expect(
+        mockTargetPropertyRepository.updateTargetProperty
+      ).toHaveBeenCalledWith(targetId, expectedUpdatedValue)
     })
   })
 

@@ -419,12 +419,33 @@ export class TargetPropertyController {
     return response
   }
 
-  @ApiOperation({ summary: 'TODO | Adicionar amenidade a um target' })
+  @ApiOperation({ summary: 'Adicionar amenidade a um target' })
   @Put(':id/amenity')
-  async addAmenityToTarget() {}
+  async addAmenityToTarget(
+    @Param('id') id: string,
+    @Body()
+    amenity: TargetAmenity
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const toBeUpdated = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!toBeUpdated) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    const added = await this.targetPropertyService.addAmenityToTarget(
+      id,
+      amenity
+    )
+
+    return { success: added }
+  }
 
   @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
-  @Put(':id/amenity/')
+  @Put(':id/amenity/:amenity')
   async removeAmenityfromTarget() {}
 
   @ApiOperation({ summary: 'Deleção de um imóvel target' })

@@ -8,7 +8,10 @@ import { AddressService } from 'src/modules/address/services/address.service'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { TargetPropertyRepository } from '../repositories/target-property.repository'
-import { InterfaceTargetProperty } from '../schemas/models/target-property.interface'
+import {
+  InterfaceTargetProperty,
+  TargetAmenity
+} from '../schemas/models/target-property.interface'
 
 @Injectable()
 export class TargetPropertyService {
@@ -93,6 +96,32 @@ export class TargetPropertyService {
 
     const property = await this.targetPropertyRepository.getOneTargetById(id)
     return property
+  }
+
+  async addAmenityToTarget(
+    targetId: string,
+    amenity: TargetAmenity
+  ): Promise<boolean> {
+    if (!targetId) return undefined
+
+    const existingTarget = await this.getOneTargetById(targetId)
+
+    if (!existingTarget) return false
+
+    const existingAmenities = existingTarget.targetAmenities ?? []
+
+    const targetAmenitiesUpdated = [...existingAmenities, amenity]
+
+    try {
+      await this.updateTargetProperty(targetId, {
+        ...existingTarget,
+        targetAmenities: targetAmenitiesUpdated
+      })
+
+      return true
+    } catch {
+      return false
+    }
   }
 
   async preventDuplicity(targetToValidate: InterfaceTargetProperty) {
