@@ -39,6 +39,62 @@ export class TargetPropertyService {
     return created
   }
 
+  async updateTargetProperty(
+    id: string,
+    data: InterfaceTargetProperty
+  ): Promise<InterfaceTargetProperty> {
+    if (!id) {
+      return null
+    }
+
+    // cria ou retorna o endereço
+    const address = await this.addressService.createAddress({
+      ...data
+    })
+
+    return await this.targetPropertyRepository.updateTargetProperty(id, {
+      ...data,
+      ...(address?.lot ? { lotId: address.lot.id } : {}),
+      ...(address?.property ? { propertyId: address.property.id } : {}),
+      isActive: true
+    })
+
+    //TODO:
+    // fazer o update de lotAmenities e propertyAmenities
+
+    // TODO: log
+    // TODO: quando o lotId ou o propertyId são atualizados
+    // deveria atualizar a referencia em todos os comentários?
+    // provavelmente fazer isso através de uma fila
+  }
+
+  async getAllTargetsByHunt(
+    huntId: string,
+    page?: number,
+    limit?: number
+  ): Promise<PaginatedData<InterfaceTargetProperty> | undefined> {
+    if (!huntId) {
+      return undefined
+    }
+
+    return await this.targetPropertyRepository.getAllTargetsByHunt(
+      huntId,
+      page,
+      limit
+    )
+  }
+
+  async getOneTargetById(
+    id: string
+  ): Promise<InterfaceTargetProperty | undefined> {
+    if (!id) {
+      return undefined
+    }
+
+    const property = await this.targetPropertyRepository.getOneTargetById(id)
+    return property
+  }
+
   async preventDuplicity(targetToValidate: InterfaceTargetProperty) {
     // TODO: lidar com o noLotNumber e noComplement
     if (targetToValidate.propertyNumber && targetToValidate.lotNumber) {
@@ -101,62 +157,6 @@ export class TargetPropertyService {
     }
 
     return true
-  }
-
-  async getAllTargetsByHunt(
-    huntId: string,
-    page?: number,
-    limit?: number
-  ): Promise<PaginatedData<InterfaceTargetProperty> | undefined> {
-    if (!huntId) {
-      return undefined
-    }
-
-    return await this.targetPropertyRepository.getAllTargetsByHunt(
-      huntId,
-      page,
-      limit
-    )
-  }
-
-  async getOneTargetById(
-    id: string
-  ): Promise<InterfaceTargetProperty | undefined> {
-    if (!id) {
-      return undefined
-    }
-
-    const property = await this.targetPropertyRepository.getOneTargetById(id)
-    return property
-  }
-
-  async updateTargetProperty(
-    id: string,
-    data: InterfaceTargetProperty
-  ): Promise<InterfaceTargetProperty> {
-    if (!id) {
-      return null
-    }
-
-    // cria ou retorna o endereço
-    const address = await this.addressService.createAddress({
-      ...data
-    })
-
-    return await this.targetPropertyRepository.updateTargetProperty(id, {
-      ...data,
-      ...(address?.lot ? { lotId: address.lot.id } : {}),
-      ...(address?.property ? { propertyId: address.property.id } : {}),
-      isActive: true
-    })
-
-    //TODO:
-    // fazer o update de lotAmenities e propertyAmenities
-
-    // TODO: log
-    // TODO: quando o lotId ou o propertyId são atualizados
-    // deveria atualizar a referencia em todos os comentários?
-    // provavelmente fazer isso através de uma fila
   }
 
   async deleteTargetProperty(id: string): Promise<boolean> {
