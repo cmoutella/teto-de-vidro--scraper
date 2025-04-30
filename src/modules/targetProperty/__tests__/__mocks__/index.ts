@@ -28,9 +28,12 @@ export const baseProperty: InterfaceTargetProperty = {
   updatedAt: new Date().toISOString()
 }
 
-export const amenity1: TargetAmenity = { id: 'elevator', reportedBy: 'ad' }
+export const amenity1: TargetAmenity = {
+  identifier: 'elevator',
+  reportedBy: 'ad'
+}
 export const amenity2: TargetAmenity = {
-  id: 'garden',
+  identifier: 'garden',
   reportedBy: 'user',
   userId: 'user-123'
 }

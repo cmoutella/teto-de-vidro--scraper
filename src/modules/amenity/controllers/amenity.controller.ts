@@ -22,7 +22,7 @@ import { Amenity } from '../schemas/amenity.schema'
 import { AmenityService } from '../services/amenity.service'
 
 const createAmenitySchema = z.object({
-  id: z.string(),
+  identifier: z.string(),
   label: z.string().optional(),
   amenityOf: z.enum(AMENITY_FROM).optional()
 })
@@ -64,10 +64,10 @@ export class AmenitiesController {
   @Post()
   async createUser(
     @Body()
-    { id, label, amenityOf }: CreateAmenity
+    { identifier, label, amenityOf }: CreateAmenity
   ) {
     return await this.amenityService.createAmenity({
-      id,
+      identifier,
       label,
       amenityOf,
       createdAt: new Date().toISOString(),

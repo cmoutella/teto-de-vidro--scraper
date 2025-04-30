@@ -36,7 +36,6 @@ export class UserService {
   async getByEmail(email: string): Promise<InterfaceUser> {
     const user = await this.userRepository.getByEmail(email)
 
-    console.log('user', user)
     if (!user) throw new NotFoundException('Usuário não encontrado')
 
     return user

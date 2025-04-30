@@ -137,7 +137,7 @@ export class TargetPropertyService {
     const existingAmenities = existingTarget.targetAmenities ?? []
 
     const targetAmenitiesUpdated = existingAmenities.filter(
-      (currAmenity) => currAmenity.id !== amenityId
+      (currAmenity) => currAmenity.identifier !== amenityId
     )
 
     try {

@@ -10,7 +10,7 @@ export abstract class AmenityRepository {
   ): Promise<InterfaceAmenity | null>
 
   abstract createManyAmenities(
-    amenities: Pick<InterfaceAmenity, 'id'>[]
+    amenities: Pick<InterfaceAmenity, 'identifier'>[]
   ): Promise<{
     success: string[]
     failed: { data: string; error?: string }[]

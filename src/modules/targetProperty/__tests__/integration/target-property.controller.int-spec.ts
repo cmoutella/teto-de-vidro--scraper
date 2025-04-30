@@ -284,8 +284,8 @@ describe('TargetPropertyController | Integration Test', () => {
         .send({
           ...baseProperty,
           targetAmenities: [
-            { id: 'elevator', reportedBy: 'ad' },
-            { id: 'portaria-24h', reportedBy: 'ad' }
+            { identifier: 'elevator', reportedBy: 'ad' },
+            { identifier: 'portaria-24h', reportedBy: 'ad' }
           ] as TargetAmenity[]
         })
 
@@ -499,7 +499,7 @@ describe('TargetPropertyController | Integration Test', () => {
       ).rejects.toThrow(NotFoundException)
     })
 
-    it.only('should call service with correct params', async () => {
+    it('should call service with correct params', async () => {
       MockAuthGuard.allow = true
 
       mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
@@ -521,7 +521,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       await expect(
-        controller.removeAmenityfromTarget(undefined, amenity1.id)
+        controller.removeAmenityfromTarget(undefined, amenity1.identifier)
       ).rejects.toThrow(BadRequestException)
     })
   })

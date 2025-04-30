@@ -2,25 +2,28 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 
 import { AmenityRepository } from '../../repositories/amenity.repository'
-import type { InterfaceAmenity } from '../../schemas/models/amenity.interface'
+import type {
+  InterfaceAmenity,
+  SearchAmenity
+} from '../../schemas/models/amenity.interface'
 import { AmenityService } from '../../services/amenity.service'
 
 const baseAmenity: InterfaceAmenity = {
-  id: 'elevator',
+  identifier: 'elevator',
   label: 'Elevador',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 }
 
 const otherAmenity: InterfaceAmenity = {
-  id: 'portaria-24h',
+  identifier: 'portaria-24h',
   label: 'Portaria 24h',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 }
 
 const oneMoreAmenity: InterfaceAmenity = {
-  id: 'varanda',
+  identifier: 'varanda',
   label: 'Varanda',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
@@ -94,11 +97,11 @@ describe('AmenityService | UnitTest', () => {
   })
 
   describe('createManyAmenities', () => {
-    const many = [baseAmenity, otherAmenity]
+    const many = [baseAmenity, otherAmenity] as unknown as SearchAmenity[]
 
     it('should call repository to create a new target property', async () => {
       mockAmenityRepository.createManyAmenities.mockResolvedValue({
-        success: [many[0].id, many[1].id],
+        success: [many[0].identifier, many[1].identifier],
         failed: []
       })
 
@@ -109,7 +112,7 @@ describe('AmenityService | UnitTest', () => {
 
     it('should return created target', async () => {
       mockAmenityRepository.createManyAmenities.mockResolvedValue({
-        success: [many[0].id, many[1].id],
+        success: [many[0].identifier, many[1].identifier],
         failed: []
       })
 
@@ -117,7 +120,7 @@ describe('AmenityService | UnitTest', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          success: [many[0].id, many[1].id],
+          success: [many[0].identifier, many[1].identifier],
           failed: []
         })
       )
@@ -146,12 +149,12 @@ describe('AmenityService | UnitTest', () => {
       jest
         .spyOn(service, 'getOneAmenityById')
         .mockImplementation(async (id) =>
-          mockAllAmenities.find((el) => el.id === id)
+          mockAllAmenities.find((el) => el.identifier === id)
         )
 
       const result = await service.getCompleteAmenitiesData([
-        { id: oneMoreAmenity.id, amenityOf: 'property' },
-        { id: baseAmenity.id, amenityOf: 'lot' }
+        { identifier: oneMoreAmenity.identifier, amenityOf: 'property' },
+        { identifier: baseAmenity.identifier, amenityOf: 'lot' }
       ])
 
       expect(result).toStrictEqual([

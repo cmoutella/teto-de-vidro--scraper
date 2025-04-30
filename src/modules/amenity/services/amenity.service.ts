@@ -17,9 +17,7 @@ export class AmenityService {
     return createdAmenity
   }
 
-  async createManyAmenities(
-    amenities: Pick<InterfaceAmenity, 'id'>[]
-  ): Promise<{
+  async createManyAmenities(amenities: SearchAmenity[]): Promise<{
     success: string[]
     failed: { data: string; error?: string }[]
   } | null> {
@@ -48,7 +46,7 @@ export class AmenityService {
   async getCompleteAmenitiesData(amenities: SearchAmenity[]) {
     const amenitiesFullData = await Promise.all(
       amenities.map(async (amenity) => {
-        const fullData = await this.getOneAmenityById(amenity.id)
+        const fullData = await this.getOneAmenityById(amenity.identifier)
 
         return { ...fullData, ...amenity }
       })

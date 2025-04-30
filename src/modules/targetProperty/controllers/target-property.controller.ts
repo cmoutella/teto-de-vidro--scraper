@@ -79,7 +79,7 @@ const createTargetPropertySchema = z.object({
   targetAmenities: z
     .array(
       z.object({
-        relatedId: z.string().optional(),
+        identifier: z.string().optional(),
         reportedBy: z.enum(AMENITY_REPORTED_BY),
         userId: z.string().optional()
       })
@@ -246,7 +246,7 @@ export class TargetPropertyController {
     if (targetAmenities && targetAmenities.length >= 1) {
       this.amenityService.createManyAmenities(
         targetAmenities.map((amenity) => {
-          return { id: amenity.relatedId }
+          return { identifier: amenity.identifier }
         })
       )
     }

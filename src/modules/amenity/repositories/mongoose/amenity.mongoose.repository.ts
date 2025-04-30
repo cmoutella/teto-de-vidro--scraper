@@ -19,17 +19,17 @@ export class AmenityMongooseRepository implements AmenityRepository {
     await createAmenity.save()
 
     const created = await this.amenityModel
-      .findById(createAmenity._id)
+      .find({ identifier: newAmenity.identifier })
       .lean<LeanDoc<InterfaceAmenity>>()
       .exec()
 
     const { _id, __v, ...data } = created
 
-    return { id: _id.toString(), ...data }
+    return { identifier: data.identifier, ...data }
   }
 
   async createManyAmenities(
-    amenities: Pick<InterfaceAmenity, 'id'>[]
+    amenities: Pick<InterfaceAmenity, 'identifier'>[]
   ): Promise<{
     success: string[]
     failed: { data: string; error?: string }[]
@@ -38,18 +38,18 @@ export class AmenityMongooseRepository implements AmenityRepository {
     const failed: { data: string; error?: string }[] = []
 
     for (const amenity of amenities) {
-      const alreadyExists = await this.getOneAmenityById(amenity.id)
+      const alreadyExists = await this.getOneAmenityById(amenity.identifier)
       if (alreadyExists) {
-        failed.push({ data: amenity.id, error: 'Já existe' })
+        failed.push({ data: amenity.identifier, error: 'Já existe' })
       }
       try {
         const createAmenity = new this.amenityModel(amenity)
 
         await createAmenity.save()
 
-        success.push(createAmenity.toObject().id)
+        success.push(createAmenity.toObject().identifier)
       } catch (_error) {
-        failed.push({ data: amenity.id })
+        failed.push({ data: amenity.identifier })
       }
     }
 
@@ -58,7 +58,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
 
   async getOneAmenityById(id: string): Promise<InterfaceAmenity> {
     const data = await this.amenityModel
-      .findById(id)
+      .find({ identifier: id })
       .lean<LeanDoc<InterfaceAmenity>>()
       .exec()
 
@@ -68,7 +68,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
 
     const { _id, __v, ...otherData } = data
 
-    return { id: _id.toString(), ...otherData }
+    return otherData
   }
 
   async getOneAmenityByLabel(label: string): Promise<InterfaceAmenity> {
@@ -83,7 +83,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
 
     const { _id, __v, ...otherData } = data
 
-    return { id: _id.toString(), ...otherData }
+    return otherData
   }
 
   async updateAmenity(

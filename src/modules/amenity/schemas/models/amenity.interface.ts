@@ -1,7 +1,7 @@
 export type AmenityOf = 'lot' | 'property'
 
 export interface InterfaceAmenity {
-  id: string
+  identifier: string
   label: string
   amenityOf?: AmenityOf
   createdAt: string
@@ -9,4 +9,4 @@ export interface InterfaceAmenity {
 }
 
 export type SearchAmenity = Record<string, string> &
-  Pick<InterfaceAmenity, 'id'>
+  Pick<InterfaceAmenity, 'identifier'>

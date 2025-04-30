@@ -299,7 +299,7 @@ describe('TargetPropertyService | UnitTest', () => {
     it('should return falsy if id is missing', async () => {
       const found = await service.removeAmenityFromTarget(
         undefined,
-        amenity1.id
+        amenity1.identifier
       )
 
       expect(found).toBeFalsy()
@@ -312,13 +312,13 @@ describe('TargetPropertyService | UnitTest', () => {
       })
 
       const targetId = 'target-123'
-      const removedAmenityId = amenity1.id
+      const removedAmenityId = amenity1.identifier
       await service.removeAmenityFromTarget(targetId, removedAmenityId)
 
       const expectedUpdatedValue = {
         ...baseProperty,
         targetAmenities: manyAmenities.filter(
-          (amnt) => amnt.id !== removedAmenityId
+          (amnt) => amnt.identifier !== removedAmenityId
         )
       }
 
