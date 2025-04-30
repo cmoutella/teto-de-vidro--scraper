@@ -3,45 +3,17 @@ import { Test } from '@nestjs/testing'
 import { AddressService } from '@src/modules/address/services/address.service'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
 
+import {
+  amenity1,
+  baseProperty,
+  huntID,
+  lotId,
+  manyAmenities,
+  propertyId
+} from '../__mocks__'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
-import type {
-  InterfaceTargetProperty,
-  TargetAmenity
-} from '../../schemas/models/target-property.interface'
+import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
 import { TargetPropertyService } from '../../services/target-property.service'
-
-const huntID = 'hunt123'
-const lotId = 'lot-123'
-const propertyId = 'property-123'
-const baseProperty: InterfaceTargetProperty = {
-  adURL: '',
-  sellPrice: 0,
-  rentPrice: 0,
-  condoPricing: 0,
-  iptu: 0,
-  huntId: huntID,
-  street: 'Rua A',
-  neighborhood: 'Bairro B',
-  city: 'Cidade C',
-  uf: 'SP',
-  country: 'Brasil',
-  noLotNumber: false,
-  lotNumber: '123',
-  noComplement: false,
-  propertyNumber: '456',
-  isActive: true,
-  huntingStage: 'new',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
-const amenity1: TargetAmenity = { id: 'elevator', reportedBy: 'ad' }
-const amenity2: TargetAmenity = {
-  id: 'garden',
-  reportedBy: 'user',
-  userId: 'user-123'
-}
-const manyAmenities = [amenity1, amenity2]
 
 describe('TargetPropertyService | UnitTest', () => {
   let service: TargetPropertyService

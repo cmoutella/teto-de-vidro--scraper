@@ -445,7 +445,7 @@ export class TargetPropertyController {
   }
 
   @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
-  @Put(':id/amenity/:amenity')
+  @Get(':id/amenity/:amenity')
   async removeAmenityfromTarget(
     @Param('id') id: string,
     @Param('amenity')

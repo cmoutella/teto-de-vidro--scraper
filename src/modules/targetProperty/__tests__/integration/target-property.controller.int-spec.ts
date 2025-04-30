@@ -24,6 +24,7 @@ import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
+import { amenity1, manyAmenities } from '../__mocks__'
 import { TargetPropertyController } from '../../controllers/target-property.controller'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type {
@@ -60,14 +61,6 @@ const baseProperty: InterfaceTargetProperty = {
   updatedAt: new Date().toISOString()
 }
 
-const amenity1: TargetAmenity = { id: 'elevator', reportedBy: 'ad' }
-const amenity2: TargetAmenity = {
-  id: 'elevator',
-  reportedBy: 'user',
-  userId: 'user-123'
-}
-const manyAmenities = [amenity1, amenity2]
-
 /**
  * TODO
  * - testar validação com zod
@@ -88,6 +81,8 @@ describe('TargetPropertyController | Integration Test', () => {
     updateTargetProperty: jest.fn(),
     getOneTargetById: jest.fn(),
     getAllTargetsByHunt: jest.fn(),
+    addAmenityToTarget: jest.fn(),
+    removeAmenityfromTarget: jest.fn(),
     preventDuplicity: jest.fn(),
     deleteTargetProperty: jest.fn()
   }
@@ -456,10 +451,6 @@ describe('TargetPropertyController | Integration Test', () => {
     })
   })
 
-  describe.skip('addAmenityToTarget', () => {})
-
-  describe.skip('removeAmenityfromTarget', () => {})
-
   describe('getOneTargetById', () => {
     it('should throw BadRequestException if id is missing', async () => {
       MockAuthGuard.allow = true
@@ -492,6 +483,46 @@ describe('TargetPropertyController | Integration Test', () => {
         .get(`/target-property/${targetId}`)
         .send()
         .expect(403)
+    })
+  })
+
+  describe('addAmenityToTarget', () => {
+    it('should throw BadRequestException if id is missing', async () => {
+      await expect(
+        controller.addAmenityToTarget(undefined, amenity1)
+      ).rejects.toThrow(BadRequestException)
+    })
+
+    it('should throw NotFoundException if id is missing', async () => {
+      await expect(
+        controller.addAmenityToTarget(targetId, amenity1)
+      ).rejects.toThrow(NotFoundException)
+    })
+
+    it.only('should call service with correct params', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockTargetPropertyService.addAmenityToTarget).toHaveBeenCalled()
+      expect(mockTargetPropertyService.addAmenityToTarget).toHaveBeenCalledWith(
+        targetId,
+        amenity1
+      )
+    })
+  })
+
+  describe('removeAmenityfromTarget', () => {
+    it('should throw BadRequestException if id is missing', async () => {
+      MockAuthGuard.allow = true
+
+      await expect(
+        controller.removeAmenityfromTarget(undefined, amenity1.id)
+      ).rejects.toThrow(BadRequestException)
     })
   })
 
