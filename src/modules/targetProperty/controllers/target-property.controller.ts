@@ -446,7 +446,28 @@ export class TargetPropertyController {
 
   @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
   @Put(':id/amenity/:amenity')
-  async removeAmenityfromTarget() {}
+  async removeAmenityfromTarget(
+    @Param('id') id: string,
+    @Param('amenity')
+    amenity: string
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const toBeUpdated = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!toBeUpdated) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    const removed = await this.targetPropertyService.removeAmenityFromTarget(
+      id,
+      amenity
+    )
+
+    return { success: removed }
+  }
 
   @ApiOperation({ summary: 'Deleção de um imóvel target' })
   @ApiResponse({

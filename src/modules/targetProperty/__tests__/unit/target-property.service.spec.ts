@@ -36,6 +36,12 @@ const baseProperty: InterfaceTargetProperty = {
 }
 
 const amenity1: TargetAmenity = { id: 'elevator', reportedBy: 'ad' }
+const amenity2: TargetAmenity = {
+  id: 'garden',
+  reportedBy: 'user',
+  userId: 'user-123'
+}
+const manyAmenities = [amenity1, amenity2]
 
 describe('TargetPropertyService | UnitTest', () => {
   let service: TargetPropertyService
@@ -309,6 +315,39 @@ describe('TargetPropertyService | UnitTest', () => {
       const expectedUpdatedValue = {
         ...baseProperty,
         targetAmenities: [amenity1]
+      }
+
+      expect(
+        mockTargetPropertyRepository.updateTargetProperty
+      ).toHaveBeenCalledWith(targetId, expectedUpdatedValue)
+    })
+  })
+
+  describe('removeAmenityFromTarget', () => {
+    it('should return falsy if id is missing', async () => {
+      const found = await service.removeAmenityFromTarget(
+        undefined,
+        amenity1.id
+      )
+
+      expect(found).toBeFalsy()
+    })
+
+    it('should return object with amenities removed', async () => {
+      mockTargetPropertyRepository.getOneTargetById.mockResolvedValue({
+        ...baseProperty,
+        targetAmenities: manyAmenities
+      })
+
+      const targetId = 'target-123'
+      const removedAmenityId = amenity1.id
+      await service.removeAmenityFromTarget(targetId, removedAmenityId)
+
+      const expectedUpdatedValue = {
+        ...baseProperty,
+        targetAmenities: manyAmenities.filter(
+          (amnt) => amnt.id !== removedAmenityId
+        )
       }
 
       expect(

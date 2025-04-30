@@ -124,6 +124,34 @@ export class TargetPropertyService {
     }
   }
 
+  async removeAmenityFromTarget(
+    targetId: string,
+    amenityId: string
+  ): Promise<boolean> {
+    if (!targetId) return undefined
+
+    const existingTarget = await this.getOneTargetById(targetId)
+
+    if (!existingTarget) return false
+
+    const existingAmenities = existingTarget.targetAmenities ?? []
+
+    const targetAmenitiesUpdated = existingAmenities.filter(
+      (currAmenity) => currAmenity.id !== amenityId
+    )
+
+    try {
+      await this.updateTargetProperty(targetId, {
+        ...existingTarget,
+        targetAmenities: targetAmenitiesUpdated
+      })
+
+      return true
+    } catch {
+      return false
+    }
+  }
+
   async preventDuplicity(targetToValidate: InterfaceTargetProperty) {
     // TODO: lidar com o noLotNumber e noComplement
     if (targetToValidate.propertyNumber && targetToValidate.lotNumber) {
