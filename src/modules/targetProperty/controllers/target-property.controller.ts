@@ -21,6 +21,7 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
+import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
 import { AMENITY_REPORTED_BY, PROPERTY_SUN_LIGHT } from 'src/shared/const'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
@@ -420,11 +421,13 @@ export class TargetPropertyController {
   }
 
   @ApiOperation({ summary: 'Adicionar amenidade a um target' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Put(':id/amenity')
   async addAmenityToTarget(
     @Param('id') id: string,
     @Body()
-    amenity: TargetAmenity
+    amenity: TargetAmenity & { label?: string; amenityOf?: AmenityOf }
   ) {
     if (!id) {
       throw new BadRequestException('Necessário informar id do target')
@@ -436,15 +439,35 @@ export class TargetPropertyController {
       throw new NotFoundException('Target não encontrado')
     }
 
-    const added = await this.targetPropertyService.addAmenityToTarget(
-      id,
-      amenity
-    )
+    let toBeAdded
+    toBeAdded = await this.amenityService.getOneAmenityById(amenity.identifier)
 
-    return { success: added }
+    if (!toBeAdded) {
+      toBeAdded = await this.amenityService.createAmenity({
+        identifier: amenity.identifier,
+        amenityOf: amenity.amenityOf ?? undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        label: amenity.label ?? undefined
+      })
+    }
+
+    if (toBeAdded) {
+      const added = await this.targetPropertyService.addAmenityToTarget(id, {
+        identifier: amenity.identifier,
+        reportedBy: amenity.reportedBy,
+        userId: amenity.userId
+      })
+
+      return { success: added }
+    }
+
+    return { success: false }
   }
 
   @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get(':id/amenity/:amenity')
   async removeAmenityfromTarget(
     @Param('id') id: string,

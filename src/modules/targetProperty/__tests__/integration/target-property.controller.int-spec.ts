@@ -99,6 +99,7 @@ describe('TargetPropertyController | Integration Test', () => {
   }
 
   const mockAmenityService = {
+    createAmenity: jest.fn(),
     createManyAmenities: jest.fn(),
     getOneAmenityById: jest.fn(),
     getCompleteAmenitiesData: jest.fn()
@@ -503,6 +504,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.getOneAmenityById.mockResolvedValue(amenity1)
 
       await request(app.getHttpServer())
         .put(`/target-property/${targetId}/amenity`)
@@ -513,6 +515,32 @@ describe('TargetPropertyController | Integration Test', () => {
         targetId,
         amenity1
       )
+    })
+
+    it('should create amenity if NOT already exists', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.createAmenity.mockResolvedValue(amenity1)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockAmenityService.createAmenity).toHaveBeenCalled()
+    })
+
+    it('should NOT create amenity if already exists', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.getOneAmenityById.mockResolvedValue(amenity1)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockAmenityService.createAmenity).not.toHaveBeenCalled()
     })
   })
 

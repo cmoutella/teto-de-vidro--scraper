@@ -18,14 +18,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
 
     await createAmenity.save()
 
-    const created = await this.amenityModel
-      .find({ identifier: newAmenity.identifier })
-      .lean<LeanDoc<InterfaceAmenity>>()
-      .exec()
-
-    const { _id, __v, ...data } = created
-
-    return { identifier: data.identifier, ...data }
+    return this.getOneAmenityById(newAmenity.identifier)
   }
 
   async createManyAmenities(
