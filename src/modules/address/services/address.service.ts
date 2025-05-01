@@ -124,7 +124,7 @@ export class AddressService {
     }
 
     // se tem complemento mas nao tem propertyNumber ou block
-    if (!address.noComplement && !address.propertyNumber && !address.block) {
+    if (!address.noComplement || (!address.propertyNumber && !address.block)) {
       return { lot: relatedLot }
     }
 
