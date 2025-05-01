@@ -33,6 +33,7 @@ export class AmenityService {
     const amenity = await this.amenityRepository.getOneAmenityById(id)
 
     if (!amenity) throw new NotFoundException('Endereço não encontrado')
+
     return amenity
   }
 

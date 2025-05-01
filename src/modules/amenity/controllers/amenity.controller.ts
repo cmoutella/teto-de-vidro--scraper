@@ -29,23 +29,16 @@ const createAmenitySchema = z.object({
 
 type CreateAmenity = z.infer<typeof createAmenitySchema>
 
-const updateAmenitySchema = z.object({
-  label: z.string().optional(),
-  amenityOf: z.enum(AMENITY_FROM).optional()
-})
-
-type UpdateAmenity = z.infer<typeof updateAmenitySchema>
-
 @ApiTags('amenity')
 @UseInterceptors(LoggingInterceptor)
-@Controller('amenities')
+@Controller('amenity')
 export class AmenitiesController {
   constructor(private readonly amenityService: AmenityService) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createAmenitySchema))
-  @ApiOperation({ summary: 'Cria um novo usuário' })
+  @ApiOperation({ summary: 'Cria uma nova amenity' })
   @ApiBody({
     type: Amenity,
     description: 'Data needed to create new user'
@@ -62,7 +55,7 @@ export class AmenitiesController {
   //   description: 'Nome de usuário já existe'
   // })
   @Post()
-  async createUser(
+  async createAmenity(
     @Body()
     { identifier, label, amenityOf }: CreateAmenity
   ) {
@@ -77,8 +70,7 @@ export class AmenitiesController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(updateAmenitySchema))
-  @ApiOperation({ summary: 'Cria um novo usuário' })
+  @ApiOperation({ summary: 'Atualiza uma amenity' })
   @ApiBody({
     type: Amenity,
     description: 'Data needed to create new user'
@@ -98,7 +90,7 @@ export class AmenitiesController {
   async updateAmenity(
     @Param('id') id: string,
     @Body()
-    { label, amenityOf }: UpdateAmenity
+    body: Partial<Amenity>
   ) {
     const found = await this.amenityService.getOneAmenityById(id)
 
@@ -107,8 +99,7 @@ export class AmenitiesController {
     }
 
     return await this.amenityService.updateAmenity(id, {
-      label,
-      amenityOf,
+      ...body,
       updatedAt: new Date().toISOString()
     })
   }
@@ -121,7 +112,7 @@ export class AmenitiesController {
   //   description: 'Usuário encontrado com sucesso'
   // })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('/:id')
   async getById(@Param('id') id: string) {
     const found = await this.amenityService.getOneAmenityById(id)
@@ -129,7 +120,7 @@ export class AmenitiesController {
     return found
   }
 
-  @ApiOperation({ summary: 'Deleta um usuário por id' })
+  @ApiOperation({ summary: 'Deleta uma amenity por id' })
   // TODO:
   // @ApiResponse({
   //   type: DeleteUserSuccess,

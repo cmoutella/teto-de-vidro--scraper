@@ -58,7 +58,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
 
   async getOneAmenityById(id: string): Promise<InterfaceAmenity> {
     const data = await this.amenityModel
-      .find({ identifier: id })
+      .findOne({ identifier: id })
       .lean<LeanDoc<InterfaceAmenity>>()
       .exec()
 
@@ -95,7 +95,7 @@ export class AmenityMongooseRepository implements AmenityRepository {
     if (!foundAmenity) return
 
     await this.amenityModel
-      .updateOne({ _id: id }, { ...foundAmenity, ...data })
+      .updateOne({ identifier: id }, { ...foundAmenity, ...data })
       .exec()
 
     const updated = await this.getOneAmenityById(id)
