@@ -2,9 +2,12 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 
 import { LotRepository } from '../../repositories/lot.repository'
+import { PropertyRepository } from '../../repositories/property.repository'
 import { AddressService } from '../../services/address.service'
+import { LotService } from '../../services/lot-collection.service'
+import { PropertyService } from '../../services/property-collection.service'
 
-describe.skip('AddressService | UnitTest', () => {
+describe('AddressService | UnitTest', () => {
   let service: AddressService
 
   const mockLotRepository = {
@@ -26,16 +29,22 @@ describe.skip('AddressService | UnitTest', () => {
     deleteProperty: jest.fn()
   }
 
+  beforeAll(() => {
+    process.env.OPENCEP_API = 'cep_url'
+  })
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AddressService,
+        LotService,
+        PropertyService,
         {
           provide: LotRepository,
           useValue: mockLotRepository
         },
         {
-          provide: LotRepository,
+          provide: PropertyRepository,
           useValue: mockPropertyRepository
         }
       ]
@@ -46,7 +55,7 @@ describe.skip('AddressService | UnitTest', () => {
     service = module.get<AddressService>(AddressService)
   })
 
-  it.skip('should be defined', () => {
+  it('should be defined', () => {
     expect(service).toBeDefined()
   })
 
