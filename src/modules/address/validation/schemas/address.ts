@@ -11,7 +11,7 @@ export const createAddressSchema = z.object({
   city: z.string(),
   uf: z.string(),
   country: z.string(),
-  lotConvenience: z.array(z.string()).optional(),
+  lotAmenities: z.array(z.string()).optional(),
   noComplement: z.boolean(),
   propertyNumber: z.string().optional(),
   block: z.string().optional().optional(),
@@ -22,7 +22,7 @@ export const createAddressSchema = z.object({
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
   condoPricing: z.number().optional(),
-  propertyConvenience: z.array(z.string()).optional()
+  propertyAmenities: z.array(z.string()).optional()
 })
 
 export type CreateAddress = z.infer<typeof createAddressSchema>

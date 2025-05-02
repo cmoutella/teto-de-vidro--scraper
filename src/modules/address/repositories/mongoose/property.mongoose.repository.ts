@@ -13,8 +13,13 @@ export class PropertyMongooseRepository implements PropertyRepository {
     @InjectModel(Property.name) private propertyModel: Model<Property>
   ) {}
 
-  async createProperty(newProperty: InterfaceProperty): Promise<Property> {
-    const createProperty = new this.propertyModel(newProperty)
+  async createProperty(
+    newProperty: Omit<InterfaceProperty, 'propertyAmenities'>
+  ): Promise<Property> {
+    const createProperty = new this.propertyModel({
+      ...newProperty,
+      propertyAmenities: []
+    })
 
     await createProperty.save()
 
@@ -107,7 +112,10 @@ export class PropertyMongooseRepository implements PropertyRepository {
     }
 
     await this.propertyModel
-      .updateOne({ _id: id }, { ...foundProperty, ...data })
+      .updateOne(
+        { _id: id },
+        { ...foundProperty, ...data, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     const updatedProperty = await this.getOnePropertyById(id)

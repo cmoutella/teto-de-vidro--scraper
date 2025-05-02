@@ -36,9 +36,6 @@ export class Address implements InterfaceAddress {
   @ApiProperty()
   @Prop()
   country: string
-  @ApiProperty()
-  @Prop()
-  lotConvenience: string[]
 
   // related to property
   @ApiProperty()
@@ -71,9 +68,6 @@ export class Address implements InterfaceAddress {
   @ApiPropertyOptional()
   @Prop()
   condoPricing: number
-  @ApiPropertyOptional()
-  @Prop()
-  propertyConvenience: string[]
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address)
@@ -100,7 +94,7 @@ export class SearchAddress implements InterfaceSearchAddress {
   country: string
   @ApiProperty()
   @Prop()
-  lotConvenience: string[]
+  lotAmenities: string[]
   @ApiProperty()
   @Prop()
   block: string

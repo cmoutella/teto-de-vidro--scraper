@@ -15,8 +15,10 @@ import { LotRepository } from '../lot.repository'
 export class LotMongooseRepository implements LotRepository {
   constructor(@InjectModel(Lot.name) private lotModel: Model<Lot>) {}
 
-  async createLot(newLot: InterfaceLot): Promise<InterfaceLot | null> {
-    const createLot = new this.lotModel(newLot)
+  async createLot(
+    newLot: Omit<InterfaceLot, 'lotAmenities'>
+  ): Promise<InterfaceLot | null> {
+    const createLot = new this.lotModel({ ...newLot, lotAmenities: [] })
 
     await createLot.save()
 
@@ -172,7 +174,12 @@ export class LotMongooseRepository implements LotRepository {
       throw new BadRequestException('Lote não encontrado')
     }
 
-    await this.lotModel.updateOne({ _id: id }, { ...foundLot, ...data }).exec()
+    await this.lotModel
+      .updateOne(
+        { _id: id },
+        { ...foundLot, ...data, updatedAt: new Date().toISOString() }
+      )
+      .exec()
 
     const updated = await this.getOneLot(id)
 

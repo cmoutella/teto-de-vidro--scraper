@@ -34,7 +34,10 @@ export class PropertyService {
       return foundProperty
     }
 
-    const data = await this.propertyRepository.createProperty(newProperty)
+    const data = await this.propertyRepository.createProperty({
+      ...newProperty,
+      propertyAmenities: []
+    })
 
     if (!data) {
       return null

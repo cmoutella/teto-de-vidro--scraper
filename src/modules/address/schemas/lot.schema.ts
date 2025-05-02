@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import mongoose, { HydratedDocument } from 'mongoose'
 
 import { InterfaceLot } from './models/lot.interface'
+import { AddressAmenity } from './models/shared/shared.interface'
 
 export type LotDocument = HydratedDocument<Lot>
 
@@ -39,7 +40,7 @@ export class Lot implements InterfaceLot {
   country: string
   @ApiPropertyOptional()
   @Prop()
-  lotConvenience: string[]
+  lotAmenities: AddressAmenity[]
   @Prop({ idRequired: true })
   createdAt: string
   @Prop({ idRequired: true })

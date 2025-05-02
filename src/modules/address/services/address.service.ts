@@ -124,7 +124,7 @@ export class AddressService {
     }
 
     // se tem complemento mas nao tem propertyNumber ou block
-    if (!address.noComplement && !address.propertyNumber && !address.block) {
+    if (!address.noComplement || (!address.propertyNumber && !address.block)) {
       return { lot: relatedLot }
     }
 
@@ -154,7 +154,6 @@ export class AddressService {
       sun: address.sun ?? null,
       parking: address.parking ?? null,
       condoPricing: address.condoPricing ?? null,
-      propertyConvenience: address.propertyConvenience ?? null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     })

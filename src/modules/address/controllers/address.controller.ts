@@ -106,7 +106,6 @@ export class AddressController {
       city,
       uf,
       country = 'Brasil',
-      lotConvenience,
       noComplement,
       block,
       propertyNumber,
@@ -116,8 +115,7 @@ export class AddressController {
       parking,
       is_front,
       sun,
-      condoPricing,
-      propertyConvenience
+      condoPricing
     }: CreateAddress
   ) {
     return await this.addressService.createAddress({
@@ -130,7 +128,6 @@ export class AddressController {
       city,
       uf,
       country,
-      lotConvenience: lotConvenience ?? [],
       noComplement,
       block: noComplement ? '0' : block,
       propertyNumber: noComplement ? '0' : propertyNumber,
@@ -140,8 +137,7 @@ export class AddressController {
       parking,
       is_front,
       sun,
-      condoPricing,
-      propertyConvenience: propertyConvenience ?? []
+      condoPricing
     })
   }
 
@@ -232,8 +228,7 @@ export class AddressController {
       neighborhood,
       city,
       uf,
-      country = 'Brasil',
-      lotConvenience
+      country = 'Brasil'
     }: CreateLot
   ) {
     if (!postalCode) {
@@ -250,7 +245,6 @@ export class AddressController {
       city,
       uf,
       country,
-      lotConvenience: lotConvenience ?? [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     })
@@ -418,7 +412,7 @@ export class AddressController {
       /**
        * TODO: Implementar conveniências de propriedade
        */
-      propertyConvenience: [],
+      propertyAmenities: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     })

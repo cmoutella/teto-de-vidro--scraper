@@ -71,7 +71,11 @@ export class HuntMongooseRepository implements HuntRepository {
     const data = await this.huntModel
       .updateOne(
         { _id: huntId },
-        { ...hunt, targets: [...hunt.targets, targetId] }
+        {
+          ...hunt,
+          targets: [...hunt.targets, targetId],
+          updatedAt: new Date().toISOString()
+        }
       )
       .exec()
 
@@ -88,7 +92,10 @@ export class HuntMongooseRepository implements HuntRepository {
     const removed = hunt.targets.filter((el) => el !== targetId)
 
     const data = await this.huntModel
-      .updateOne({ _id: huntId }, { targets: removed })
+      .updateOne(
+        { _id: huntId },
+        { targets: removed, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     if (!data) {
@@ -122,7 +129,10 @@ export class HuntMongooseRepository implements HuntRepository {
     }
 
     await this.huntModel
-      .updateOne({ _id: id }, { ...foundHunt, ...data })
+      .updateOne(
+        { _id: id },
+        { ...foundHunt, ...data, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     return await this.getOneHuntById(id)

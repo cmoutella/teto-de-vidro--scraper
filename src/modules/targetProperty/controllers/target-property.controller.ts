@@ -21,7 +21,9 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import { PROPERTY_SUN_LIGHT } from 'src/shared/const'
+import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
+import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { AMENITY_REPORTED_BY, PROPERTY_SUN_LIGHT } from 'src/shared/const'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { z } from 'zod'
 
@@ -36,7 +38,8 @@ import {
 } from '../schemas/endpoints/get'
 import {
   addressRelatedFields,
-  InterfaceTargetProperty
+  InterfaceTargetProperty,
+  TargetAmenity
 } from '../schemas/models/target-property.interface'
 import { TargetProperty } from '../schemas/target-property.schema'
 import { TargetPropertyService } from '../services/target-property.service'
@@ -74,7 +77,15 @@ const createTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   noLotNumber: z.boolean(),
   lotNumber: z.string().optional(),
-  lotConvenience: z.array(z.string()).optional(),
+  targetAmenities: z
+    .array(
+      z.object({
+        identifier: z.string().optional(),
+        reportedBy: z.enum(AMENITY_REPORTED_BY),
+        userId: z.string().optional()
+      })
+    )
+    .optional(),
 
   noComplement: z.boolean(),
   block: z.string().optional(),
@@ -86,8 +97,6 @@ const createTargetPropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  propertyConvenience: z.array(z.string()).optional(),
-
   contactName: z.string().optional(),
   contactWhatzap: z.string().optional()
 })
@@ -118,7 +127,6 @@ const updateTargetPropertySchema = z.object({
   lotName: z.string().optional(),
   noLotNumber: z.boolean().optional(),
   lotNumber: z.string().optional(),
-  lotConvenience: z.array(z.string()).optional(),
 
   noComplement: z.boolean().optional(),
   block: z.string().optional(),
@@ -129,8 +137,7 @@ const updateTargetPropertySchema = z.object({
   bathrooms: z.number().optional(),
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
-  sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  propertyConvenience: z.array(z.string()).optional()
+  sun: z.enum(PROPERTY_SUN_LIGHT).optional()
 })
 
 type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
@@ -141,7 +148,8 @@ type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
 export class TargetPropertyController {
   constructor(
     private readonly targetPropertyService: TargetPropertyService,
-    private readonly huntService: HuntService
+    private readonly huntService: HuntService,
+    private readonly amenityService: AmenityService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
@@ -177,7 +185,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotConvenience,
+      targetAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -187,8 +195,7 @@ export class TargetPropertyController {
       parking,
       is_front,
       sun,
-      condoPricing,
-      propertyConvenience
+      condoPricing
     }: CreateTargetProperty
   ) {
     if (!huntId) {
@@ -220,7 +227,7 @@ export class TargetPropertyController {
       city,
       uf,
       country,
-      lotConvenience,
+      targetAmenities,
       noComplement,
       block,
       propertyNumber,
@@ -231,12 +238,19 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing,
-      propertyConvenience,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
 
     await this.targetPropertyService.preventDuplicity(targetData as never)
+
+    if (targetAmenities && targetAmenities.length >= 1) {
+      this.amenityService.createManyAmenities(
+        targetAmenities.map((amenity) => {
+          return { identifier: amenity.identifier }
+        })
+      )
+    }
 
     const createdTargetProperty =
       await this.targetPropertyService.createTargetProperty(targetData as never)
@@ -247,23 +261,17 @@ export class TargetPropertyController {
 
     await this.huntService.addTargetToHunt(huntId, createdTargetProperty.id)
 
-    return createdTargetProperty
-  }
-
-  @ApiOperation({ summary: 'Busca um imóvel target por id' })
-  @ApiResponse({
-    type: GetOneTargetPropertySuccess,
-    status: 200
-  })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @Get(':id')
-  async getOneTargetProperty(@Param('id') id: string) {
-    if (!id) {
-      throw new BadRequestException('Necessário informar id')
+    let amenitiesFullData: TargetAmenity[]
+    if (
+      createdTargetProperty.targetAmenities &&
+      createdTargetProperty.targetAmenities.length >= 1
+    ) {
+      amenitiesFullData = (await this.amenityService.getCompleteAmenitiesData(
+        createdTargetProperty.targetAmenities as never
+      )) as never
     }
 
-    return await this.targetPropertyService.getOneTargetById(id)
+    return { ...createdTargetProperty, targetAmenities: amenitiesFullData }
   }
 
   @ApiOperation({ summary: 'Atualiza um imóvel target' })
@@ -310,11 +318,61 @@ export class TargetPropertyController {
     const hasAddressUpdate = Object.keys(changedData).some((key) =>
       addressRelatedFields.includes(key as never)
     )
+
     if (hasAddressUpdate) {
       await this.targetPropertyService.preventDuplicity(finalData)
     }
 
-    return await this.targetPropertyService.updateTargetProperty(id, finalData)
+    const updatedTargetProperty =
+      await this.targetPropertyService.updateTargetProperty(id, finalData)
+
+    if (!updatedTargetProperty) {
+      return undefined
+    }
+
+    let amenitiesFullData: TargetAmenity[]
+    if (
+      updatedTargetProperty.targetAmenities &&
+      updatedTargetProperty.targetAmenities.length >= 1
+    ) {
+      amenitiesFullData = (await this.amenityService.getCompleteAmenitiesData(
+        updatedTargetProperty.targetAmenities as never
+      )) as never
+    }
+
+    return {
+      ...updatedTargetProperty,
+      targetAmenities: amenitiesFullData
+    } as InterfaceTargetProperty
+  }
+
+  @ApiOperation({ summary: 'Busca um imóvel target por id' })
+  @ApiResponse({
+    type: GetOneTargetPropertySuccess,
+    status: 200
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  async getOneTargetProperty(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
+    const target = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!target) {
+      return undefined
+    }
+
+    let amenitiesFullData: TargetAmenity[]
+    if (target.targetAmenities && target.targetAmenities.length >= 1) {
+      amenitiesFullData = (await this.amenityService.getCompleteAmenitiesData(
+        target.targetAmenities as never
+      )) as never
+    }
+
+    return { ...target, targetAmenities: amenitiesFullData }
   }
 
   @ApiOperation({
@@ -333,11 +391,105 @@ export class TargetPropertyController {
       throw new BadRequestException('Necessário informar huntId')
     }
 
-    return await this.targetPropertyService.getAllTargetsByHunt(
-      huntId,
-      page,
-      limit
+    const { list, ...otherData } =
+      await this.targetPropertyService.getAllTargetsByHunt(huntId, page, limit)
+
+    let fixedList = []
+    if (list && list.length >= 1) {
+      fixedList = await Promise.all(
+        list.map(async (listItem: InterfaceTargetProperty) => {
+          if (
+            listItem.targetAmenities &&
+            listItem.targetAmenities.length >= 1
+          ) {
+            const amenitiesFullData =
+              (await this.amenityService.getCompleteAmenitiesData(
+                listItem.targetAmenities as never
+              )) as never
+
+            return { ...listItem, targetAmenities: amenitiesFullData }
+          }
+
+          return listItem
+        })
+      )
+    }
+
+    const response = { ...otherData, list: fixedList }
+
+    return response
+  }
+
+  @ApiOperation({ summary: 'Adicionar amenidade a um target' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Put(':id/amenity')
+  async addAmenityToTarget(
+    @Param('id') id: string,
+    @Body()
+    amenity: TargetAmenity & { label?: string; amenityOf?: AmenityOf }
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const toBeUpdated = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!toBeUpdated) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    let toBeAdded
+    toBeAdded = await this.amenityService.getOneAmenityById(amenity.identifier)
+
+    if (!toBeAdded) {
+      toBeAdded = await this.amenityService.createAmenity({
+        identifier: amenity.identifier,
+        amenityOf: amenity.amenityOf ?? undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        label: amenity.label ?? undefined
+      })
+    }
+
+    if (toBeAdded) {
+      const added = await this.targetPropertyService.addAmenityToTarget(id, {
+        identifier: amenity.identifier,
+        reportedBy: amenity.reportedBy,
+        userId: amenity.userId
+      })
+
+      return { success: added }
+    }
+
+    return { success: false }
+  }
+
+  @ApiOperation({ summary: 'TODO | Remover amenidade de um target' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get(':id/amenity/:amenity')
+  async removeAmenityfromTarget(
+    @Param('id') id: string,
+    @Param('amenity')
+    amenity: string
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id do target')
+    }
+
+    const toBeUpdated = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!toBeUpdated) {
+      throw new NotFoundException('Target não encontrado')
+    }
+
+    const removed = await this.targetPropertyService.removeAmenityFromTarget(
+      id,
+      amenity
     )
+
+    return { success: removed }
   }
 
   @ApiOperation({ summary: 'Deleção de um imóvel target' })

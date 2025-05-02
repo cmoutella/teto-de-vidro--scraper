@@ -7,6 +7,11 @@ import {
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import {
+  Amenity,
+  AmenitySchema
+} from '@src/modules/amenity/schemas/amenity.schema'
+import { AmenityService } from '@src/modules/amenity/services/amenity.service'
 import { HuntMongooseRepository } from '@src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
@@ -19,9 +24,13 @@ import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
+import { amenity1, manyAmenities } from '../__mocks__'
 import { TargetPropertyController } from '../../controllers/target-property.controller'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
-import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
+import type {
+  InterfaceTargetProperty,
+  TargetAmenity
+} from '../../schemas/models/target-property.interface'
 import {
   TargetProperty,
   TargetPropertySchema
@@ -70,8 +79,11 @@ describe('TargetPropertyController | Integration Test', () => {
   const mockTargetPropertyService = {
     createTargetProperty: jest.fn(),
     updateTargetProperty: jest.fn(),
-    preventDuplicity: jest.fn(),
     getOneTargetById: jest.fn(),
+    getAllTargetsByHunt: jest.fn(),
+    addAmenityToTarget: jest.fn(),
+    removeAmenityfromTarget: jest.fn(),
+    preventDuplicity: jest.fn(),
     deleteTargetProperty: jest.fn()
   }
 
@@ -86,6 +98,13 @@ describe('TargetPropertyController | Integration Test', () => {
     deleteTargetProperty: jest.fn()
   }
 
+  const mockAmenityService = {
+    createAmenity: jest.fn(),
+    createManyAmenities: jest.fn(),
+    getOneAmenityById: jest.fn(),
+    getCompleteAmenitiesData: jest.fn()
+  }
+
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const uri = mongod.getUri()
@@ -95,7 +114,8 @@ describe('TargetPropertyController | Integration Test', () => {
         MongooseModule.forRoot(uri),
         MongooseModule.forFeature([
           { name: TargetProperty.name, schema: TargetPropertySchema },
-          { name: Hunt.name, schema: HuntSchema }
+          { name: Hunt.name, schema: HuntSchema },
+          { name: Amenity.name, schema: AmenitySchema }
         ])
       ],
       controllers: [TargetPropertyController],
@@ -107,6 +127,10 @@ describe('TargetPropertyController | Integration Test', () => {
         {
           provide: HuntService,
           useValue: mockHuntService
+        },
+        {
+          provide: AmenityService,
+          useValue: mockAmenityService
         },
         {
           provide: TargetPropertyRepository,
@@ -136,6 +160,10 @@ describe('TargetPropertyController | Integration Test', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks()
+  })
+
+  afterEach(async () => {
+    jest.resetAllMocks()
   })
 
   afterAll(async () => {
@@ -214,9 +242,11 @@ describe('TargetPropertyController | Integration Test', () => {
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
 
-      await controller.createTargetProperty({
-        ...baseProperty
-      } as InterfaceTargetProperty)
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty
+        })
 
       expect(mockTargetPropertyService.preventDuplicity).toHaveBeenCalled()
     })
@@ -241,6 +271,66 @@ describe('TargetPropertyController | Integration Test', () => {
         })
     })
 
+    it('should try to create received amenities', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty,
+          targetAmenities: [
+            { identifier: 'elevator', reportedBy: 'ad' },
+            { identifier: 'portaria-24h', reportedBy: 'ad' }
+          ] as TargetAmenity[]
+        })
+
+      expect(mockAmenityService.createManyAmenities).toHaveBeenCalled()
+    })
+
+    it('should try NOT to create if NO amenities were received', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123'
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty
+        })
+
+      expect(mockAmenityService.createManyAmenities).not.toHaveBeenCalled()
+    })
+
+    it('should get amenities origin data', async () => {
+      MockAuthGuard.allow = true
+
+      mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockTargetPropertyService.createTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        id: 'target-123',
+        targetAmenities: manyAmenities
+      })
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty,
+          targetAmenities: manyAmenities
+        })
+
+      expect(mockAmenityService.getCompleteAmenitiesData).toHaveBeenCalled()
+    })
+
     it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
@@ -253,47 +343,16 @@ describe('TargetPropertyController | Integration Test', () => {
     })
   })
 
-  describe('getAllTargetsByHunt', () => {
-    it('should throw BadRequestException if huntId is missing', async () => {
+  describe('updateTargetProperty', () => {
+    it('should throw NotFoundException if no Target found for the id', async () => {
       MockAuthGuard.allow = true
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(false)
 
       await expect(
-        controller.getAllTargetsByHunt(undefined, 1, 10)
-      ).rejects.toThrow(BadRequestException)
-    })
-
-    it('should require authorization in request headers', async () => {
-      MockAuthGuard.allow = false
-
-      await request(app.getHttpServer())
-        .get(`/target-property/search/${huntID}`)
-        .send()
-        .expect(403)
-    })
-  })
-
-  describe('getOneTargetById', () => {
-    it('should throw BadRequestException if id is missing', async () => {
-      MockAuthGuard.allow = true
-
-      await expect(controller.getOneTargetProperty(undefined)).rejects.toThrow(
-        BadRequestException
-      )
-    })
-
-    it('should require authorization in request headers', async () => {
-      MockAuthGuard.allow = false
-
-      await request(app.getHttpServer())
-        .get(`/target-property/${targetId}`)
-        .send()
-        .expect(403)
-    })
-  })
-
-  describe('updateTargetProperty', () => {
-    afterEach(async () => {
-      jest.clearAllMocks()
+        controller.updateTargetProperty('abc', {
+          ...baseProperty
+        } as InterfaceTargetProperty)
+      ).rejects.toThrow(NotFoundException)
     })
 
     it('should throw BadRequestException if id is missing', async () => {
@@ -360,15 +419,25 @@ describe('TargetPropertyController | Integration Test', () => {
         })
     })
 
-    it('should throw NotFoundException if no Target found for the id', async () => {
+    it('should get amenities origin data', async () => {
       MockAuthGuard.allow = true
-      mockTargetPropertyService.getOneTargetById.mockResolvedValue(false)
 
-      await expect(
-        controller.updateTargetProperty('abc', {
-          ...baseProperty
-        } as InterfaceTargetProperty)
-      ).rejects.toThrow(NotFoundException)
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockTargetPropertyService.updateTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        condoPricing: 700,
+        targetAmenities: manyAmenities
+      })
+
+      await request(app.getHttpServer())
+        .put('/target-property/target-123')
+        .send({
+          ...baseProperty,
+          condoPricing: 700,
+          targetAmenities: manyAmenities
+        })
+
+      expect(mockAmenityService.getCompleteAmenitiesData).toHaveBeenCalled()
     })
 
     it('should require authorization in request headers', async () => {
@@ -379,6 +448,172 @@ describe('TargetPropertyController | Integration Test', () => {
         .send({
           ...baseProperty
         })
+        .expect(403)
+    })
+  })
+
+  describe('getOneTargetById', () => {
+    it('should throw BadRequestException if id is missing', async () => {
+      MockAuthGuard.allow = true
+
+      await expect(controller.getOneTargetProperty(undefined)).rejects.toThrow(
+        BadRequestException
+      )
+    })
+
+    it('should get amenities origin data', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue({
+        ...baseProperty,
+        condoPricing: 700,
+        targetAmenities: manyAmenities
+      })
+
+      await request(app.getHttpServer())
+        .get('/target-property/target-123')
+        .send()
+
+      expect(mockAmenityService.getCompleteAmenitiesData).toHaveBeenCalled()
+    })
+
+    it('should require authorization in request headers', async () => {
+      MockAuthGuard.allow = false
+
+      await request(app.getHttpServer())
+        .get(`/target-property/${targetId}`)
+        .send()
+        .expect(403)
+    })
+  })
+
+  describe('addAmenityToTarget', () => {
+    it('should throw BadRequestException if id is missing', async () => {
+      await expect(
+        controller.addAmenityToTarget(undefined, amenity1)
+      ).rejects.toThrow(BadRequestException)
+    })
+
+    it('should throw NotFoundException if id is missing', async () => {
+      await expect(
+        controller.addAmenityToTarget(targetId, amenity1)
+      ).rejects.toThrow(NotFoundException)
+    })
+
+    it('should call service with correct params', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.getOneAmenityById.mockResolvedValue(amenity1)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockTargetPropertyService.addAmenityToTarget).toHaveBeenCalled()
+      expect(mockTargetPropertyService.addAmenityToTarget).toHaveBeenCalledWith(
+        targetId,
+        amenity1
+      )
+    })
+
+    it('should create amenity if NOT already exists', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.createAmenity.mockResolvedValue(amenity1)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockAmenityService.createAmenity).toHaveBeenCalled()
+    })
+
+    it('should NOT create amenity if already exists', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockAmenityService.getOneAmenityById.mockResolvedValue(amenity1)
+
+      await request(app.getHttpServer())
+        .put(`/target-property/${targetId}/amenity`)
+        .send(amenity1)
+
+      expect(mockAmenityService.createAmenity).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('removeAmenityfromTarget', () => {
+    it('should throw BadRequestException if id is missing', async () => {
+      MockAuthGuard.allow = true
+
+      await expect(
+        controller.removeAmenityfromTarget(undefined, amenity1.identifier)
+      ).rejects.toThrow(BadRequestException)
+    })
+  })
+
+  describe('getAllTargetsByHunt', () => {
+    it('should throw BadRequestException if huntId is missing', async () => {
+      MockAuthGuard.allow = true
+
+      await expect(
+        controller.getAllTargetsByHunt(undefined, 1, 10)
+      ).rejects.toThrow(BadRequestException)
+    })
+
+    it('should get query params', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getAllTargetsByHunt.mockResolvedValue({
+        list: baseProperty
+      })
+
+      await request(app.getHttpServer())
+        .get(`/target-property/search/${huntID}?page=3&limit=10`)
+        .send()
+
+      expect(
+        mockTargetPropertyService.getAllTargetsByHunt
+      ).toHaveBeenCalledWith(huntID, '3', '10')
+    })
+
+    it('should get amenities origin data', async () => {
+      MockAuthGuard.allow = true
+
+      const responseMock = [
+        {
+          ...baseProperty,
+          id: '1',
+          targetAmenities: manyAmenities
+        },
+        {
+          ...baseProperty,
+          id: '2',
+          targetAmenities: manyAmenities
+        }
+      ]
+
+      mockTargetPropertyService.getAllTargetsByHunt.mockResolvedValue({
+        list: responseMock
+      })
+
+      await request(app.getHttpServer())
+        .get('/target-property/search/hunt-123')
+        .send()
+
+      expect(mockAmenityService.getCompleteAmenitiesData).toHaveBeenCalledTimes(
+        responseMock.length
+      )
+    })
+
+    it('should require authorization in request headers', async () => {
+      MockAuthGuard.allow = false
+
+      await request(app.getHttpServer())
+        .get(`/target-property/${targetId}`)
+        .send()
         .expect(403)
     })
   })

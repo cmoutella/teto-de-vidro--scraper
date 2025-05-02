@@ -1,3 +1,4 @@
+import type { AddressAmenity } from './shared/shared.interface'
 export interface InterfaceLot {
   id?: string
   lotName?: string
@@ -9,7 +10,7 @@ export interface InterfaceLot {
   city: string
   uf: string
   country: string
-  lotConvenience?: string[]
+  lotAmenities?: AddressAmenity[]
   createdAt: string
   updatedAt: string
 }
