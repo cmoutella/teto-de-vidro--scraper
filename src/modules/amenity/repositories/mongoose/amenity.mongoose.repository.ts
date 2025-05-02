@@ -88,7 +88,10 @@ export class AmenityMongooseRepository implements AmenityRepository {
     if (!foundAmenity) return
 
     await this.amenityModel
-      .updateOne({ identifier: id }, { ...foundAmenity, ...data })
+      .updateOne(
+        { identifier: id },
+        { ...foundAmenity, ...data, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     const updated = await this.getOneAmenityById(id)

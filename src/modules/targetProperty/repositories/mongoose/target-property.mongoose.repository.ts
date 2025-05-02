@@ -181,7 +181,10 @@ export class TargetPropertyMongooseRepository
     }
 
     await this.targetPropertyModel
-      .updateOne({ _id: id }, { ...foundProperty, ...data })
+      .updateOne(
+        { _id: id },
+        { ...foundProperty, ...data, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     return await this.getOneTargetById(id)

@@ -112,7 +112,10 @@ export class PropertyMongooseRepository implements PropertyRepository {
     }
 
     await this.propertyModel
-      .updateOne({ _id: id }, { ...foundProperty, ...data })
+      .updateOne(
+        { _id: id },
+        { ...foundProperty, ...data, updatedAt: new Date().toISOString() }
+      )
       .exec()
 
     const updatedProperty = await this.getOnePropertyById(id)

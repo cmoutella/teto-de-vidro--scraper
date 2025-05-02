@@ -174,7 +174,12 @@ export class LotMongooseRepository implements LotRepository {
       throw new BadRequestException('Lote não encontrado')
     }
 
-    await this.lotModel.updateOne({ _id: id }, { ...foundLot, ...data }).exec()
+    await this.lotModel
+      .updateOne(
+        { _id: id },
+        { ...foundLot, ...data, updatedAt: new Date().toISOString() }
+      )
+      .exec()
 
     const updated = await this.getOneLot(id)
 
