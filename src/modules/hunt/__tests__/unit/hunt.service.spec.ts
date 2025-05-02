@@ -1,7 +1,6 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
-import { TargetPropertyRepository } from '@src/modules/targetProperty/repositories/target-property.repository'
 
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
 import { HuntService } from '../../services/hunt-collection.service'
@@ -17,17 +16,6 @@ const baseHunt: InterfaceHunt = {
 
 describe('HuntService | UnitTest', () => {
   let service: HuntService
-
-  const mockTargetPropertyRepository = {
-    createTargetProperty: jest.fn(),
-    getAllTargetsByHunt: jest.fn(),
-    getHuntTargetByFullAddress: jest.fn(),
-    getHuntTargetsByLot: jest.fn(),
-    getHuntTargetsByStreet: jest.fn(),
-    getOneTargetById: jest.fn(),
-    updateTargetProperty: jest.fn(),
-    deleteTargetProperty: jest.fn()
-  }
 
   const mockHuntRepository = {
     createHunt: jest.fn(),
@@ -46,10 +34,6 @@ describe('HuntService | UnitTest', () => {
         {
           provide: HuntRepository,
           useValue: mockHuntRepository
-        },
-        {
-          provide: TargetPropertyRepository,
-          useValue: mockTargetPropertyRepository
         }
       ]
     }).compile()
