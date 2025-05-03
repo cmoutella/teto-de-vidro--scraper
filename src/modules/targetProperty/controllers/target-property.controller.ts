@@ -42,21 +42,8 @@ import {
   TargetAmenity
 } from '../schemas/models/target-property.interface'
 import { TargetProperty } from '../schemas/target-property.schema'
+import { ZPropertyHuntingStage } from '../schemas/zod-validation/shared'
 import { TargetPropertyService } from '../services/target-property.service'
-
-const HUNTING_STAGE = [
-  'new',
-  'iniciated',
-  'returned',
-  'disappeared',
-  'unavailable',
-  'scheduled',
-  'visited',
-  'quit',
-  'submitted',
-  'approved',
-  'denied'
-] as const
 
 const createTargetPropertySchema = z.object({
   huntId: z.string(),
@@ -106,7 +93,7 @@ type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>
 const updateTargetPropertySchema = z.object({
   nickname: z.string().optional(),
   priority: z.number().optional(),
-  huntingStage: z.enum(HUNTING_STAGE).optional(),
+  huntingStage: ZPropertyHuntingStage.optional(),
   isActive: z.boolean().optional(),
   contactName: z.string().optional(),
   contactWhatzap: z.string().optional(),
