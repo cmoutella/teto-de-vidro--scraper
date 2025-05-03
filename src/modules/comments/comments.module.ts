@@ -1,6 +1,8 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { AddressModule } from '../address/address.module'
+import { UsersCollectionModule } from '../user/user.module'
 import { CommentsController } from './controllers/comments.controller'
 import { CommentRepository } from './repositories/comment.repository'
 import { CommentMongooseRepository } from './repositories/mongoose/comment.mongoose.repository'
@@ -9,14 +11,16 @@ import { CommentService } from './services/comments.service'
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }])
+    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+    forwardRef(() => UsersCollectionModule),
+    forwardRef(() => AddressModule)
   ],
   providers: [
+    CommentService,
     {
       provide: CommentRepository,
       useClass: CommentMongooseRepository
-    },
-    CommentService
+    }
   ],
   controllers: [CommentsController],
   exports: [CommentService]

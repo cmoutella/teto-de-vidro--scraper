@@ -14,6 +14,9 @@ import {
   UsePipes
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { LotService } from '@src/modules/address/services/lot-collection.service'
+import { PropertyService } from '@src/modules/address/services/property-collection.service'
+import { UserService } from '@src/modules/user/services/user.service'
 import { differenceInMinutes } from 'date-fns'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
@@ -36,7 +39,12 @@ type UpdateComment = z.infer<typeof updateCommentSchema>
 @UseInterceptors(LoggingInterceptor)
 @Controller('comment')
 export class CommentsController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(
+    private readonly commentService: CommentService,
+    private readonly userService: UserService,
+    private readonly lotService: LotService,
+    private readonly propertyService: PropertyService
+  ) {}
 
   @ApiBearerAuth()
   // @UseGuards(AuthGuard)
@@ -70,8 +78,31 @@ export class CommentsController {
       validation
     }: CreateComment
   ) {
-    // TODO: validar o relacionamento
-    // TODO: validar se o objeto do relacionamento existe (lot/property)
+    const validUser = await this.userService.getById(author)
+
+    if (!validUser) {
+      throw new NotFoundException('Usuário não encontrado')
+    }
+
+    if (relationship) {
+      if (relationship.relativeTo === 'lot') {
+        const validLot = await this.lotService.getOneLot(
+          relationship.relativeId
+        )
+
+        if (!validLot) {
+          throw new NotFoundException('Relative lot invalid')
+        }
+      } else if (relationship.relativeTo === 'property') {
+        const validProperty = await this.propertyService.getOneProperty(
+          relationship.relativeId
+        )
+
+        if (!validProperty) {
+          throw new NotFoundException('Relative property invalid')
+        }
+      }
+    }
 
     return await this.commentService.createComment({
       comment,
