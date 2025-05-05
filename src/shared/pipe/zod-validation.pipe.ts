@@ -7,13 +7,12 @@ export class ZodValidationPipe implements PipeTransform {
   constructor(private schema: ZodSchema) {}
 
   transform(value: unknown) {
+    console.log('# ZOD VALIDATION')
     try {
       const parsedValue = this.schema.parse(value)
 
       if (parsedValue) {
-        console.log('# ZOD VALIDATION')
         console.log('# Success: ok')
-        console.log('# # # # # # # #')
       }
 
       return parsedValue
@@ -21,10 +20,11 @@ export class ZodValidationPipe implements PipeTransform {
       if (err instanceof ZodError) {
         err.issues.forEach((issue) => {
           console.log(
-            `Erro no caminho ${issue.path.join('.')}: ${issue.message}`
+            `# Erro no caminho ${issue.path.join('.')}: ${issue.message}`
           )
         })
       }
+      console.log('# # # # # # # #')
       throw new BadRequestException('Validation failed')
     }
   }
