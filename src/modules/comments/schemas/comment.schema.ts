@@ -64,13 +64,13 @@ export class Comment implements InterfaceComment {
 
   @ApiProperty()
   @Prop({
-    required: true,
+    required: false,
     type: {
       relativeTo: { type: String, enum: Object.values(CommentRelatedToEnum) },
       relativeId: { type: String }
     }
   })
-  relationship: {
+  relationship?: {
     relativeTo: CommentRelatedTo
     relativeId: string
   }

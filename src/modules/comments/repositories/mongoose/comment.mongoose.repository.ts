@@ -18,15 +18,17 @@ export class CommentMongooseRepository implements CommentRepository {
   async createComment(
     newComment: InterfaceComment
   ): Promise<InterfaceComment | null> {
-    const createComment = new this.commentModel({
+    const createdComment = new this.commentModel({
       ...newComment,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     })
 
-    await createComment.save()
+    await createdComment.save()
 
-    return this.getOneCommentById(newComment.id)
+    if (!createdComment) return null
+
+    return await this.getOneCommentById(createdComment._id.toString())
   }
 
   async getOneCommentById(id: string): Promise<InterfaceComment> {
@@ -41,7 +43,7 @@ export class CommentMongooseRepository implements CommentRepository {
 
     const { _id, __v, ...otherData } = data
 
-    return otherData
+    return { ...otherData, id: _id.toString() }
   }
 
   async getCommentsByTarget(

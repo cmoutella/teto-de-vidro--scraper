@@ -22,7 +22,7 @@ export interface InterfaceComment {
   id: string
   comment: string
   topic: CommentTopic
-  relationship: CommentMainRelationship
+  relationship?: CommentMainRelationship
 
   author: string
   authorPrivacy: AuthorPrivacy
