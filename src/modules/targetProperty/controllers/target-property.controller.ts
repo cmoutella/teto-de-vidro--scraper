@@ -23,9 +23,7 @@ import {
 } from '@nestjs/swagger'
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
-import { AMENITY_REPORTED_BY, PROPERTY_SUN_LIGHT } from 'src/shared/const'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
-import { z } from 'zod'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe'
@@ -42,92 +40,15 @@ import {
   TargetAmenity
 } from '../schemas/models/target-property.interface'
 import { TargetProperty } from '../schemas/target-property.schema'
-import { ZPropertyHuntingStage } from '../schemas/zod-validation/shared'
+import {
+  CreateTargetProperty,
+  createTargetPropertySchema
+} from '../schemas/zod-validation/create-target-property.zod-validation'
+import {
+  UpdateTargetProperty,
+  updateTargetPropertySchema
+} from '../schemas/zod-validation/update-target-property.zod-validation'
 import { TargetPropertyService } from '../services/target-property.service'
-
-const createTargetPropertySchema = z.object({
-  huntId: z.string(),
-  adURL: z.string(),
-  sellPrice: z.number(),
-  rentPrice: z.number(),
-  iptu: z.number().optional(),
-
-  nickname: z.string().optional(),
-  street: z.string(),
-  neighborhood: z.string(),
-  city: z.string(),
-  uf: z.string(),
-  country: z.string(),
-  postalCode: z.string().optional(),
-  condoPricing: z.number().optional(),
-
-  lotName: z.string().optional(),
-  noLotNumber: z.boolean(),
-  lotNumber: z.string().optional(),
-  targetAmenities: z
-    .array(
-      z.object({
-        identifier: z.string().optional(),
-        reportedBy: z.enum(AMENITY_REPORTED_BY),
-        userId: z.string().optional()
-      })
-    )
-    .optional(),
-
-  noComplement: z.boolean(),
-  block: z.string().optional(),
-  propertyNumber: z.string().optional(),
-
-  size: z.number().optional(),
-  rooms: z.number().optional(),
-  bathrooms: z.number().optional(),
-  parking: z.number().optional(),
-  is_front: z.boolean().optional(),
-  sun: z.enum(PROPERTY_SUN_LIGHT).optional(),
-  contactName: z.string().optional(),
-  contactWhatzap: z.string().optional()
-})
-
-type CreateTargetProperty = z.infer<typeof createTargetPropertySchema>
-
-const updateTargetPropertySchema = z.object({
-  nickname: z.string().optional(),
-  priority: z.number().optional(),
-  huntingStage: ZPropertyHuntingStage.optional(),
-  isActive: z.boolean().optional(),
-  contactName: z.string().optional(),
-  contactWhatzap: z.string().optional(),
-  visitDate: z.string().optional(),
-
-  sellPrice: z.number().optional(),
-  rentPrice: z.number().optional(),
-  iptu: z.number().optional(),
-  condoPricing: z.number().optional(),
-
-  street: z.string().optional(),
-  neighborhood: z.string().optional(),
-  city: z.string().optional(),
-  uf: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
-
-  lotName: z.string().optional(),
-  noLotNumber: z.boolean().optional(),
-  lotNumber: z.string().optional(),
-
-  noComplement: z.boolean().optional(),
-  block: z.string().optional(),
-  propertyNumber: z.string().optional(),
-
-  size: z.number().optional(),
-  rooms: z.number().optional(),
-  bathrooms: z.number().optional(),
-  parking: z.number().optional(),
-  is_front: z.boolean().optional(),
-  sun: z.enum(PROPERTY_SUN_LIGHT).optional()
-})
-
-type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>
 
 @ApiTags('targetProperty')
 @UseInterceptors(LoggingInterceptor)
@@ -316,6 +237,9 @@ export class TargetPropertyController {
     if (!updatedTargetProperty) {
       return undefined
     }
+
+    // TODO: se o endereço atualizar, é preciso atualizar a referencia dos comentários
+    // fazer uma função no service de comentários para atualizar manyTargetComments
 
     let amenitiesFullData: TargetAmenity[]
     if (
