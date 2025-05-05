@@ -35,7 +35,7 @@ import { CommentService } from '../services/comments.service'
 type CreateComment = z.infer<typeof createCommentSchema>
 type UpdateComment = z.infer<typeof updateCommentSchema>
 
-@ApiTags('Comments')
+@ApiTags('comments')
 @UseInterceptors(LoggingInterceptor)
 @Controller('comment')
 export class CommentsController {
@@ -116,8 +116,7 @@ export class CommentsController {
   }
 
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(updateCommentSchema))
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Atualiza um comentário' })
   @ApiBody({
     type: Comment,
@@ -137,9 +136,11 @@ export class CommentsController {
   @Put(':id')
   async updateComment(
     @Param('id') id: string,
-    @Body()
+    @Body(new ZodValidationPipe(updateCommentSchema))
     body: UpdateComment
   ) {
+    console.log('hello', body)
+
     const found = await this.commentService.getOneCommentById(id)
 
     if (!found) {
