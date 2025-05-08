@@ -47,7 +47,7 @@ export class CommentsController {
   ) {}
 
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createCommentSchema))
   @ApiOperation({ summary: 'Cria um comentário' })
   @ApiBody({
@@ -169,7 +169,7 @@ export class CommentsController {
   //   description: 'Comentário encontrado com sucesso'
   // })
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/:id')
   async getById(@Param('id') id: string) {
     return await this.commentService.getOneCommentById(id)
@@ -183,7 +183,7 @@ export class CommentsController {
   //   description: 'Comentários encontrados com sucesso'
   // })
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/target/:targetId')
   async getByTarget(
     @Param('targetId') targetId: string,
@@ -211,7 +211,7 @@ export class CommentsController {
   //   description: 'Comentários encontrados com sucesso'
   // })
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/lot/:lotId')
   async getByLot(
     @Param('lotId') lotId: string,
