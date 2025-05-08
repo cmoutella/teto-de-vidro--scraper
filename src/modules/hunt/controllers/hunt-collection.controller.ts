@@ -25,7 +25,6 @@ import {
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { UserService } from '@src/modules/user/services/user.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
-import { z } from 'zod'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from '../../../shared/pipe/zod-validation.pipe'
@@ -40,36 +39,15 @@ import {
   UpdateHuntSuccess
 } from '../schemas/endpoints/updateHunt'
 import { Hunt } from '../schemas/hunt.schema'
+import {
+  CreateHunt,
+  createHuntSchema
+} from '../schemas/zod-validation/create-hunt.zod-validation'
+import {
+  UpdateHunt,
+  updateHuntSchema
+} from '../schemas/zod-validation/update-hunt.zod-validation'
 import { HuntService } from '../services/hunt-collection.service'
-
-const CONTRACT_TYPE = ['buy', 'rent', 'either'] as const
-
-const createHuntSchema = z.object({
-  creatorId: z.string(),
-  invitedUsers: z.array(z.string()).optional(),
-  title: z.string().optional(),
-  movingExpected: z.string().optional(),
-  minBudget: z.number().optional(),
-  maxBudget: z.number().optional(),
-  livingPeople: z.number().optional(),
-  livingPets: z.number().optional(),
-  type: z.enum(CONTRACT_TYPE).optional()
-})
-
-type CreateHunt = z.infer<typeof createHuntSchema>
-
-const updateHuntSchema = z.object({
-  invitedUsers: z.array(z.string()).optional(),
-  title: z.string().optional(),
-  movingExpected: z.string().optional(),
-  minBudget: z.number().optional(),
-  maxBudget: z.number().optional(),
-  livingPeople: z.number().optional(),
-  livingPets: z.number().optional(),
-  type: z.enum(CONTRACT_TYPE).optional()
-})
-
-type UpdateHunt = z.infer<typeof updateHuntSchema>
 
 @ApiTags('hunt')
 @UseInterceptors(LoggingInterceptor)

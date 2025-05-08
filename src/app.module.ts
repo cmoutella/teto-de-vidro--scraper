@@ -7,6 +7,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AddressModule } from './modules/address/address.module'
 import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
+import { CommentsCollectionModule } from './modules/comments/comments.module'
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { TargetPropertyCollectionModule } from './modules/targetProperty/target-property.module'
 import { UsersCollectionModule } from './modules/user/user.module'
@@ -26,7 +27,8 @@ import { UsersCollectionModule } from './modules/user/user.module'
     HuntCollectionModule,
     TargetPropertyCollectionModule,
     AddressModule,
-    AmenitiesCollectionModule
+    AmenitiesCollectionModule,
+    CommentsCollectionModule
   ],
   controllers: [AppController],
   providers: [AppService]
