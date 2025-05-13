@@ -1,3 +1,7 @@
+import {
+  AuthorPrivacy,
+  CommentTopic
+} from '@src/modules/comments/schemas/zod-validation/create'
 import { PROPERTY_SUN_LIGHT } from '@src/shared/const'
 import { z } from 'zod'
 
@@ -40,8 +44,16 @@ const targetUpdateData = z.object({
   sun: z.enum(PROPERTY_SUN_LIGHT).optional()
 })
 
+const targetUpdateRelatedComment = z.object({
+  comment: z.string(),
+  topic: CommentTopic,
+  author: z.string(),
+  authorPrivacy: AuthorPrivacy.optional()
+})
+
 export const updateTargetPropertySchema = z.object({
-  target: targetUpdateData
+  target: targetUpdateData,
+  comment: targetUpdateRelatedComment.optional()
 })
 
 export type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>

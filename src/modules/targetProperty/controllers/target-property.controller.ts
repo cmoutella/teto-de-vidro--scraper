@@ -23,6 +23,8 @@ import {
 } from '@nestjs/swagger'
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { CreateCommentData } from '@src/modules/comments/schemas/zod-validation/create'
+import { CommentService } from '@src/modules/comments/services/comments.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
@@ -57,7 +59,8 @@ export class TargetPropertyController {
   constructor(
     private readonly targetPropertyService: TargetPropertyService,
     private readonly huntService: HuntService,
-    private readonly amenityService: AmenityService
+    private readonly amenityService: AmenityService,
+    private readonly commentsService: CommentService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
@@ -207,21 +210,21 @@ export class TargetPropertyController {
 
     const changedData: Partial<InterfaceTargetProperty> = {}
 
-    const { target } = body
+    const { target: targetNewData, comment } = body
 
-    for (const key in target) {
+    for (const key in targetNewData) {
       if (
-        target[key] !== currentData[key] &&
-        target[key] != null &&
-        target[key] != undefined
+        targetNewData[key] !== currentData[key] &&
+        targetNewData[key] != null &&
+        targetNewData[key] != undefined
       ) {
-        changedData[key] = target[key]
+        changedData[key] = targetNewData[key]
       }
     }
 
     const finalData: InterfaceTargetProperty = {
       ...currentData,
-      ...target,
+      ...targetNewData,
       updatedAt: new Date().toISOString()
     }
 
@@ -230,7 +233,62 @@ export class TargetPropertyController {
     )
 
     if (hasAddressUpdate) {
+      // TODO 1: se o endereço atualizar buscar/criar o novo endereço e atualizar lotId/propertyId no finalData
+      // TODO 3: se o lotId/propertyId atualizar, é preciso atualizar a referencia nos comentários
+      // TODO 2: fazer uma função no service de comentários para atualizar manyTargetComments
       await this.targetPropertyService.preventDuplicity(finalData)
+    }
+
+    if (comment && comment.comment) {
+      let relation
+      switch (comment.topic) {
+        case 'lot':
+          relation = 'lot'
+          break
+        case 'surroundings':
+          relation = 'lot'
+          break
+        case 'property':
+          relation = 'property'
+          break
+        case 'owner':
+          relation = 'property'
+          break
+        case 'agency':
+          relation = undefined
+          break
+        default:
+          relation = 'property'
+          break
+      }
+
+      const relationId =
+        relation === 'lot'
+          ? finalData.lotId
+          : relation === 'property'
+            ? finalData.propertyId
+            : undefined
+
+      const commentData: CreateCommentData = {
+        comment: comment.comment,
+        author: comment.author,
+        authorPrivacy: comment.authorPrivacy ?? 'allowed',
+        topic: comment.topic,
+        relationship: relation
+          ? {
+              relativeTo: relation,
+              relativeId: relationId
+            }
+          : undefined,
+        target: {
+          targetId: id,
+          stage: finalData.huntingStage
+        },
+        validation: 'waiting'
+      }
+
+      // TODO: lidar com a falha aqui, o que fazer pra não perder o comentário?
+      await this.commentsService.createComment(commentData)
     }
 
     const updatedTargetProperty =
@@ -239,9 +297,6 @@ export class TargetPropertyController {
     if (!updatedTargetProperty) {
       return undefined
     }
-
-    // TODO: se o endereço atualizar, é preciso atualizar a referencia dos comentários
-    // fazer uma função no service de comentários para atualizar manyTargetComments
 
     let amenitiesFullData: TargetAmenity[]
     if (

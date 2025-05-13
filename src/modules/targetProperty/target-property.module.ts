@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose'
 
 import { AddressModule } from '../address/address.module'
 import { AmenitiesCollectionModule } from '../amenity/amenity.module'
+import { CommentsCollectionModule } from '../comments/comments.module'
 import { HuntCollectionModule } from '../hunt/hunt-collection.module'
 import { TargetPropertyController } from './controllers/target-property.controller'
 import { TargetPropertyMongooseRepository } from './repositories/mongoose/target-property.mongoose.repository'
@@ -20,7 +21,8 @@ import { TargetPropertyService } from './services/target-property.service'
     ]),
     forwardRef(() => HuntCollectionModule),
     forwardRef(() => AddressModule),
-    forwardRef(() => AmenitiesCollectionModule)
+    forwardRef(() => AmenitiesCollectionModule),
+    forwardRef(() => CommentsCollectionModule)
   ],
   providers: [
     {
