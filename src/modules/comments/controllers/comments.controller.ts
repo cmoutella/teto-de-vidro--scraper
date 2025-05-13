@@ -28,7 +28,10 @@ import {
   CommentTopic,
   InterfaceComment
 } from '../schemas/models/comment.interface'
-import { createCommentSchema } from '../schemas/zod-validation/create'
+import {
+  CreateCommentData,
+  createCommentSchema
+} from '../schemas/zod-validation/create'
 import { updateCommentSchema } from '../schemas/zod-validation/update'
 import { CommentService } from '../services/comments.service'
 
@@ -112,7 +115,7 @@ export class CommentsController {
       target,
       topic,
       validation
-    } as Omit<InterfaceComment, 'id' | 'createdAt' | 'updatedAt'>)
+    } as CreateCommentData)
   }
 
   @ApiBearerAuth()

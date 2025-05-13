@@ -14,12 +14,12 @@ export type CommentTopic =
 
 export type CommentRatedAs = 'waiting' | 'public' | 'offensive'
 
-const CommentTopic = z
+export const CommentTopic = z
   .enum(['lot', 'property', 'surroundings', 'owner', 'agency'])
   .or(z.string())
-const CommentRelatedTo = z.enum(['lot', 'property'])
-const AuthorPrivacy = z.enum(['allowed', 'denied'])
-const CommentRatedAs = z.enum(['waiting', 'public', 'offensive'])
+export const CommentRelatedTo = z.enum(['lot', 'property'])
+export const AuthorPrivacy = z.enum(['allowed', 'denied'])
+export const CommentRatedAs = z.enum(['waiting', 'public', 'offensive'])
 
 export const createCommentSchema = z.object({
   comment: z.string(),
@@ -40,3 +40,5 @@ export const createCommentSchema = z.object({
     })
     .optional()
 })
+
+export type CreateCommentData = z.infer<typeof createCommentSchema>

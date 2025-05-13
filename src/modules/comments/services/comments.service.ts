@@ -6,18 +6,19 @@ import {
   CommentTopic,
   InterfaceComment
 } from '../schemas/models/comment.interface'
+import { CreateCommentData } from '../schemas/zod-validation/create'
 
 @Injectable()
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
   async createComment(
-    newComment: Omit<InterfaceComment, 'id' | 'createdAt' | 'updatedAt'>
+    newComment: CreateCommentData
   ): Promise<InterfaceComment> {
-    const createdAmenity =
+    const createdComment =
       await this.commentRepository.createComment(newComment)
 
-    return createdAmenity
+    return createdComment
   }
 
   async getOneCommentById(id: string): Promise<InterfaceComment> {
