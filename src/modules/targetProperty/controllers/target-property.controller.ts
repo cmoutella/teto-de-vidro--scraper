@@ -193,7 +193,7 @@ export class TargetPropertyController {
   async updateTargetProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
-    updateData: UpdateTargetProperty
+    body: UpdateTargetProperty
   ) {
     if (!id) {
       throw new BadRequestException('Necessário informar id do target')
@@ -207,19 +207,21 @@ export class TargetPropertyController {
 
     const changedData: Partial<InterfaceTargetProperty> = {}
 
-    for (const key in updateData) {
+    const { target } = body
+
+    for (const key in target) {
       if (
-        updateData[key] !== currentData[key] &&
-        updateData[key] != null &&
-        updateData[key] != undefined
+        target[key] !== currentData[key] &&
+        target[key] != null &&
+        target[key] != undefined
       ) {
-        changedData[key] = updateData[key]
+        changedData[key] = target[key]
       }
     }
 
     const finalData: InterfaceTargetProperty = {
       ...currentData,
-      ...updateData,
+      ...target,
       updatedAt: new Date().toISOString()
     }
 
