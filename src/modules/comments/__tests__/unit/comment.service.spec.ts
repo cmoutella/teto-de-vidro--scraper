@@ -1,42 +1,13 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 
+import { mockCommentRepository } from '../__mocks__'
+import { mockCreateComment } from '../__mocks__/data'
 import { CommentRepository } from '../../repositories/comment.repository'
-import type { InterfaceComment } from '../../schemas/models/comment.interface'
 import { CommentService } from '../../services/comments.service'
-
-const mockCreateComment: Omit<
-  InterfaceComment,
-  'id' | 'createdAt' | 'updatedAt'
-> = {
-  comment: 'Meu comentário sobre propriedade',
-  author: 'author-123',
-  authorPrivacy: 'allowed',
-  validation: 'waiting',
-  topic: 'property',
-  relationship: {
-    relativeTo: 'property',
-    relativeId: 'property-123'
-  },
-  target: {
-    targetId: 'target-123',
-    stage: 'visited'
-  }
-}
 
 describe('CommentService | UnitTest', () => {
   let service: CommentService
-
-  const mockCommentRepository = {
-    createComment: jest.fn(),
-    getOneCommentById: jest.fn(),
-    getCommentsByTarget: jest.fn(),
-    getCommentsByTargetAndTopic: jest.fn(),
-    getCommentsByLot: jest.fn(),
-    getCommentsByProperty: jest.fn(),
-    updateComment: jest.fn(),
-    deleteComment: jest.fn()
-  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
