@@ -1,10 +1,13 @@
+import { Types } from 'mongoose'
+
 import type {
   InterfaceTargetProperty,
   TargetAmenity
 } from '../../schemas/models/target-property.interface'
 
-export const huntID = 'hunt123'
-export const lotId = 'lot-123'
+export const huntID = new Types.ObjectId().toHexString()
+export const targetId = new Types.ObjectId().toHexString()
+export const lotId = new Types.ObjectId().toHexString()
 export const propertyId = 'property-123'
 export const baseProperty: InterfaceTargetProperty = {
   adURL: '',

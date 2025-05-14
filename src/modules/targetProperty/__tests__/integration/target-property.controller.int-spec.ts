@@ -7,24 +7,42 @@ import {
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { mockAmenityService } from '@src/modules/amenity/__tests__/__mocks__'
 import {
   Amenity,
   AmenitySchema
 } from '@src/modules/amenity/schemas/amenity.schema'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { mockCommentService } from '@src/modules/comments/__tests__/__mocks__'
+import {
+  Comment,
+  CommentSchema
+} from '@src/modules/comments/schemas/comment.schema'
+import { CommentService } from '@src/modules/comments/services/comments.service'
+import { mockHuntService } from '@src/modules/hunt/__tests__/__mocks__'
 import { HuntMongooseRepository } from '@src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
 import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from '@src/shared/guards/auth.guard'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose, { Types } from 'mongoose'
+import mongoose from 'mongoose'
 import { AddressService } from 'src/modules/address/services/address.service'
 import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
 import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
-import { amenity1, manyAmenities } from '../__mocks__'
+import {
+  mockTargetPropertyRepository,
+  mockTargetPropertyService
+} from '../__mocks__'
+import {
+  amenity1,
+  baseProperty,
+  huntID,
+  manyAmenities,
+  targetId
+} from '../__mocks__/data'
 import { TargetPropertyController } from '../../controllers/target-property.controller'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type {
@@ -35,31 +53,8 @@ import {
   TargetProperty,
   TargetPropertySchema
 } from '../../schemas/target-property.schema'
+import type { UpdateTargetProperty } from '../../schemas/zod-validation/update-target-property.zod-validation'
 import { TargetPropertyService } from '../../services/target-property.service'
-
-const huntID = new Types.ObjectId().toHexString()
-const targetId = new Types.ObjectId().toHexString()
-const baseProperty: InterfaceTargetProperty = {
-  adURL: '',
-  sellPrice: 0,
-  rentPrice: 0,
-  condoPricing: 0,
-  iptu: 0,
-  huntId: huntID,
-  street: 'Rua A',
-  neighborhood: 'Bairro B',
-  city: 'Cidade C',
-  uf: 'SP',
-  country: 'Brasil',
-  noLotNumber: false,
-  lotNumber: '123',
-  noComplement: false,
-  propertyNumber: '456',
-  isActive: true,
-  huntingStage: 'new',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
 
 /**
  * TODO
@@ -69,41 +64,6 @@ describe('TargetPropertyController | Integration Test', () => {
   let controller: TargetPropertyController
   let mongod: MongoMemoryServer
   let app: INestApplication
-
-  const mockHuntService = {
-    getOneHuntById: jest.fn(),
-    addTargetToHunt: jest.fn(),
-    removeTargetFromHunt: jest.fn()
-  }
-
-  const mockTargetPropertyService = {
-    createTargetProperty: jest.fn(),
-    updateTargetProperty: jest.fn(),
-    getOneTargetById: jest.fn(),
-    getAllTargetsByHunt: jest.fn(),
-    addAmenityToTarget: jest.fn(),
-    removeAmenityfromTarget: jest.fn(),
-    preventDuplicity: jest.fn(),
-    deleteTargetProperty: jest.fn()
-  }
-
-  const mockTargetPropertyRepository = {
-    createTargetProperty: jest.fn(),
-    getAllTargetsByHunt: jest.fn(),
-    getHuntTargetByFullAddress: jest.fn(),
-    getHuntTargetsByLot: jest.fn(),
-    getHuntTargetsByStreet: jest.fn(),
-    getOneTargetById: jest.fn(),
-    updateTargetProperty: jest.fn(),
-    deleteTargetProperty: jest.fn()
-  }
-
-  const mockAmenityService = {
-    createAmenity: jest.fn(),
-    createManyAmenities: jest.fn(),
-    getOneAmenityById: jest.fn(),
-    getCompleteAmenitiesData: jest.fn()
-  }
 
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
@@ -115,7 +75,8 @@ describe('TargetPropertyController | Integration Test', () => {
         MongooseModule.forFeature([
           { name: TargetProperty.name, schema: TargetPropertySchema },
           { name: Hunt.name, schema: HuntSchema },
-          { name: Amenity.name, schema: AmenitySchema }
+          { name: Amenity.name, schema: AmenitySchema },
+          { name: Comment.name, schema: CommentSchema }
         ])
       ],
       controllers: [TargetPropertyController],
@@ -131,6 +92,10 @@ describe('TargetPropertyController | Integration Test', () => {
         {
           provide: AmenityService,
           useValue: mockAmenityService
+        },
+        {
+          provide: CommentService,
+          useValue: mockCommentService
         },
         {
           provide: TargetPropertyRepository,
@@ -350,8 +315,8 @@ describe('TargetPropertyController | Integration Test', () => {
 
       await expect(
         controller.updateTargetProperty('abc', {
-          ...baseProperty
-        } as InterfaceTargetProperty)
+          target: baseProperty
+        } as UpdateTargetProperty)
       ).rejects.toThrow(NotFoundException)
     })
 
@@ -359,8 +324,8 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
       await expect(
         controller.updateTargetProperty(undefined, {
-          ...baseProperty
-        } as InterfaceTargetProperty)
+          target: baseProperty
+        } as UpdateTargetProperty)
       ).rejects.toThrow(BadRequestException)
     })
 
@@ -371,9 +336,11 @@ describe('TargetPropertyController | Integration Test', () => {
       })
 
       await controller.updateTargetProperty('abc', {
-        ...baseProperty,
-        nickname: 'ChangedName'
-      } as InterfaceTargetProperty)
+        target: {
+          ...baseProperty,
+          nickname: 'ChangedName'
+        }
+      } as UpdateTargetProperty)
 
       await expect(
         mockTargetPropertyService.preventDuplicity
@@ -389,9 +356,11 @@ describe('TargetPropertyController | Integration Test', () => {
       mockTargetPropertyService.preventDuplicity.mockResolvedValue(true)
 
       await controller.updateTargetProperty('abc', {
-        ...baseProperty,
-        street: 'Rua dos bobos'
-      } as InterfaceTargetProperty)
+        target: {
+          ...baseProperty,
+          street: 'Rua dos bobos'
+        }
+      } as UpdateTargetProperty)
 
       await expect(
         mockTargetPropertyService.preventDuplicity
@@ -410,8 +379,10 @@ describe('TargetPropertyController | Integration Test', () => {
       await request(app.getHttpServer())
         .put(`/target-property/${targetId}`)
         .send({
-          ...baseProperty,
-          street: 'Rua dos bobos'
+          target: {
+            ...baseProperty,
+            street: 'Rua dos bobos'
+          }
         })
         .expect(409)
         .expect((res) => {
@@ -432,9 +403,11 @@ describe('TargetPropertyController | Integration Test', () => {
       await request(app.getHttpServer())
         .put('/target-property/target-123')
         .send({
-          ...baseProperty,
-          condoPricing: 700,
-          targetAmenities: manyAmenities
+          target: {
+            ...baseProperty,
+            condoPricing: 700,
+            targetAmenities: manyAmenities
+          }
         })
 
       expect(mockAmenityService.getCompleteAmenitiesData).toHaveBeenCalled()
@@ -446,7 +419,7 @@ describe('TargetPropertyController | Integration Test', () => {
       await request(app.getHttpServer())
         .put(`/target-property/${targetId}`)
         .send({
-          ...baseProperty
+          target: baseProperty
         })
         .expect(403)
     })
