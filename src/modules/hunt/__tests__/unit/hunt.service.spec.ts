@@ -2,30 +2,13 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
 
+import { mockHuntRepository } from '../__mocks__'
+import { baseHunt } from '../__mocks__/data'
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
 import { HuntService } from '../../services/hunt-collection.service'
 
-const userId = 'user-123'
-const baseHunt: InterfaceHunt = {
-  creatorId: userId,
-  type: 'rent',
-  title: 'Minha mudança',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
 describe('HuntService | UnitTest', () => {
   let service: HuntService
-
-  const mockHuntRepository = {
-    createHunt: jest.fn(),
-    updateHunt: jest.fn(),
-    getOneHuntById: jest.fn(),
-    getAllHuntsByUser: jest.fn(),
-    deleteHunt: jest.fn(),
-    addTargetToHunt: jest.fn(),
-    removeTargetFromHunt: jest.fn()
-  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

@@ -3,37 +3,32 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import { TargetPropertyRepository } from '@src/modules/targetProperty/repositories/target-property.repository'
+import { mockTargetPropertyService } from '@src/modules/targetProperty/__tests__/__mocks__'
 import {
   TargetProperty,
   TargetPropertySchema
 } from '@src/modules/targetProperty/schemas/target-property.schema'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
+import { mockUserService } from '@src/modules/user/__tests__/__mocks__'
 import { UserService } from '@src/modules/user/services/user.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose, { Types } from 'mongoose'
-import { HuntRepository } from 'src/modules/hunt/repositories/hunt.repository'
-import { HuntMongooseRepository } from 'src/modules/hunt/repositories/mongoose/hunt.mongoose.repository'
+import mongoose from 'mongoose'
 import { Hunt, HuntSchema } from 'src/modules/hunt/schemas/hunt.schema'
 import { HuntService } from 'src/modules/hunt/services/hunt-collection.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
+import { mockHuntService } from '../__mocks__'
+import {
+  huntMock,
+  huntObjectId,
+  mockTargets,
+  userObjectId
+} from '../__mocks__/data'
 import { HuntController } from '../../controllers/hunt-collection.controller'
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
-
-const userId = new Types.ObjectId().toHexString()
-const huntId = new Types.ObjectId().toHexString()
-const mockTargets = ['target-1', 'target-2']
-const huntMock: InterfaceHunt = {
-  creatorId: userId,
-  type: 'buy',
-  title: 'Test Hunt',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
 
 /**
  * TODO
@@ -43,35 +38,6 @@ describe('HuntController | Integration Test', () => {
   let controller: HuntController
   let mongod: MongoMemoryServer
   let app: INestApplication
-
-  const mockHuntService = {
-    createHunt: jest.fn(),
-    updateHunt: jest.fn(),
-    getOneHuntById: jest.fn(),
-    getAllHuntsByUser: jest.fn(),
-    deleteHunt: jest.fn(),
-    addTargetToHunt: jest.fn(),
-    removeTargetFromHunt: jest.fn()
-  }
-
-  const mockTargetPropertyService = {
-    deleteTargetProperty: jest.fn()
-  }
-
-  const mockUserService = {
-    getById: jest.fn()
-  }
-
-  const mockTargetPropertyRepository = {
-    createTargetProperty: jest.fn(),
-    getAllTargetsByHunt: jest.fn(),
-    getHuntTargetByFullAddress: jest.fn(),
-    getHuntTargetsByLot: jest.fn(),
-    getHuntTargetsByStreet: jest.fn(),
-    getOneTargetById: jest.fn(),
-    updateTargetProperty: jest.fn(),
-    deleteTargetProperty: jest.fn()
-  }
 
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
@@ -94,14 +60,6 @@ describe('HuntController | Integration Test', () => {
         {
           provide: HuntService,
           useValue: mockHuntService
-        },
-        {
-          provide: TargetPropertyRepository,
-          useValue: mockTargetPropertyRepository
-        },
-        {
-          provide: HuntRepository,
-          useClass: HuntMongooseRepository
         },
         { provide: UserService, useValue: mockUserService }
       ]
@@ -169,7 +127,7 @@ describe('HuntController | Integration Test', () => {
         })
     })
 
-    it('should throw BadRequestException if huntId is missing', async () => {
+    it('should throw BadRequestException if huntObjectId is missing', async () => {
       MockAuthGuard.allow = true
 
       await expect(
@@ -180,7 +138,7 @@ describe('HuntController | Integration Test', () => {
       ).rejects.toThrow(BadRequestException)
     })
 
-    it('should throw NotFoundExecption if no User found for userId', async () => {
+    it('should throw NotFoundExecption if no User found for userObjectId', async () => {
       MockAuthGuard.allow = true
 
       mockUserService.getById.mockResolvedValue(undefined)
@@ -206,7 +164,7 @@ describe('HuntController | Integration Test', () => {
   })
 
   describe('getAllHuntsByUser', () => {
-    it('should throw BadRequestException if huntId is missing', async () => {
+    it('should throw BadRequestException if huntObjectId is missing', async () => {
       MockAuthGuard.allow = true
 
       await expect(
@@ -218,7 +176,7 @@ describe('HuntController | Integration Test', () => {
       MockAuthGuard.allow = false
 
       await request(app.getHttpServer())
-        .get(`/hunt/search/${userId}`)
+        .get(`/hunt/search/${userObjectId}`)
         .send()
         .expect(403)
     })
@@ -237,7 +195,7 @@ describe('HuntController | Integration Test', () => {
       MockAuthGuard.allow = false
 
       await request(app.getHttpServer())
-        .get(`/hunt/${huntId}`)
+        .get(`/hunt/${huntObjectId}`)
         .send()
         .expect(403)
     })
@@ -270,7 +228,7 @@ describe('HuntController | Integration Test', () => {
       MockAuthGuard.allow = false
 
       await request(app.getHttpServer())
-        .put(`/hunt/${huntId}`)
+        .put(`/hunt/${huntObjectId}`)
         .send({
           ...huntMock
         })
@@ -323,7 +281,7 @@ describe('HuntController | Integration Test', () => {
       MockAuthGuard.allow = false
 
       await request(app.getHttpServer())
-        .delete(`/hunt/${huntId}`)
+        .delete(`/hunt/${huntObjectId}`)
         .send()
         .expect(403)
     })
