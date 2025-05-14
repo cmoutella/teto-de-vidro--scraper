@@ -51,6 +51,8 @@ const targetUpdateRelatedComment = z.object({
   authorPrivacy: AuthorPrivacy.optional()
 })
 
+export type UpdateCommentPayload = z.infer<typeof targetUpdateRelatedComment>
+
 export const updateTargetPropertySchema = z.object({
   target: targetUpdateData,
   comment: targetUpdateRelatedComment.optional()

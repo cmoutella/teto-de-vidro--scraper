@@ -41,6 +41,7 @@ import {
   baseProperty,
   huntID,
   manyAmenities,
+  mockUpdateComment,
   targetId
 } from '../__mocks__/data'
 import { TargetPropertyController } from '../../controllers/target-property.controller'
@@ -388,6 +389,30 @@ describe('TargetPropertyController | Integration Test', () => {
         .expect((res) => {
           expect(res.body.message).toContain('ALREADY_EXISTS')
         })
+    })
+
+    it('should create comment if updated with comment', async () => {
+      MockAuthGuard.allow = true
+
+      mockTargetPropertyService.getOneTargetById.mockResolvedValue(true)
+      mockTargetPropertyService.updateTargetProperty.mockResolvedValue({
+        ...baseProperty,
+        condoPricing: 700,
+        targetAmenities: manyAmenities
+      })
+
+      await request(app.getHttpServer())
+        .put('/target-property/target-123')
+        .send({
+          target: {
+            ...baseProperty,
+            condoPricing: 700,
+            targetAmenities: manyAmenities
+          },
+          comment: mockUpdateComment
+        })
+
+      expect(mockCommentService.createComment).toHaveBeenCalled()
     })
 
     it('should get amenities origin data', async () => {

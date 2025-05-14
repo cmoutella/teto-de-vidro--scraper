@@ -1,9 +1,11 @@
+import { userId } from '@src/modules/hunt/__tests__/__mocks__/data'
 import { Types } from 'mongoose'
 
 import type {
   InterfaceTargetProperty,
   TargetAmenity
 } from '../../schemas/models/target-property.interface'
+import type { UpdateCommentPayload } from '../../schemas/zod-validation/update-target-property.zod-validation'
 
 export const huntID = new Types.ObjectId().toHexString()
 export const targetId = new Types.ObjectId().toHexString()
@@ -41,3 +43,10 @@ export const amenity2: TargetAmenity = {
   userId: 'user-123'
 }
 export const manyAmenities = [amenity1, amenity2]
+
+export const mockUpdateComment: UpdateCommentPayload = {
+  comment: 'Comentário teste',
+  author: userId,
+  authorPrivacy: 'allowed',
+  topic: 'property'
+}
