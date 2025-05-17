@@ -1,0 +1,56 @@
+# Ignorar diretórios de teste
+__tests__/
+test/
+
+# Ignorar arquivos de teste em qualquer lugar do projeto
+**/*.spec.*
+**/*.int-spec.*
+
+# Ignorar configurações e arquivos desnecessários para produção
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose*.yml
+
+# Dependências locais (evita copiar se for usar Docker multi-stage)
+node_modules/
+pnpm-debug.log
+
+# Cache de pacotes e lockfiles alternativos
+package-lock.json
+
+# Arquivos de controle de versão e IDEs
+.git/
+.gitignore
+.gitattributes
+.github
+.vscode/
+.idea/
+.husky
+
+
+# Arquivos de configuração e ambiente locais
+.env
+.env.example
+.eslintrc.json
+.prettierrc
+eslint.config.json
+jest.config.json
+tsconfig.eslint.json
+*.md
+
+# Arquivos do sistema
+*.log
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Build de frontend (caso você compile assets localmente)
+dist/
+build/
+out/
+
+# Outros diretórios temporários comuns
+coverage/
+.cache/
+.tmp/
