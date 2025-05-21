@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger'
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { Comment } from '@src/modules/comments/schemas/comment.schema'
 import { CreateCommentData } from '@src/modules/comments/schemas/zod-validation/create'
 import { CommentService } from '@src/modules/comments/services/comments.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
@@ -341,6 +342,29 @@ export class TargetPropertyController {
     }
 
     return { ...target, targetAmenities: amenitiesFullData }
+  }
+
+  @ApiOperation({ summary: 'Busca os comentários de uma target property' })
+  @ApiResponse({ type: Comment, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('/:id/comments')
+  async getTargetComments(
+    @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
+    const target = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!target) {
+      throw new BadRequestException('Esse target não existe')
+    }
+
+    return await this.commentsService.getCommentsByTarget(id, page, limit)
   }
 
   @ApiOperation({
