@@ -51,7 +51,6 @@ export enum PropertyHuntingStageEnum {
 
 @Schema()
 export class Comment implements InterfaceComment {
-  updatedAt: string
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string
@@ -101,6 +100,10 @@ export class Comment implements InterfaceComment {
   @ApiProperty()
   @Prop()
   createdAt: string
+
+  @ApiProperty()
+  @Prop()
+  updatedAt: string
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment)
