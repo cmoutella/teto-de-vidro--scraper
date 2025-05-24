@@ -44,14 +44,14 @@ const targetUpdateData = z.object({
   sun: z.enum(PROPERTY_SUN_LIGHT).optional()
 })
 
-const targetUpdateRelatedComment = z.object({
+export const targetUpdateRelatedComment = z.object({
   comment: z.string(),
   topic: CommentTopic,
   author: z.string(),
   authorPrivacy: AuthorPrivacy.optional()
 })
 
-export type UpdateCommentPayload = z.infer<typeof targetUpdateRelatedComment>
+export type CommentPayload = z.infer<typeof targetUpdateRelatedComment>
 
 export const updateTargetPropertySchema = z.object({
   target: targetUpdateData,

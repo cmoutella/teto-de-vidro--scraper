@@ -48,6 +48,8 @@ import {
   createTargetPropertySchema
 } from '../schemas/zod-validation/create-target-property.zod-validation'
 import {
+  targetUpdateRelatedComment,
+  CommentPayload,
   UpdateTargetProperty,
   updateTargetPropertySchema
 } from '../schemas/zod-validation/update-target-property.zod-validation'
@@ -61,7 +63,7 @@ export class TargetPropertyController {
     private readonly targetPropertyService: TargetPropertyService,
     private readonly huntService: HuntService,
     private readonly amenityService: AmenityService,
-    private readonly commentsService: CommentService
+    private readonly commentService: CommentService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
@@ -241,55 +243,26 @@ export class TargetPropertyController {
     }
 
     if (comment && comment.comment) {
-      let relation
-      switch (comment.topic) {
-        case 'lot':
-          relation = 'lot'
-          break
-        case 'surroundings':
-          relation = 'lot'
-          break
-        case 'property':
-          relation = 'property'
-          break
-        case 'owner':
-          relation = 'property'
-          break
-        case 'agency':
-          relation = undefined
-          break
-        default:
-          relation = 'property'
-          break
-      }
-
-      const relationId =
-        relation === 'lot'
-          ? finalData.lotId
-          : relation === 'property'
-            ? finalData.propertyId
-            : undefined
+      const commentRelationship = await this.commentService.mountRelationship(
+        comment.topic,
+        finalData.lotId,
+        finalData.propertyId
+      )
 
       const commentData: CreateCommentData = {
         comment: comment.comment,
         author: comment.author,
         authorPrivacy: comment.authorPrivacy ?? 'allowed',
         topic: comment.topic,
-        relationship: relation
-          ? {
-              relativeTo: relation,
-              relativeId: relationId
-            }
-          : undefined,
+        relationship: commentRelationship,
         target: {
           targetId: id,
           stage: finalData.huntingStage
-        },
-        validation: 'waiting'
+        }
       }
 
       // TODO: lidar com a falha aqui, o que fazer pra não perder o comentário?
-      await this.commentsService.createComment(commentData)
+      await this.commentService.createComment(commentData)
     }
 
     const updatedTargetProperty =
@@ -364,7 +337,45 @@ export class TargetPropertyController {
       throw new BadRequestException('Esse target não existe')
     }
 
-    return await this.commentsService.getCommentsByTarget(id, page, limit)
+    return await this.commentService.getCommentsByTarget(id, page, limit)
+  }
+
+  @ApiOperation({ summary: 'Adiciona um comentário à target property' })
+  @ApiResponse({ type: Comment, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('/:id/comment')
+  async addTargetComment(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(targetUpdateRelatedComment))
+    body: CommentPayload
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
+    const target = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!target) {
+      throw new BadRequestException('Esse target não existe')
+    }
+
+    const commentRelationship = await this.commentService.mountRelationship(
+      body.topic,
+      target.lotId,
+      target.propertyId
+    )
+
+    const commentData: CreateCommentData = {
+      ...body,
+      target: {
+        targetId: id,
+        stage: target.huntingStage
+      },
+      relationship: commentRelationship
+    }
+
+    return await this.commentService.createComment(commentData)
   }
 
   @ApiOperation({

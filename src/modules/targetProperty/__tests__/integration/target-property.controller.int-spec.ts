@@ -400,6 +400,10 @@ describe('TargetPropertyController | Integration Test', () => {
         condoPricing: 700,
         targetAmenities: manyAmenities
       })
+      mockCommentService.mountRelationship.mockResolvedValue({
+        relativeTo: 'property',
+        relativeId: 'target-123'
+      })
 
       await request(app.getHttpServer())
         .put('/target-property/target-123')
@@ -449,6 +453,10 @@ describe('TargetPropertyController | Integration Test', () => {
         .expect(403)
     })
   })
+
+  describe.skip('listComments', () => {})
+
+  describe.skip('addComment', () => {})
 
   describe('getOneTargetById', () => {
     it('should throw BadRequestException if id is missing', async () => {
