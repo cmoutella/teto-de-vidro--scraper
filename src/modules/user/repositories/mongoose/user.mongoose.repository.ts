@@ -7,13 +7,40 @@ import {
   PublicInterfaceUser
 } from '../../schemas/models/user.interface'
 import { User, UserDocument } from '../../schemas/user.schema'
+import { CreateUser } from '../../schemas/zod-validation/create-user.zod-validation'
 import { UserRepository } from '../user.repository'
 
 export class UserMongooseRepository implements UserRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async createUser(newUser: InterfaceUser): Promise<PublicInterfaceUser> {
-    const createUser = new this.userModel(newUser)
+  async createUser(newUser: CreateUser): Promise<PublicInterfaceUser> {
+    const createdAt = new Date().toISOString()
+    const createUser = new this.userModel({
+      ...newUser,
+      createdAt: createdAt,
+      updatedAt: createdAt
+    })
+    await createUser.save()
+
+    const created = await this.userModel
+      .findById(createUser._id)
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    const { _id: id, __v, ...otherData } = created
+
+    return { id: id.toString(), ...otherData }
+  }
+
+  async inviteUser(
+    newUser: Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'status'>
+  ): Promise<PublicInterfaceUser> {
+    const createdAt = new Date().toISOString()
+    const createUser = new this.userModel({
+      ...newUser,
+      createdAt: createdAt,
+      updatedAt: createdAt
+    })
     await createUser.save()
 
     const created = await this.userModel
@@ -58,6 +85,23 @@ export class UserMongooseRepository implements UserRepository {
   async getByEmail(email: string): Promise<InterfaceUser | null> {
     const user = await this.userModel
       .findOne({ email: email })
+      .lean<LeanDoc<InterfaceUser>>()
+      .exec()
+
+    if (!user) return null
+
+    const { _id, ...userData } = user
+    const data = {
+      id: _id.toString(),
+      ...userData
+    }
+
+    return data
+  }
+
+  async getByCPF(cpf: string): Promise<InterfaceUser | null> {
+    const user = await this.userModel
+      .findOne({ cpf: cpf })
       .lean<LeanDoc<InterfaceUser>>()
       .exec()
 
