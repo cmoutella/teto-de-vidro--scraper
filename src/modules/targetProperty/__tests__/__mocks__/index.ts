@@ -1,40 +1,21 @@
-import type {
-  InterfaceTargetProperty,
-  TargetAmenity
-} from '../../schemas/models/target-property.interface'
-
-export const huntID = 'hunt123'
-export const lotId = 'lot-123'
-export const propertyId = 'property-123'
-export const baseProperty: InterfaceTargetProperty = {
-  adURL: '',
-  sellPrice: 0,
-  rentPrice: 0,
-  condoPricing: 0,
-  iptu: 0,
-  huntId: huntID,
-  street: 'Rua A',
-  neighborhood: 'Bairro B',
-  city: 'Cidade C',
-  uf: 'SP',
-  country: 'Brasil',
-  noLotNumber: false,
-  lotNumber: '123',
-  noComplement: false,
-  propertyNumber: '456',
-  isActive: true,
-  huntingStage: 'new',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
+export const mockTargetPropertyService = {
+  createTargetProperty: jest.fn(),
+  updateTargetProperty: jest.fn(),
+  getOneTargetById: jest.fn(),
+  getAllTargetsByHunt: jest.fn(),
+  addAmenityToTarget: jest.fn(),
+  removeAmenityfromTarget: jest.fn(),
+  preventDuplicity: jest.fn(),
+  deleteTargetProperty: jest.fn()
 }
 
-export const amenity1: TargetAmenity = {
-  identifier: 'elevator',
-  reportedBy: 'ad'
+export const mockTargetPropertyRepository = {
+  createTargetProperty: jest.fn(),
+  getAllTargetsByHunt: jest.fn(),
+  getHuntTargetByFullAddress: jest.fn(),
+  getHuntTargetsByLot: jest.fn(),
+  getHuntTargetsByStreet: jest.fn(),
+  getOneTargetById: jest.fn(),
+  updateTargetProperty: jest.fn(),
+  deleteTargetProperty: jest.fn()
 }
-export const amenity2: TargetAmenity = {
-  identifier: 'garden',
-  reportedBy: 'user',
-  userId: 'user-123'
-}
-export const manyAmenities = [amenity1, amenity2]

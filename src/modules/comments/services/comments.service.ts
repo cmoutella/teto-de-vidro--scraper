@@ -3,21 +3,24 @@ import { PaginatedData } from '@src/shared/types/response'
 
 import { CommentRepository } from '../repositories/comment.repository'
 import {
+  CommentMainRelationship,
   CommentTopic,
   InterfaceComment
 } from '../schemas/models/comment.interface'
+import { CreateCommentData } from '../schemas/zod-validation/create'
 
 @Injectable()
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
   async createComment(
-    newComment: Omit<InterfaceComment, 'id' | 'createdAt' | 'updatedAt'>
+    newComment: CreateCommentData
   ): Promise<InterfaceComment> {
-    const createdAmenity =
-      await this.commentRepository.createComment(newComment)
+    const createdComment = await this.commentRepository.createComment(
+      newComment as never
+    )
 
-    return createdAmenity
+    return createdComment
   }
 
   async getOneCommentById(id: string): Promise<InterfaceComment> {
@@ -81,6 +84,46 @@ export class CommentService {
     data: Partial<InterfaceComment>
   ): Promise<InterfaceComment> {
     return await this.commentRepository.updateComment(id, data)
+  }
+
+  async mountRelationship(
+    topic: CommentTopic,
+    propertyId?: string,
+    lotId?: string
+  ): Promise<CommentMainRelationship> {
+    let relation
+    switch (topic) {
+      case 'lot':
+        relation = 'lot'
+        break
+      case 'surroundings':
+        relation = 'lot'
+        break
+      case 'property':
+        relation = 'property'
+        break
+      case 'owner':
+        relation = 'property'
+        break
+      case 'agency':
+        relation = undefined
+        break
+      default:
+        relation = 'property'
+        break
+    }
+
+    const relationId =
+      relation === 'lot'
+        ? lotId
+        : relation === 'property'
+          ? propertyId
+          : undefined
+
+    return {
+      relativeTo: relation,
+      relativeId: relationId
+    }
   }
 
   async deleteComment(id: string): Promise<boolean> {

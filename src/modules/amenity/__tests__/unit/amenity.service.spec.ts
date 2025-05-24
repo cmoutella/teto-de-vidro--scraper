@@ -1,47 +1,19 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 
+import { mockAmenityRepository } from '../__mocks__'
+import {
+  baseAmenity,
+  mockAllAmenities,
+  oneMoreAmenity,
+  otherAmenity
+} from '../__mocks__/data'
 import { AmenityRepository } from '../../repositories/amenity.repository'
-import type {
-  InterfaceAmenity,
-  SearchAmenity
-} from '../../schemas/models/amenity.interface'
+import type { SearchAmenity } from '../../schemas/models/amenity.interface'
 import { AmenityService } from '../../services/amenity.service'
-
-const baseAmenity: InterfaceAmenity = {
-  identifier: 'elevator',
-  label: 'Elevador',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
-const otherAmenity: InterfaceAmenity = {
-  identifier: 'portaria-24h',
-  label: 'Portaria 24h',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
-const oneMoreAmenity: InterfaceAmenity = {
-  identifier: 'varanda',
-  label: 'Varanda',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
-const mockAllAmenities = [baseAmenity, otherAmenity, oneMoreAmenity]
 
 describe('AmenityService | UnitTest', () => {
   let service: AmenityService
-
-  const mockAmenityRepository = {
-    createAmenity: jest.fn(),
-    createManyAmenities: jest.fn(),
-    updateAmenity: jest.fn(),
-    getOneAmenityById: jest.fn(),
-    getOneAmenityByLabel: jest.fn(),
-    deleteAmenity: jest.fn()
-  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

@@ -1,9 +1,13 @@
+import {
+  AuthorPrivacy,
+  CommentTopic
+} from '@src/modules/comments/schemas/zod-validation/create'
 import { PROPERTY_SUN_LIGHT } from '@src/shared/const'
 import { z } from 'zod'
 
 import { ZPropertyHuntingStage } from './shared'
 
-export const updateTargetPropertySchema = z.object({
+const targetUpdateData = z.object({
   nickname: z.string().optional(),
   priority: z.number().optional(),
   huntingStage: ZPropertyHuntingStage.optional(),
@@ -38,6 +42,20 @@ export const updateTargetPropertySchema = z.object({
   parking: z.number().optional(),
   is_front: z.boolean().optional(),
   sun: z.enum(PROPERTY_SUN_LIGHT).optional()
+})
+
+export const targetUpdateRelatedComment = z.object({
+  comment: z.string(),
+  topic: CommentTopic,
+  author: z.string(),
+  authorPrivacy: AuthorPrivacy.optional()
+})
+
+export type CommentPayload = z.infer<typeof targetUpdateRelatedComment>
+
+export const updateTargetPropertySchema = z.object({
+  target: targetUpdateData,
+  comment: targetUpdateRelatedComment.optional()
 })
 
 export type UpdateTargetProperty = z.infer<typeof updateTargetPropertySchema>

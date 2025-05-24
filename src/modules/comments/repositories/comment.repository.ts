@@ -34,7 +34,10 @@ export abstract class CommentRepository {
   ): Promise<PaginatedData<InterfaceComment>>
 
   abstract createComment(
-    newComment: Omit<InterfaceComment, 'id' | 'createdAt' | 'updatedAt'>
+    newComment: Omit<
+      InterfaceComment,
+      'createdAt' | 'updatedAt' | 'validation' | 'id'
+    >
   ): Promise<InterfaceComment | null>
 
   abstract updateComment(

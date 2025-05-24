@@ -16,13 +16,18 @@ export class CommentMongooseRepository implements CommentRepository {
   ) {}
 
   async createComment(
-    newComment: InterfaceComment
+    newComment: Omit<
+      InterfaceComment,
+      'createdAt' | 'updatedAt' | 'validation' | 'id'
+    >
   ): Promise<InterfaceComment | null> {
+    const creationAt = new Date().toISOString()
     const createdComment = new this.commentModel({
       ...newComment,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    })
+      validation: 'waiting',
+      createdAt: creationAt,
+      updatedAt: creationAt
+    } as InterfaceComment)
 
     await createdComment.save()
 
@@ -51,13 +56,13 @@ export class CommentMongooseRepository implements CommentRepository {
     page: number = 1,
     limit: number = 6
   ): Promise<PaginatedData<InterfaceComment>> {
+    const offset = (page - 1) * limit
+
     const data = await this.commentModel
       .find({
-        target: {
-          targetId: targetId
-        }
+        'target.targetId': targetId
       })
-      .skip(page)
+      .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceComment>[]>()
       .exec()
@@ -67,9 +72,7 @@ export class CommentMongooseRepository implements CommentRepository {
     }
 
     const totalItems = await this.commentModel.countDocuments({
-      target: {
-        targetId: targetId
-      }
+      'target.targetId': targetId
     })
     const totalPages = Math.ceil(totalItems / limit)
 
@@ -94,14 +97,14 @@ export class CommentMongooseRepository implements CommentRepository {
     page: number = 1,
     limit: number = 6
   ): Promise<PaginatedData<InterfaceComment>> {
+    const offset = (page - 1) * limit
+
     const data = await this.commentModel
       .find({
         topic: topic,
-        target: {
-          targetId: targetId
-        }
+        'target.targetId': targetId
       })
-      .skip(page)
+      .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceComment>[]>()
       .exec()
@@ -112,9 +115,7 @@ export class CommentMongooseRepository implements CommentRepository {
 
     const totalItems = await this.commentModel.countDocuments({
       topic: topic,
-      target: {
-        targetId: targetId
-      }
+      'target.targetId': targetId
     })
     const totalPages = Math.ceil(totalItems / limit)
 
@@ -138,17 +139,16 @@ export class CommentMongooseRepository implements CommentRepository {
     page: number = 1,
     limit: number = 1
   ): Promise<PaginatedData<InterfaceComment>> {
+    const offset = (page - 1) * limit
     // TODO: limitar a retornar comentários criados nos últimos 3 anos
     const data = await this.commentModel
       .find({
-        relationship: {
-          relativeTo: 'lot',
-          relativeId: lotId
-        },
+        'relationship.relativeTo': 'lot',
+        'relationship.relativeId': lotId,
         validation: 'public',
         authorPrivacy: 'allowed'
       })
-      .skip(page)
+      .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceComment>[]>()
       .exec()
@@ -158,10 +158,8 @@ export class CommentMongooseRepository implements CommentRepository {
     }
 
     const totalItems = await this.commentModel.countDocuments({
-      relationship: {
-        relativeTo: 'lot',
-        relativeId: lotId
-      },
+      'relationship.relativeTo': 'lot',
+      'relationship.relativeId': lotId,
       validation: 'public',
       authorPrivacy: 'allowed'
     })
@@ -187,17 +185,16 @@ export class CommentMongooseRepository implements CommentRepository {
     page: number = 1,
     limit: number = 6
   ): Promise<PaginatedData<InterfaceComment>> {
+    const offset = (page - 1) * limit
     // TODO: limitar a retornar comentários criados nos últimos 3 anos
     const data = await this.commentModel
       .find({
-        relationship: {
-          relativeTo: 'property',
-          relativeId: propertyId
-        },
+        'relationship.relativeTo': 'property',
+        'relationship.relativeId': propertyId,
         validation: 'public',
         authorPrivacy: 'allowed'
       })
-      .skip(page)
+      .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceComment>[]>()
       .exec()
@@ -207,10 +204,8 @@ export class CommentMongooseRepository implements CommentRepository {
     }
 
     const totalItems = await this.commentModel.countDocuments({
-      relationship: {
-        relativeTo: 'property',
-        relativeId: propertyId
-      },
+      'relationship.relativeTo': 'property',
+      'relationship.relativeId': propertyId,
       validation: 'public',
       authorPrivacy: 'allowed'
     })

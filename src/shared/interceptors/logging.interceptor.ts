@@ -15,7 +15,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest()
 
     console.log('#####################')
-    console.log('Request received ____')
+    console.log('Request received:', request.method)
     console.log('route', request.route.path)
     console.log('authorization_sent', !!request.headers.authorization)
 

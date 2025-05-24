@@ -23,6 +23,9 @@ import {
 } from '@nestjs/swagger'
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { Comment } from '@src/modules/comments/schemas/comment.schema'
+import { CreateCommentData } from '@src/modules/comments/schemas/zod-validation/create'
+import { CommentService } from '@src/modules/comments/services/comments.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 
 import { LoggingInterceptor } from '../../../shared/interceptors/logging.interceptor'
@@ -45,6 +48,8 @@ import {
   createTargetPropertySchema
 } from '../schemas/zod-validation/create-target-property.zod-validation'
 import {
+  targetUpdateRelatedComment,
+  CommentPayload,
   UpdateTargetProperty,
   updateTargetPropertySchema
 } from '../schemas/zod-validation/update-target-property.zod-validation'
@@ -57,7 +62,8 @@ export class TargetPropertyController {
   constructor(
     private readonly targetPropertyService: TargetPropertyService,
     private readonly huntService: HuntService,
-    private readonly amenityService: AmenityService
+    private readonly amenityService: AmenityService,
+    private readonly commentService: CommentService
   ) {}
 
   @ApiOperation({ summary: 'Cria um novo imóvel target na caçada' })
@@ -193,7 +199,7 @@ export class TargetPropertyController {
   async updateTargetProperty(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTargetPropertySchema))
-    updateData: UpdateTargetProperty
+    body: UpdateTargetProperty
   ) {
     if (!id) {
       throw new BadRequestException('Necessário informar id do target')
@@ -207,19 +213,21 @@ export class TargetPropertyController {
 
     const changedData: Partial<InterfaceTargetProperty> = {}
 
-    for (const key in updateData) {
+    const { target: targetNewData, comment } = body
+
+    for (const key in targetNewData) {
       if (
-        updateData[key] !== currentData[key] &&
-        updateData[key] != null &&
-        updateData[key] != undefined
+        targetNewData[key] !== currentData[key] &&
+        targetNewData[key] != null &&
+        targetNewData[key] != undefined
       ) {
-        changedData[key] = updateData[key]
+        changedData[key] = targetNewData[key]
       }
     }
 
     const finalData: InterfaceTargetProperty = {
       ...currentData,
-      ...updateData,
+      ...targetNewData,
       updatedAt: new Date().toISOString()
     }
 
@@ -228,7 +236,33 @@ export class TargetPropertyController {
     )
 
     if (hasAddressUpdate) {
+      // TODO 1: se o endereço atualizar buscar/criar o novo endereço e atualizar lotId/propertyId no finalData
+      // TODO 3: se o lotId/propertyId atualizar, é preciso atualizar a referencia nos comentários
+      // TODO 2: fazer uma função no service de comentários para atualizar manyTargetComments
       await this.targetPropertyService.preventDuplicity(finalData)
+    }
+
+    if (comment && comment.comment) {
+      const commentRelationship = await this.commentService.mountRelationship(
+        comment.topic,
+        finalData.lotId,
+        finalData.propertyId
+      )
+
+      const commentData: CreateCommentData = {
+        comment: comment.comment,
+        author: comment.author,
+        authorPrivacy: comment.authorPrivacy ?? 'allowed',
+        topic: comment.topic,
+        relationship: commentRelationship,
+        target: {
+          targetId: id,
+          stage: finalData.huntingStage
+        }
+      }
+
+      // TODO: lidar com a falha aqui, o que fazer pra não perder o comentário?
+      await this.commentService.createComment(commentData)
     }
 
     const updatedTargetProperty =
@@ -237,9 +271,6 @@ export class TargetPropertyController {
     if (!updatedTargetProperty) {
       return undefined
     }
-
-    // TODO: se o endereço atualizar, é preciso atualizar a referencia dos comentários
-    // fazer uma função no service de comentários para atualizar manyTargetComments
 
     let amenitiesFullData: TargetAmenity[]
     if (
@@ -284,6 +315,67 @@ export class TargetPropertyController {
     }
 
     return { ...target, targetAmenities: amenitiesFullData }
+  }
+
+  @ApiOperation({ summary: 'Busca os comentários de uma target property' })
+  @ApiResponse({ type: Comment, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('/:id/comments')
+  async getTargetComments(
+    @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
+    const target = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!target) {
+      throw new BadRequestException('Esse target não existe')
+    }
+
+    return await this.commentService.getCommentsByTarget(id, page, limit)
+  }
+
+  @ApiOperation({ summary: 'Adiciona um comentário à target property' })
+  @ApiResponse({ type: Comment, status: 200 })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('/:id/comment')
+  async addTargetComment(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(targetUpdateRelatedComment))
+    body: CommentPayload
+  ) {
+    if (!id) {
+      throw new BadRequestException('Necessário informar id')
+    }
+
+    const target = await this.targetPropertyService.getOneTargetById(id)
+
+    if (!target) {
+      throw new BadRequestException('Esse target não existe')
+    }
+
+    const commentRelationship = await this.commentService.mountRelationship(
+      body.topic,
+      target.lotId,
+      target.propertyId
+    )
+
+    const commentData: CreateCommentData = {
+      ...body,
+      target: {
+        targetId: id,
+        stage: target.huntingStage
+      },
+      relationship: commentRelationship
+    }
+
+    return await this.commentService.createComment(commentData)
   }
 
   @ApiOperation({

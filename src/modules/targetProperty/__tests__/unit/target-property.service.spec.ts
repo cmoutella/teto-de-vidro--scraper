@@ -1,8 +1,11 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { mockAddressService } from '@src/modules/address/__tests__/unit/__mocks__/address'
 import { AddressService } from '@src/modules/address/services/address.service'
+import { mockHuntRepository } from '@src/modules/hunt/__tests__/__mocks__'
 import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
 
+import { mockTargetPropertyRepository } from '../__mocks__'
 import {
   amenity1,
   baseProperty,
@@ -10,33 +13,13 @@ import {
   lotId,
   manyAmenities,
   propertyId
-} from '../__mocks__'
+} from '../__mocks__/data'
 import { TargetPropertyRepository } from '../../repositories/target-property.repository'
 import type { InterfaceTargetProperty } from '../../schemas/models/target-property.interface'
 import { TargetPropertyService } from '../../services/target-property.service'
 
 describe('TargetPropertyService | UnitTest', () => {
   let service: TargetPropertyService
-
-  const mockTargetPropertyRepository = {
-    createTargetProperty: jest.fn(),
-    getAllTargetsByHunt: jest.fn(),
-    getHuntTargetByFullAddress: jest.fn(),
-    getHuntTargetsByLot: jest.fn(),
-    getHuntTargetsByStreet: jest.fn(),
-    getOneTargetById: jest.fn(),
-    updateTargetProperty: jest.fn(),
-    deleteTargetProperty: jest.fn()
-  }
-
-  const mockHuntRepository = {
-    addTargetToHunt: jest.fn(),
-    removeTargetFromHunt: jest.fn()
-  }
-
-  const mockAddressService = {
-    createAddress: jest.fn()
-  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -150,7 +133,7 @@ describe('TargetPropertyService | UnitTest', () => {
 
       mockTargetPropertyRepository.createTargetProperty.mockResolvedValue({
         ...input,
-        lotId: 'lot-123',
+        lotId: lotId,
         propertyId: 'property-123',
         isActive: true
       })

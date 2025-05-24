@@ -6,28 +6,11 @@ import { PropertyRepository } from '../../repositories/property.repository'
 import { AddressService } from '../../services/address.service'
 import { LotService } from '../../services/lot-collection.service'
 import { PropertyService } from '../../services/property-collection.service'
+import { mockLotRepository } from './__mocks__/lot'
+import { mockPropertyRepository } from './__mocks__/property'
 
 describe('AddressService | UnitTest', () => {
   let service: AddressService
-
-  const mockLotRepository = {
-    getOneLotByAddress: jest.fn(),
-    getAllLotsByAddress: jest.fn(),
-    getAllLotsByCEP: jest.fn(),
-    getOneLot: jest.fn(),
-    createLot: jest.fn(),
-    updateLot: jest.fn(),
-    deleteLot: jest.fn()
-  }
-
-  const mockPropertyRepository = {
-    getAllPropertiesByLotId: jest.fn(),
-    getOnePropertyById: jest.fn(),
-    getOnePropertyByAddress: jest.fn(),
-    createProperty: jest.fn(),
-    updateProperty: jest.fn(),
-    deleteProperty: jest.fn()
-  }
 
   beforeAll(() => {
     process.env.OPENCEP_API = 'cep_url'
