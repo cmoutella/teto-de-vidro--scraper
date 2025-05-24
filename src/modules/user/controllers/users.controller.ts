@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UsePipes
 } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,7 +19,6 @@ import {
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
-import { z } from 'zod'
 
 import { EncryptPasswordPipe } from '../pipe/password.pipe'
 import {
@@ -34,30 +32,21 @@ import {
 } from '../schemas/endpoints/getUsers'
 import { InterfaceUser } from '../schemas/models/user.interface'
 import { User } from '../schemas/user.schema'
+import {
+  CreateUser,
+  createUserSchema
+} from '../schemas/zod-validation/create-user.zod-validation'
+import {
+  InviteUser,
+  inviteUserSchema
+} from '../schemas/zod-validation/invite-user.zod-validation'
 import { UserService } from '../services/user.service'
-
-const GENDERS = ['male', 'female', 'neutral'] as const
-
-const createUserSchema = z.object({
-  nickName: z.string(),
-  name: z.string(),
-  password: z.string(),
-  profession: z.string().optional(),
-  gender: z.enum(GENDERS).optional(),
-  birthDate: z.string(),
-  email: z.string()
-})
-
-type CreateUser = z.infer<typeof createUserSchema>
 
 @ApiTags('user')
 @UseInterceptors(LoggingInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly userService: UserService,
-    private jwtService: JwtService
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -76,15 +65,18 @@ export class UsersController {
   @ApiResponse({
     type: CreateUserFailureException,
     status: 409,
-    description: 'Nome de usuário já existe'
+    description: 'Email ou CPF já cadastrado'
   })
   @Post()
   async createUser(
     @Body()
     {
       email,
-      nickName,
       name,
+      familyName,
+      cpf,
+      accessLevel,
+      status,
       password,
       profession,
       gender,
@@ -93,14 +85,35 @@ export class UsersController {
   ) {
     return await this.userService.createUser({
       email,
-      nickName,
       name,
+      familyName,
+      cpf,
+      accessLevel,
+      status,
       password,
       profession,
       gender,
       birthDate
     })
   }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes(new ZodValidationPipe(inviteUserSchema))
+  @ApiOperation({ summary: 'Convida um novo usuário' })
+  @Post('invite')
+  async inviteUser(
+    @Body()
+    user: InviteUser
+  ) {
+    return await this.userService.inviteUser(user)
+  }
+
+  // TODO: update user
+
+  // TODO: update email
+
+  // TODO: update password
 
   @ApiOperation({ summary: 'Busca por todos os usuários' })
   @ApiResponse({
