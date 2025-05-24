@@ -32,7 +32,6 @@ export const createCommentSchema = z.object({
     .optional(),
   author: z.string(),
   authorPrivacy: AuthorPrivacy,
-  validation: CommentRatedAs,
   target: z
     .object({
       targetId: z.string(),

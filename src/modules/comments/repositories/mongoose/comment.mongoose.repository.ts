@@ -16,14 +16,18 @@ export class CommentMongooseRepository implements CommentRepository {
   ) {}
 
   async createComment(
-    newComment: InterfaceComment
+    newComment: Omit<
+      InterfaceComment,
+      'createdAt' | 'updatedAt' | 'validation' | 'id'
+    >
   ): Promise<InterfaceComment | null> {
     const creationAt = new Date().toISOString()
     const createdComment = new this.commentModel({
       ...newComment,
+      validation: 'waiting',
       createdAt: creationAt,
       updatedAt: creationAt
-    })
+    } as InterfaceComment)
 
     await createdComment.save()
 

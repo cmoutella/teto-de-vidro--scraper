@@ -6,6 +6,7 @@ export const mockCommentService = {
   getCommentsByLot: jest.fn(),
   getCommentsByProperty: jest.fn(),
   updateComment: jest.fn(),
+  mountRelationship: jest.fn(),
   deleteComment: jest.fn()
 }
 

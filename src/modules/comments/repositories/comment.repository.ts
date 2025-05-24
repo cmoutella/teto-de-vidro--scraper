@@ -4,7 +4,6 @@ import type {
   CommentTopic,
   InterfaceComment
 } from '../schemas/models/comment.interface'
-import type { CreateCommentData } from '../schemas/zod-validation/create'
 
 export abstract class CommentRepository {
   abstract getOneCommentById(id: string): Promise<InterfaceComment>
@@ -35,7 +34,10 @@ export abstract class CommentRepository {
   ): Promise<PaginatedData<InterfaceComment>>
 
   abstract createComment(
-    newComment: CreateCommentData
+    newComment: Omit<
+      InterfaceComment,
+      'createdAt' | 'updatedAt' | 'validation' | 'id'
+    >
   ): Promise<InterfaceComment | null>
 
   abstract updateComment(
