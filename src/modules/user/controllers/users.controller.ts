@@ -17,8 +17,6 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
-import { compare } from 'bcryptjs'
-import { addDays } from 'date-fns'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
 import { LoggingInterceptor } from 'src/shared/interceptors/logging.interceptor'
 import { ZodValidationPipe } from 'src/shared/pipe/zod-validation.pipe'
@@ -34,10 +32,7 @@ import {
   GetAllUsersSuccess,
   GetOneUserSuccess
 } from '../schemas/endpoints/getUsers'
-import {
-  InterfaceUser,
-  UserCredentials
-} from '../schemas/models/user.interface'
+import { InterfaceUser } from '../schemas/models/user.interface'
 import { User } from '../schemas/user.schema'
 import { UserService } from '../services/user.service'
 
@@ -147,29 +142,5 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     await this.userService.deleteUser(id)
-  }
-
-  // levar login para outra controller
-  @Post('/login')
-  async authUser(@Body() credentials: UserCredentials) {
-    const { email, password } = credentials
-
-    const foundUser = await this.userService.getByEmail(email)
-
-    const passwordMatch = await compare(password, foundUser.password)
-
-    if (!passwordMatch) throw new Error('Usuário ou senha incorretos')
-
-    const authDate = new Date()
-    const token = await this.jwtService.sign({ email: email })
-    const tokenExpiration = addDays(authDate, 15)
-
-    const { password: _password, ...otherData } = foundUser
-
-    return {
-      token: token,
-      user: otherData,
-      expireAt: tokenExpiration.toISOString()
-    }
   }
 }
