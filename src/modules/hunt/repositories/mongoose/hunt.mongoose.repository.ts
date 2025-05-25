@@ -27,7 +27,7 @@ export class HuntMongooseRepository implements HuntRepository {
     return { id: _id, ...data } as InterfaceHunt
   }
 
-  // ordenar por mais recentemente alterado
+  // TODO ordenar por mais recentemente alterado
   async getAllHuntsByUser(
     userId: string,
     page = 1,
@@ -36,7 +36,7 @@ export class HuntMongooseRepository implements HuntRepository {
     const offset = (page - 1) * limit
 
     const foundHunts = await this.huntModel
-      .find({ creatorId: userId })
+      .find({ 'huntUsers.id': userId })
       .skip(offset)
       .limit(limit)
       .lean<LeanDoc<InterfaceHunt>[]>()
