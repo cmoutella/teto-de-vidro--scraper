@@ -88,8 +88,6 @@ export class HuntController {
     @CurrentUser() user
   ) {
     return await this.huntService.createHunt({
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       title,
       creatorId: user.id,
       huntUsers: [{ id: user.id, name: user.name }],
