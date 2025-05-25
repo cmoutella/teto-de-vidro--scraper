@@ -4,7 +4,10 @@ import { HuntRepository } from '@src/modules/hunt/repositories/hunt.repository'
 
 import { mockHuntRepository } from '../__mocks__'
 import { baseHunt } from '../__mocks__/data'
-import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
+import type {
+  CreateHuntServiceDate,
+  InterfaceHunt
+} from '../../schemas/models/hunt.interface'
 import { HuntService } from '../../services/hunt-collection.service'
 
 describe('HuntService | UnitTest', () => {
@@ -46,7 +49,10 @@ describe('HuntService | UnitTest', () => {
         isActive: true
       })
 
-      await service.createHunt(baseHunt)
+      await service.createHunt({
+        ...baseHunt,
+        creatorId: 'user-123'
+      } as CreateHuntServiceDate)
 
       expect(mockHuntRepository.createHunt).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -61,7 +67,10 @@ describe('HuntService | UnitTest', () => {
         isActive: true
       })
 
-      const result = await service.createHunt(baseHunt)
+      const result = await service.createHunt({
+        ...baseHunt,
+        creatorId: 'user-123'
+      } as CreateHuntServiceDate)
 
       expect(result).toEqual(
         expect.objectContaining({

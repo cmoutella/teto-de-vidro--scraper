@@ -11,8 +11,7 @@ import {
   Put,
   Query,
   UseGuards,
-  UseInterceptors,
-  UsePipes
+  UseInterceptors
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -23,6 +22,7 @@ import {
 } from '@nestjs/swagger'
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
+import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { Comment } from '@src/modules/comments/schemas/comment.schema'
 import { CreateCommentData } from '@src/modules/comments/schemas/zod-validation/create'
 import { CommentService } from '@src/modules/comments/services/comments.service'
@@ -77,11 +77,13 @@ export class TargetPropertyController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
   async createTargetProperty(
-    @Body()
-    {
+    @Body(new ZodValidationPipe(createTargetPropertySchema))
+    body: CreateTargetProperty,
+    @CurrentUser() user
+  ) {
+    const {
       huntId,
       adURL,
       sellPrice,
@@ -110,8 +112,8 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing
-    }: CreateTargetProperty
-  ) {
+    } = body
+
     if (!huntId) {
       throw new BadRequestException('É necessário vincular a uma huntId')
     }
@@ -121,6 +123,10 @@ export class TargetPropertyController {
     if (!hunt) {
       throw new NotFoundException('A hunt informada não existe')
     }
+
+    // TODO: verificar se o usuário tem acesso a hunt
+    // se não tiver, não deixar criar
+    console.log('user', user)
 
     const targetData = {
       huntId,

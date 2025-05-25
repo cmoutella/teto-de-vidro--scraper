@@ -20,12 +20,6 @@ export class UpdateHuntBody {
   @ApiPropertyOptional()
   @Prop()
   maxBudget?: number
-  @ApiPropertyOptional({ isArray: true, example: '[string, string, string]' })
-  @Prop()
-  targets: string[]
-  @ApiPropertyOptional({ isArray: true, example: '[string, string, string]' })
-  @Prop()
-  invitedUsers?: string[]
   @ApiPropertyOptional()
   @Prop()
   isActive: boolean

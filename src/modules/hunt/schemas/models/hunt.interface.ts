@@ -1,3 +1,7 @@
+interface HuntUser {
+  id: string
+  name: string
+}
 export interface InterfaceHunt {
   id?: string
   isActive?: boolean
@@ -12,5 +16,10 @@ export interface InterfaceHunt {
   minBudget?: number
   maxBudget?: number
   targets?: string[]
-  invitedUsers?: string[]
+  huntUsers?: HuntUser[]
 }
+
+export type CreateHuntServiceDate = Omit<
+  InterfaceHunt,
+  'createdAt' | 'updatedAt' | 'isActive'
+>

@@ -7,6 +7,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AddressModule } from './modules/address/address.module'
 import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
+import { AuthModule } from './modules/auth/auth.module'
 import { CommentsCollectionModule } from './modules/comments/comments.module'
 import { HuntCollectionModule } from './modules/hunt/hunt-collection.module'
 import { ScraperModule } from './modules/scraper/scraper.module'
@@ -25,6 +26,7 @@ import { UsersCollectionModule } from './modules/user/user.module'
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15d' }
     }),
+    AuthModule,
     HuntCollectionModule,
     TargetPropertyCollectionModule,
     AddressModule,

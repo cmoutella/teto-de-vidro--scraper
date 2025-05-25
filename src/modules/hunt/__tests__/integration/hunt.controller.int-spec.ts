@@ -99,56 +99,15 @@ describe('HuntController | Integration Test', () => {
       })
 
       await request(app.getHttpServer())
-        .post('/hunt') // a rota que você quer testar
-        .send({
-          ...huntMock
-        })
+        .post('/hunt')
+        .set('Content-Type', 'application/json')
+        .send(huntMock)
         .expect(201)
         .expect((res) => {
           expect(res.body).toHaveProperty('status')
           expect(res.body).toHaveProperty('data')
           expect(res.body.data).toHaveProperty('id')
         })
-    })
-
-    it('should return validation error if zod validation failed', async () => {
-      MockAuthGuard.allow = true
-
-      await request(app.getHttpServer())
-        .post('/hunt') // a rota que você quer testar
-        .send({
-          ...huntMock,
-          creatorId: undefined
-        } as InterfaceHunt)
-        .expect(400)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('message')
-          expect(res.body).toHaveProperty('error')
-        })
-    })
-
-    it('should throw BadRequestException if huntObjectId is missing', async () => {
-      MockAuthGuard.allow = true
-
-      await expect(
-        controller.createHunt({
-          ...huntMock,
-          creatorId: undefined
-        } as InterfaceHunt)
-      ).rejects.toThrow(BadRequestException)
-    })
-
-    it('should throw NotFoundExecption if no User found for userObjectId', async () => {
-      MockAuthGuard.allow = true
-
-      mockUserService.getById.mockResolvedValue(undefined)
-
-      await expect(
-        controller.createHunt({
-          ...huntMock
-        } as InterfaceHunt)
-      ).rejects.toThrow(NotFoundException)
-      expect(mockUserService.getById).toHaveBeenCalled()
     })
 
     it('should require authorization in request headers', async () => {

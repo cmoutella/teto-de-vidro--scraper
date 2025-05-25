@@ -54,14 +54,20 @@ export class Comment implements InterfaceComment {
   @ApiProperty()
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @Prop({ required: true })
   comment: string
-  @ApiProperty()
+  @ApiProperty({ required: true, type: String })
   @Prop({ required: true, type: String })
   topic: CommentTopic | string
 
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    type: {
+      relativeTo: { type: String, enum: Object.values(CommentRelatedToEnum) },
+      relativeId: { type: String }
+    }
+  })
   @Prop({
     required: false,
     type: {
@@ -74,17 +80,23 @@ export class Comment implements InterfaceComment {
     relativeId: string
   }
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @Prop({ required: true })
   author: string
-  @ApiProperty()
+  @ApiProperty({ required: true, enum: AuthorPrivacyEnum })
   @Prop({ required: true, enum: AuthorPrivacyEnum })
   authorPrivacy: AuthorPrivacyEnum
-  @ApiProperty()
+  @ApiProperty({ required: true, enum: CommentRatedAsEnum })
   @Prop({ required: true, enum: CommentRatedAsEnum })
   validation: CommentRatedAsEnum
 
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    type: {
+      targetId: { type: String },
+      stage: { type: String, enum: Object.values(PropertyHuntingStageEnum) }
+    }
+  })
   @Prop({
     required: false,
     type: {

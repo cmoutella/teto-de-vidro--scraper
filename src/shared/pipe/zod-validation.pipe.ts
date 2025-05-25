@@ -11,21 +11,23 @@ export class ZodValidationPipe implements PipeTransform {
     try {
       const parsedValue = this.schema.parse(value)
 
-      if (parsedValue) {
-        console.log('# Success: ok')
-      }
-
       return parsedValue
     } catch (err) {
       if (err instanceof ZodError) {
+        const zodErrors = []
         err.issues.forEach((issue) => {
+          zodErrors.push(issue.path.join('.'))
           console.log(
-            `# Erro no caminho ${issue.path.join('.')}: ${issue.message}`
+            `# ERR Propriedade inválida: ${issue.path.join('.')}`,
+            `EXPECTED: ${(issue as { expected: string }).expected}`,
+            `RECEIVED: ${(issue as { expected: string }).expected}`
           )
         })
+
+        throw new BadRequestException(
+          `Validation failed for: ${zodErrors.join(', ')}`
+        )
       }
-      console.log('# # # # # # # #')
-      throw new BadRequestException('Validation failed')
     }
   }
 }
