@@ -1,6 +1,9 @@
 import type { PaginatedData } from 'src/shared/types/response'
 
-import type { InterfaceHunt } from '../schemas/models/hunt.interface'
+import type {
+  CreateHuntServiceDate,
+  InterfaceHunt
+} from '../schemas/models/hunt.interface'
 
 export abstract class HuntRepository {
   abstract getAllHuntsByUser(
@@ -11,7 +14,9 @@ export abstract class HuntRepository {
 
   abstract getOneHuntById(id: string): Promise<InterfaceHunt>
 
-  abstract createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null>
+  abstract createHunt(
+    newHunt: CreateHuntServiceDate
+  ): Promise<InterfaceHunt | null>
 
   abstract updateHunt(
     id: string,

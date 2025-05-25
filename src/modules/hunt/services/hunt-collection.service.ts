@@ -2,13 +2,18 @@ import { Injectable } from '@nestjs/common'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { HuntRepository } from '../repositories/hunt.repository'
-import { InterfaceHunt } from '../schemas/models/hunt.interface'
+import {
+  CreateHuntServiceDate,
+  InterfaceHunt
+} from '../schemas/models/hunt.interface'
 
 @Injectable()
 export class HuntService {
   constructor(private readonly huntRepository: HuntRepository) {}
 
-  async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | undefined> {
+  async createHunt(
+    newHunt: CreateHuntServiceDate
+  ): Promise<InterfaceHunt | undefined> {
     if (!newHunt.creatorId) {
       return undefined
     }

@@ -6,14 +6,24 @@ import { LeanDoc } from 'src/shared/types/mongoose'
 import { PaginatedData } from 'src/shared/types/response'
 
 import { Hunt } from '../../schemas/hunt.schema'
-import { InterfaceHunt } from '../../schemas/models/hunt.interface'
+import {
+  CreateHuntServiceDate,
+  InterfaceHunt
+} from '../../schemas/models/hunt.interface'
 import { HuntRepository } from '../hunt.repository'
 
 export class HuntMongooseRepository implements HuntRepository {
   constructor(@InjectModel(Hunt.name) private huntModel: Model<Hunt>) {}
 
-  async createHunt(newHunt: InterfaceHunt): Promise<InterfaceHunt | null> {
-    const createHunt = new this.huntModel(newHunt)
+  async createHunt(
+    newHunt: CreateHuntServiceDate
+  ): Promise<InterfaceHunt | null> {
+    const now = new Date().toISOString()
+    const createHunt = new this.huntModel({
+      ...newHunt,
+      createdAt: now,
+      updatedAt: now
+    })
 
     await createHunt.save()
 

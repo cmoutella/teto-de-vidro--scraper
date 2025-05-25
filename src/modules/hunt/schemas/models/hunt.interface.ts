@@ -18,3 +18,8 @@ export interface InterfaceHunt {
   targets?: string[]
   huntUsers?: HuntUser[]
 }
+
+export type CreateHuntServiceDate = Omit<
+  InterfaceHunt,
+  'createdAt' | 'updatedAt' | 'isActive'
+>
