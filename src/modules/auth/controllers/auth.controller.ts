@@ -36,11 +36,19 @@ export class AuthController {
 
     if (!passwordMatch) throw new Error('Usuário ou senha incorretos')
 
-    const authDate = new Date()
-    const token = await this.jwtService.sign({ email: email })
-    const tokenExpiration = addDays(authDate, 15)
+    const { password: _password, createdAt: _cat, ...otherData } = foundUser
 
-    const { password: _password, ...otherData } = foundUser
+    const payload = {
+      id: foundUser.id,
+      email: foundUser.email,
+      name: foundUser.name,
+      accessLevel: foundUser.accessLevel,
+      status: foundUser.status
+    }
+
+    const authDate = new Date()
+    const token = await this.jwtService.sign(payload)
+    const tokenExpiration = addDays(authDate, 15)
 
     return {
       token: token,

@@ -17,7 +17,7 @@ export class LoggingInterceptor implements NestInterceptor {
     console.log('#####################')
     console.log('Request received:', request.method)
     console.log('route', request.route.path)
-    console.log('authorization_sent', !!request.headers.authorization)
+    console.log('authorization_sent', request?.res?.req?.user?.email ?? '-')
 
     const now = Date.now()
 
