@@ -22,6 +22,7 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
+import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { UserService } from '@src/modules/user/services/user.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
@@ -79,33 +80,21 @@ export class HuntController {
     @Body()
     {
       title,
-      creatorId,
-      invitedUsers,
       livingPeople,
       livingPets,
       movingExpected,
       type,
       minBudget,
       maxBudget
-    }: CreateHunt
+    }: CreateHunt,
+    @CurrentUser() user
   ) {
-    if (!creatorId) {
-      throw new BadRequestException(
-        'É necessário um usuário para criar uma hunt'
-      )
-    }
-
-    const user = await this.userService.getById(creatorId)
-    if (!user) {
-      throw new NotFoundException('Usuário não existe')
-    }
-
     return await this.huntService.createHunt({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       title,
-      creatorId,
-      invitedUsers,
+      creatorId: user.id,
+      huntUsers: [{ id: user.id, name: user.name }],
       livingPeople,
       livingPets,
       movingExpected,

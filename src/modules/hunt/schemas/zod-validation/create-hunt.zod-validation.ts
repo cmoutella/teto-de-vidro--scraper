@@ -2,8 +2,6 @@ import { CONTRACT_TYPE } from '@src/shared/const'
 import { z } from 'zod'
 
 export const createHuntSchema = z.object({
-  creatorId: z.string(),
-  invitedUsers: z.array(z.string()).optional(),
   title: z.string().optional(),
   movingExpected: z.string().optional(),
   minBudget: z.number().optional(),
