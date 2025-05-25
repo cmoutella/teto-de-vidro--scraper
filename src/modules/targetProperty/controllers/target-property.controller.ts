@@ -11,8 +11,7 @@ import {
   Put,
   Query,
   UseGuards,
-  UseInterceptors,
-  UsePipes
+  UseInterceptors
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -78,11 +77,13 @@ export class TargetPropertyController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(createTargetPropertySchema))
   @Post()
   async createTargetProperty(
-    @Body()
-    {
+    @Body(new ZodValidationPipe(createTargetPropertySchema))
+    body: CreateTargetProperty,
+    @CurrentUser() user
+  ) {
+    const {
       huntId,
       adURL,
       sellPrice,
@@ -111,9 +112,8 @@ export class TargetPropertyController {
       is_front,
       sun,
       condoPricing
-    }: CreateTargetProperty,
-    @CurrentUser() user
-  ) {
+    } = body
+
     if (!huntId) {
       throw new BadRequestException('É necessário vincular a uma huntId')
     }

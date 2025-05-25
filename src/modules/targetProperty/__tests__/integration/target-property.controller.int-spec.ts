@@ -183,12 +183,18 @@ describe('TargetPropertyController | Integration Test', () => {
 
     it('should throw BadRequestException if huntId is missing', async () => {
       MockAuthGuard.allow = true
-      await expect(
-        controller.createTargetProperty({
+
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
           ...baseProperty,
           huntId: undefined
         } as InterfaceTargetProperty)
-      ).rejects.toThrow(BadRequestException)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('message')
+          expect(res.body).toHaveProperty('error')
+        })
     })
 
     it('should throw NotFoundExecption if no Hunt found for huntId', async () => {
@@ -196,11 +202,17 @@ describe('TargetPropertyController | Integration Test', () => {
 
       mockHuntService.getOneHuntById.mockResolvedValue(undefined)
 
-      await expect(
-        controller.createTargetProperty({
-          ...baseProperty
+      await request(app.getHttpServer())
+        .post('/target-property')
+        .send({
+          ...baseProperty,
+          huntId: 'hunt-123'
         } as InterfaceTargetProperty)
-      ).rejects.toThrow(NotFoundException)
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('message')
+          expect(res.body).toHaveProperty('error')
+        })
     })
 
     it('should test for duplicity within the hunt', async () => {
