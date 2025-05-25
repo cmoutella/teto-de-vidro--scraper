@@ -12,8 +12,7 @@ import {
   Put,
   Query,
   UseGuards,
-  UseInterceptors,
-  UsePipes
+  UseInterceptors
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -74,10 +73,9 @@ export class HuntController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(createHuntSchema))
   @Post()
   async createHunt(
-    @Body()
+    @Body(new ZodValidationPipe(createHuntSchema))
     {
       title,
       livingPeople,

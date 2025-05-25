@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const createHuntSchema = z.object({
   title: z.string().optional(),
-  movingExpected: z.string().optional(),
+  movingExpected: z.string(),
   minBudget: z.number().optional(),
   maxBudget: z.number().optional(),
   livingPeople: z.number().optional(),
