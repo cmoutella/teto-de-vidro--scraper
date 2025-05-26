@@ -22,6 +22,7 @@ import {
   ApiTags
 } from '@nestjs/swagger'
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
+import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { UserService } from '@src/modules/user/services/user.service'
 import { AuthGuard } from 'src/shared/guards/auth.guard'
@@ -85,12 +86,14 @@ export class HuntController {
       minBudget,
       maxBudget
     }: CreateHunt,
-    @CurrentUser() user
+    @CurrentUser() user: AuthenticatedUser
   ) {
+    const currentUser = await this.userService.getById(user.id)
+
     return await this.huntService.createHunt({
       title,
       creatorId: user.id,
-      huntUsers: [{ id: user.id, name: user.name }],
+      huntUsers: [{ id: user.id, name: currentUser.name }],
       livingPeople,
       livingPets,
       movingExpected,
@@ -166,17 +169,13 @@ export class HuntController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Get('search/:userId')
+  @Get('search/user')
   async getAllHuntsByUser(
-    @Param('userId') userId: string,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('page') page?: number,
     @Query('limit') limit?: number
   ) {
-    if (!userId) {
-      throw new BadRequestException('É necessário informar a id do usuário')
-    }
-
-    return await this.huntService.getAllHuntsByUser(userId, page, limit)
+    return await this.huntService.getAllHuntsByUser(user.id, page, limit)
   }
 
   @ApiOperation({ summary: 'Deleção de uma caçada' })
