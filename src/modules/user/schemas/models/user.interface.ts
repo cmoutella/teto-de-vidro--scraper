@@ -1,3 +1,11 @@
+export type UserRole =
+  | 'beta'
+  | 'guest'
+  | 'regular'
+  | 'tester'
+  | 'admin'
+  | 'master'
+
 export interface InterfaceUser {
   id?: string
 
@@ -9,7 +17,7 @@ export interface InterfaceUser {
 
   // access
   accessLevel: number
-  status: 'beta' | 'guest' | 'regular' | 'tester' | 'admin' | 'master'
+  status: UserRole
 
   // user profiling
   profession?: string

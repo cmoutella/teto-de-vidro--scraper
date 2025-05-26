@@ -10,6 +10,7 @@ import {
 } from '@src/modules/targetProperty/schemas/target-property.schema'
 import { TargetPropertyService } from '@src/modules/targetProperty/services/target-property.service'
 import { mockUserService } from '@src/modules/user/__tests__/__mocks__'
+import { mockedUser } from '@src/modules/user/__tests__/__mocks__/data'
 import { UserService } from '@src/modules/user/services/user.service'
 import { ResponseInterceptor } from '@src/shared/interceptors/response.interceptor'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -21,12 +22,7 @@ import request from 'supertest'
 import { MockAuthGuard } from 'test/mocks/mock-auth.guard'
 
 import { mockHuntService } from '../__mocks__'
-import {
-  huntMock,
-  huntObjectId,
-  mockTargets,
-  userObjectId
-} from '../__mocks__/data'
+import { huntMock, huntObjectId, mockTargets } from '../__mocks__/data'
 import { HuntController } from '../../controllers/hunt-collection.controller'
 import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
 
@@ -34,7 +30,7 @@ import type { InterfaceHunt } from '../../schemas/models/hunt.interface'
  * TODO
  * - testar validação com zod
  */
-describe('HuntController | Integration Test', () => {
+describe.only('HuntController | Integration Test', () => {
   let controller: HuntController
   let mongod: MongoMemoryServer
   let app: INestApplication
@@ -123,19 +119,13 @@ describe('HuntController | Integration Test', () => {
   })
 
   describe('getAllHuntsByUser', () => {
-    it('should throw BadRequestException if huntObjectId is missing', async () => {
-      MockAuthGuard.allow = true
-
-      await expect(
-        controller.getAllHuntsByUser(undefined, 1, 10)
-      ).rejects.toThrow(BadRequestException)
-    })
-
     it('should require authorization in request headers', async () => {
       MockAuthGuard.allow = false
 
+      mockUserService.getById.mockResolvedValue(mockedUser)
+
       await request(app.getHttpServer())
-        .get(`/hunt/search/${userObjectId}`)
+        .get(`/hunt/search/user`)
         .send()
         .expect(403)
     })

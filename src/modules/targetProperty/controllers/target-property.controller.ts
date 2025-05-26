@@ -23,6 +23,7 @@ import {
 import { AmenityOf } from '@src/modules/amenity/schemas/models/amenity.interface'
 import { AmenityService } from '@src/modules/amenity/services/amenity.service'
 import { CurrentUser } from '@src/modules/auth/decorators/current-user.decorator'
+import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { Comment } from '@src/modules/comments/schemas/comment.schema'
 import { CreateCommentData } from '@src/modules/comments/schemas/zod-validation/create'
 import { CommentService } from '@src/modules/comments/services/comments.service'
@@ -81,7 +82,7 @@ export class TargetPropertyController {
   async createTargetProperty(
     @Body(new ZodValidationPipe(createTargetPropertySchema))
     body: CreateTargetProperty,
-    @CurrentUser() user
+    @CurrentUser() user: AuthenticatedUser
   ) {
     const {
       huntId,
