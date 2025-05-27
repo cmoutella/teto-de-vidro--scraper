@@ -81,6 +81,32 @@ describe('HuntService | UnitTest', () => {
     })
   })
 
+  describe('isUserAuthorizedForHunt', () => {
+    it('should return true if user is authorized to access the hunt', async () => {
+      mockHuntRepository.getOneHuntById.mockResolvedValue({
+        id: 'hunt-id',
+        huntUsers: [{ id: 'user-id', name: 'User Name' }],
+        isActive: true
+      })
+
+      const result = await service.validateUserAccess('user-id', 'hunt-id')
+
+      expect(result).toBe(true)
+    })
+
+    it('should return falsy if user is not in hunt users list', async () => {
+      mockHuntRepository.getOneHuntById.mockResolvedValue({
+        id: 'hunt-id',
+        huntUsers: [{ id: 'user-id', name: 'User Name' }],
+        isActive: true
+      })
+
+      const result = await service.validateUserAccess('other-user', 'hunt-id')
+
+      expect(result).toBeFalsy()
+    })
+  })
+
   describe('getAllHuntsByUser', () => {
     it('should return falsy if userId is missing', async () => {
       const found = await service.getAllHuntsByUser(undefined, 1, 10)
