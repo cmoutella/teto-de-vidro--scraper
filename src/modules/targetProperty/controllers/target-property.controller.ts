@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common'
@@ -125,9 +126,14 @@ export class TargetPropertyController {
       throw new NotFoundException('A hunt informada não existe')
     }
 
-    // TODO: verificar se o usuário tem acesso a hunt
-    // se não tiver, não deixar criar
-    console.log('user', user)
+    const hasAccessToHunt = await this.huntService.validateUserAccess(
+      user.id,
+      hunt.id
+    )
+
+    if (!hasAccessToHunt) {
+      throw new UnauthorizedException('Usuário sem permissão nesta hunt')
+    }
 
     const targetData = {
       huntId,

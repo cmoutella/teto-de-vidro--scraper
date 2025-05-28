@@ -147,6 +147,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
       mockTargetPropertyService.createTargetProperty.mockResolvedValue({
         ...baseProperty,
         id: 'target-123'
@@ -219,6 +220,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
 
       await request(app.getHttpServer())
         .post('/target-property')
@@ -233,6 +235,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
 
       mockTargetPropertyService.preventDuplicity.mockImplementation(() => {
         throw new ConflictException({ message: 'ALREADY_EXISTS' })
@@ -253,6 +256,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
       mockTargetPropertyService.createTargetProperty.mockResolvedValue({
         ...baseProperty,
         id: 'target-123'
@@ -293,6 +297,7 @@ describe('TargetPropertyController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       mockHuntService.getOneHuntById.mockResolvedValue(true)
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
       mockTargetPropertyService.createTargetProperty.mockResolvedValue({
         ...baseProperty,
         id: 'target-123',

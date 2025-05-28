@@ -21,6 +21,14 @@ export class HuntService {
     return await this.huntRepository.createHunt(newHunt)
   }
 
+  async validateUserAccess(userId: string, huntId: string): Promise<boolean> {
+    const hunt = await this.getOneHuntById(huntId)
+
+    const user = hunt.huntUsers.find((u) => u.id === userId)
+
+    return !!user
+  }
+
   async getAllHuntsByUser(
     userId: string,
     page?: number,
