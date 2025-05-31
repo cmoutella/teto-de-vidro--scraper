@@ -49,10 +49,6 @@ export class UserService {
   }
 
   async inviteUser(user: InviteUser): Promise<PublicInterfaceUser> {
-    if (!user.name || !user.email) {
-      throw new BadRequestException('Informe nome e email')
-    }
-
     const existingUserEmail = await this.userRepository.getByEmail(user.email)
     if (existingUserEmail) {
       throw new ConflictException('Email já cadastrado')
