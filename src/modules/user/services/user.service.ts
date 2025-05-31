@@ -41,7 +41,7 @@ export class UserService {
     const createUser = {
       ...user,
       accessLevel: user.accessLevel ?? 0,
-      status: user.status ?? 'regular',
+      status: user.role ?? 'regular',
       gender: user.gender ?? 'neutral'
     } as Omit<InterfaceUser, 'createdAt' | 'updatedAt' | 'lastLogin'>
 
@@ -57,8 +57,8 @@ export class UserService {
     const createUser = {
       ...user,
       accessLevel: 0,
-      status: 'guest'
-    } as Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'status'>
+      role: 'guest'
+    } as Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'role'>
 
     return this.userRepository.inviteUser(createUser)
   }

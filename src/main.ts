@@ -3,6 +3,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 import { HttpExceptionFilter } from './shared/filters/http-exception-filter'
+import { AuthInterceptor } from './shared/interceptors/authentication.interceptor'
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 
 async function bootstrap() {
@@ -13,6 +14,7 @@ async function bootstrap() {
   })
   app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalInterceptors(new ResponseInterceptor())
+  app.useGlobalInterceptors(new AuthInterceptor())
 
   const config = new DocumentBuilder()
     .setTitle('Teto de Vidro - API')
