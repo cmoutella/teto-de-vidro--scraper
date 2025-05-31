@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { ApiProperty } from '@nestjs/swagger'
 import mongoose, { HydratedDocument } from 'mongoose'
 
-import { InterfaceUser } from './models/user.interface'
+import { InterfaceUser, UserRole } from './models/user.interface'
 
 export enum CommentRatedAsEnum {
   beta = 'beta',
@@ -15,6 +15,15 @@ export enum GenderAsEnum {
   male = 'male',
   female = 'female',
   neutral = 'neutral'
+}
+
+export enum RoleAsEnum {
+  master = 'master',
+  admin = 'admin',
+  beta = 'beta',
+  regular = 'regular',
+  guest = 'guest',
+  tester = 'tester'
 }
 
 export type UserDocument = HydratedDocument<User>
@@ -43,9 +52,9 @@ export class User implements InterfaceUser {
   @ApiProperty({ required: true })
   @Prop({ required: true })
   accessLevel: number
-  @ApiProperty({ enum: CommentRatedAsEnum, required: true })
-  @Prop({ enum: CommentRatedAsEnum, required: true })
-  status: CommentRatedAsEnum
+  @ApiProperty({ required: true })
+  @Prop({ enum: RoleAsEnum, required: true })
+  role: UserRole
 
   // PROFILING
   @ApiProperty()
@@ -102,7 +111,7 @@ export class PublicUserSchema {
   accessLevel: number
   @ApiProperty({ enum: CommentRatedAsEnum, required: true })
   @Prop({ enum: CommentRatedAsEnum, required: true })
-  status: CommentRatedAsEnum
+  role: CommentRatedAsEnum
 
   // PROFILING
   @ApiProperty()

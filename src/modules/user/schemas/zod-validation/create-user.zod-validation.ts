@@ -9,7 +9,7 @@ export const createUserSchema = z.object({
   email: z.string(),
 
   accessLevel: z.number().optional(),
-  status: z.enum(USER_STATUS).optional(),
+  role: z.enum(USER_STATUS).optional(),
 
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),

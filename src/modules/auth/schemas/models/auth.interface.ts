@@ -9,5 +9,5 @@ export interface AuthenticatedUser {
   id: string
   email: string
   accessLevel: number
-  status: UserRole
+  role: UserRole
 }

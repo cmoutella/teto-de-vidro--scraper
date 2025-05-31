@@ -80,25 +80,27 @@ export class UsersController {
       familyName,
       cpf,
       accessLevel,
-      status,
+      role,
       password,
       profession,
       gender,
       birthDate
     }: CreateUser
   ) {
-    return await this.userService.createUser({
+    const createdUser = await this.userService.createUser({
       email,
       name,
       familyName,
       cpf,
       accessLevel,
-      status,
+      role,
       password,
       profession,
       gender,
       birthDate
     })
+
+    return createdUser
   }
 
   @ApiBody({
@@ -126,10 +128,10 @@ export class UsersController {
     @CurrentUser() user: AuthenticatedUser
   ) {
     if (
-      user.status !== 'admin' &&
-      user.status !== 'master' &&
-      user.status !== 'tester' &&
-      user.status !== 'beta' &&
+      user.role !== 'admin' &&
+      user.role !== 'master' &&
+      user.role !== 'tester' &&
+      user.role !== 'beta' &&
       user.accessLevel === 0
     ) {
       throw new UnauthorizedException('Sem autorização para convidar usuários')

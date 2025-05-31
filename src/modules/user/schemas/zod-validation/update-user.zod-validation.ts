@@ -8,7 +8,7 @@ export const updateUserSchema = z.object({
   familyName: z.string(),
 
   accessLevel: z.number().optional(),
-  status: z.enum(USER_STATUS).optional(),
+  role: z.enum(USER_STATUS).optional(),
 
   profession: z.string().optional(),
   gender: z.enum(GENDERS).optional(),
@@ -27,7 +27,7 @@ export type UpdateEmail = z.infer<typeof updateUserEmailSchema>
 // user access level
 export const updateUserAccessSchema = z.object({
   accessLevel: z.number().optional(),
-  status: z.enum(USER_STATUS).optional()
+  role: z.enum(USER_STATUS).optional()
 })
 export type UpdateLevel = z.infer<typeof updateUserAccessSchema>
 

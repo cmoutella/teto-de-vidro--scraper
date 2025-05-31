@@ -17,7 +17,7 @@ export interface InterfaceUser {
 
   // access
   accessLevel: number
-  status: UserRole
+  role: UserRole
 
   // user profiling
   profession?: string
