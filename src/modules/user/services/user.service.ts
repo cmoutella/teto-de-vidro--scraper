@@ -2,8 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException
+  BadRequestException,
+  Inject,
+  forwardRef
 } from '@nestjs/common'
+import { InvitationService } from '@src/modules/invitation/service/invitation.service'
 
 import { UserRepository } from '../repositories/user.repository'
 import {
@@ -15,7 +18,11 @@ import { InviteUser } from '../schemas/zod-validation/invite-user.zod-validation
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    @Inject(forwardRef(() => InvitationService))
+    private readonly invitationService: InvitationService
+  ) {}
 
   async createUser(user: CreateUser): Promise<PublicInterfaceUser> {
     if (!user.password || !user.email) {
@@ -48,7 +55,10 @@ export class UserService {
     return await this.userRepository.createUser(createUser)
   }
 
-  async inviteUser(user: InviteUser): Promise<PublicInterfaceUser> {
+  async inviteUser(
+    user: InviteUser,
+    invitationHost: string
+  ): Promise<PublicInterfaceUser> {
     const existingUserEmail = await this.userRepository.getByEmail(user.email)
     if (existingUserEmail) {
       throw new ConflictException('Email já cadastrado')
@@ -60,7 +70,15 @@ export class UserService {
       role: 'guest'
     } as Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'role'>
 
-    return this.userRepository.inviteUser(createUser)
+    const invited = await this.userRepository.inviteUser(createUser)
+
+    await this.invitationService.addInvitation(invitationHost, invited.id)
+
+    return invited
+  }
+
+  async countInvitations(userId: string) {
+    await this.invitationService.countInvitationsSent(userId)
   }
 
   async getAllUsers(): Promise<PublicInterfaceUser[]> {
@@ -69,8 +87,6 @@ export class UserService {
 
   async getByEmail(email: string): Promise<InterfaceUser> {
     const user = await this.userRepository.getByEmail(email)
-
-    if (!user) throw new NotFoundException('Usuário não encontrado')
 
     return user
   }

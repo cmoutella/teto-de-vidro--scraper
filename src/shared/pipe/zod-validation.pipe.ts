@@ -7,7 +7,6 @@ export class ZodValidationPipe implements PipeTransform {
   constructor(private schema: ZodSchema) {}
 
   transform(value: unknown) {
-    console.log('# ZOD VALIDATION')
     try {
       const parsedValue = this.schema.parse(value)
 
@@ -18,9 +17,10 @@ export class ZodValidationPipe implements PipeTransform {
         err.issues.forEach((issue) => {
           zodErrors.push(issue.path.join('.'))
           console.log(
-            `# ERR Propriedade inválida: ${issue.path.join('.')}`,
+            `# ZODERROR Propriedade inválida: ${issue.path.join('.')}`,
+            `VALUE: ${value}`,
             `EXPECTED: ${(issue as { expected: string }).expected}`,
-            `RECEIVED: ${(issue as { expected: string }).expected}`
+            `RECEIVED: ${(issue as { received: string }).received}`
           )
         })
 

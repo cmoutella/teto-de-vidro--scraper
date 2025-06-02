@@ -40,13 +40,16 @@ import {
   UpdateHuntSuccess
 } from '../schemas/endpoints/updateHunt'
 import { Hunt } from '../schemas/hunt.schema'
+import { HuntUser, HuntUserStatus } from '../schemas/models/hunt.interface'
 import {
   CreateHunt,
   createHuntSchema
 } from '../schemas/zod-validation/create-hunt.zod-validation'
 import {
   UpdateHunt,
-  updateHuntSchema
+  updateHuntSchema,
+  UsersInvited,
+  usersInvited
 } from '../schemas/zod-validation/update-hunt.zod-validation'
 import { HuntService } from '../services/hunt-collection.service'
 
@@ -93,7 +96,7 @@ export class HuntController {
     return await this.huntService.createHunt({
       title,
       creatorId: user.id,
-      huntUsers: [{ id: user.id, name: currentUser.name }],
+      huntUsers: [{ id: user.id, name: currentUser.name, status: 'accepted' }],
       livingPeople,
       livingPets,
       movingExpected,
@@ -102,6 +105,74 @@ export class HuntController {
       type,
       targets: []
     })
+  }
+
+  @ApiOperation({ summary: 'Cria uma caça por imóvel' })
+  @ApiBody({
+    // type: Hunt,
+    description: 'Dados necessários para convidar pessoas para hunt'
+  })
+  @ApiResponse({
+    type: CreateHuntSuccess,
+    status: 201,
+    description: 'Usuários convidados com sucesso'
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post(':id/invite')
+  async inviteToHunt(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(usersInvited))
+    body: UsersInvited,
+    @CurrentUser() user: AuthenticatedUser
+  ) {
+    const foundHunt = await this.huntService.getOneHuntById(id)
+
+    if (!foundHunt) {
+      throw new NotFoundException('Hunt não encontrada')
+    }
+
+    const alreadyUsersCheck = await Promise.all(
+      body.usersInvited.map((user) => this.userService.getByEmail(user.email))
+    )
+
+    const alreadyUsers = alreadyUsersCheck.filter((user) => user && user.id)
+    const alreadyUsersEmails = new Set(alreadyUsers.map((user) => user.email))
+
+    const toInvite = body.usersInvited.filter(
+      (user) => !alreadyUsersEmails.has(user.email)
+    )
+
+    const invited = await Promise.all(
+      toInvite.map((inUser) => this.userService.inviteUser(inUser, user.email))
+    )
+
+    const merged = [
+      ...foundHunt.huntUsers,
+      ...(alreadyUsers.map((u) => {
+        return {
+          id: u.id,
+          name: u.name,
+          status: 'accepted'
+        }
+      }) as HuntUser[]),
+      ...(invited.map((u) => {
+        return {
+          id: u.id,
+          name: u.name,
+          status: 'waiting' as HuntUserStatus
+        }
+      }) as HuntUser[])
+    ]
+    const uniqueInvitedUsers = Array.from(
+      new Map(merged.map((item) => [item.id, item])).values()
+    )
+
+    const updated = await this.huntService.updateHunt(id, {
+      huntUsers: uniqueInvitedUsers
+    })
+
+    return updated
   }
 
   @ApiOperation({ summary: 'Busca de caçada por id' })
