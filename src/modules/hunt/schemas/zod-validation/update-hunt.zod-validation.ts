@@ -1,3 +1,4 @@
+import { inviteUserSchema } from '@src/modules/user/schemas/zod-validation/invite-user.zod-validation'
 import { CONTRACT_TYPE } from '@src/shared/const'
 import { z } from 'zod'
 
@@ -12,3 +13,9 @@ export const updateHuntSchema = z.object({
 })
 
 export type UpdateHunt = z.infer<typeof updateHuntSchema>
+
+export const usersInvited = z.object({
+  usersInvited: z.array(inviteUserSchema)
+})
+
+export type UsersInvited = z.infer<typeof usersInvited>
