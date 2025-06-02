@@ -18,8 +18,6 @@ export class AuthInterceptor implements NestInterceptor {
       tap(() => {
         const user = request.user as AuthenticatedUser
 
-        console.log('auth interceptor', user)
-
         if (user) {
           response.setHeader('x-user-id', user.id)
           response.setHeader('x-user-role', user.role)
