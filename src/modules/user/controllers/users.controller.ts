@@ -137,7 +137,21 @@ export class UsersController {
       throw new UnauthorizedException('Sem autorização para convidar usuários')
     }
 
-    return await this.userService.inviteUser(invitedUser)
+    return await this.userService.inviteUser(invitedUser, user.id)
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes()
+  @ApiOperation({
+    summary:
+      'Busca quantos usuários foram convidados por um determinado usuário'
+  })
+  @Get(':id/invites')
+  async countInvitesSent(@CurrentUser() user: AuthenticatedUser) {
+    const invites = await this.userService.countInvitations(user.id)
+
+    return { invitesSent: invites }
   }
 
   // TODO: update user
