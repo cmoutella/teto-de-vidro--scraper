@@ -13,7 +13,7 @@ export const mockedUser: InterfaceUser = {
 
   // access
   accessLevel: 0,
-  status: 'regular',
+  role: 'regular',
 
   // user profiling
   profession: 'user',

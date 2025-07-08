@@ -33,7 +33,7 @@ export class UserMongooseRepository implements UserRepository {
   }
 
   async inviteUser(
-    newUser: Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'status'>
+    newUser: Pick<InterfaceUser, 'name' | 'email' | 'accessLevel' | 'role'>
   ): Promise<PublicInterfaceUser> {
     const createdAt = new Date().toISOString()
     const createUser = new this.userModel({

@@ -1,6 +1,9 @@
-interface HuntUser {
+export type HuntUserStatus = 'waiting' | 'accepted'
+
+export interface HuntUser {
   id: string
   name: string
+  status: HuntUserStatus
 }
 export interface InterfaceHunt {
   id?: string

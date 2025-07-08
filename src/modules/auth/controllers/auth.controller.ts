@@ -43,7 +43,7 @@ export class AuthController {
       email: foundUser.email,
       name: foundUser.name,
       accessLevel: foundUser.accessLevel,
-      status: foundUser.status
+      role: foundUser.role
     }
 
     const authDate = new Date()

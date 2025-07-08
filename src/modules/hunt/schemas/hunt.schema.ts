@@ -11,12 +11,23 @@ export enum HuntTypeEnum {
   either = 'either'
 }
 
+export enum InvitationStatusEnum {
+  waiting = 'waiting',
+  accepted = 'accepted'
+}
+
 export class HuntUserDto {
   @ApiProperty()
+  @Prop()
   id: string
 
   @ApiProperty()
+  @Prop()
   name: string
+
+  @ApiProperty()
+  @Prop({ type: String, enum: Object.values(InvitationStatusEnum) })
+  status: InvitationStatusEnum
 }
 
 @Schema()
