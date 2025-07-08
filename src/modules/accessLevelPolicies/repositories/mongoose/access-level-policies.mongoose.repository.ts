@@ -32,6 +32,8 @@ export class AccessLevelPoliciesMongooseRepository
       .findOne({ level: level })
       .exec()
 
+    if (!policies) return
+
     return policies.toObject()
   }
 
