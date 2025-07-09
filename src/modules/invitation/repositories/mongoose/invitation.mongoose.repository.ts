@@ -50,6 +50,18 @@ export class InvitationMongooseRepository implements InvitationRepository {
     return acceptedInvites as InvitationInterface[]
   }
 
+  async listUserSentInvitations(
+    userId: string
+  ): Promise<InvitationInterface[]> {
+    const acceptedInvites = await this.invitationModel
+      .find({
+        userId: userId
+      })
+      .exec()
+
+    return acceptedInvites as InvitationInterface[]
+  }
+
   async updateInvitation(
     invitedUserId: string,
     data: Partial<InvitationInterface>

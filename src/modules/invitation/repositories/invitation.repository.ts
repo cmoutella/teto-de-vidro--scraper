@@ -10,6 +10,10 @@ export abstract class InvitationRepository {
     userId: string
   ): Promise<InvitationInterface[]>
 
+  abstract listUserSentInvitations(
+    userId: string
+  ): Promise<InvitationInterface[]>
+
   abstract updateInvitation(
     id: string,
     data: Partial<InvitationInterface>

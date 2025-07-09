@@ -15,6 +15,12 @@ export class InvitationService {
   }
 
   async countInvitationsSent(userId: string) {
+    const invitations =
+      await this.invitationRepository.listUserSentInvitations(userId)
+    return invitations.length
+  }
+
+  async countInvitationsAccepted(userId: string) {
     return await this.invitationRepository.listUserAcceptedInvitations(userId)
   }
 }
