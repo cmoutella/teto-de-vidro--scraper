@@ -4,8 +4,12 @@ import {
   ConflictException,
   BadRequestException,
   Inject,
-  forwardRef
+  forwardRef,
+  UnauthorizedException
 } from '@nestjs/common'
+import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
+import { AccessLevelPoliciesService } from '@src/modules/accessLevelPolicies/services/access-level-policies.service'
+import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
 
 import { UserRepository } from '../repositories/user.repository'
@@ -21,7 +25,11 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => InvitationService))
-    private readonly invitationService: InvitationService
+    private readonly invitationService: InvitationService,
+    @Inject(forwardRef(() => AccessLevelPoliciesService))
+    private readonly accessLevelPoliciesService: AccessLevelPoliciesService,
+    @Inject(forwardRef(() => HuntService))
+    private readonly huntService: HuntService
   ) {}
 
   async createUser(user: CreateUser): Promise<PublicInterfaceUser> {
@@ -55,10 +63,51 @@ export class UserService {
     return await this.userRepository.createUser(createUser)
   }
 
+  async getUserPermissions(
+    userId: string
+  ): Promise<
+    Pick<
+      AccessLevelPoliciesInterface,
+      'activeHuntsLimit' | 'invitationsLimit' | 'targetsPerHuntLimit'
+    >
+  > {
+    const host = await this.userRepository.getById(userId)
+    if (!host) {
+      throw new UnauthorizedException('Host não encontrado')
+    }
+
+    const levelPermissions = await this.accessLevelPoliciesService.getByLevel(
+      host.accessLevel
+    )
+    const sentInvitations =
+      await this.invitationService.countInvitationsSent(userId)
+    const currentActiveHunts =
+      await this.huntService.getAllActiveHuntsByUser(userId)
+
+    return {
+      invitationsLimit: levelPermissions.invitationsLimit - sentInvitations,
+      activeHuntsLimit:
+        levelPermissions.activeHuntsLimit - currentActiveHunts.totalItems,
+      targetsPerHuntLimit: levelPermissions.targetsPerHuntLimit
+    }
+  }
+
   async inviteUser(
     user: InviteUser,
-    invitationHost: string
+    invitationHostId: string
   ): Promise<PublicInterfaceUser> {
+    const host = await this.getById(invitationHostId)
+
+    if (!host) {
+      throw new UnauthorizedException('Host não encontrado')
+    }
+
+    const hostLevelPermissions = await this.getUserPermissions(invitationHostId)
+
+    if (hostLevelPermissions.invitationsLimit <= 0) {
+      throw new UnauthorizedException('Host sem convites disponíveis')
+    }
+
     const existingUserEmail = await this.userRepository.getByEmail(user.email)
     if (existingUserEmail) {
       throw new ConflictException('Email já cadastrado')
@@ -72,7 +121,7 @@ export class UserService {
 
     const invited = await this.userRepository.inviteUser(createUser)
 
-    await this.invitationService.addInvitation(invitationHost, invited.id)
+    await this.invitationService.addInvitation(invitationHostId, invited.id)
 
     return invited
   }
@@ -85,16 +134,36 @@ export class UserService {
     return await this.userRepository.getAllUsers()
   }
 
-  async getByEmail(email: string): Promise<InterfaceUser> {
+  async getByEmail(email: string): Promise<
+    InterfaceUser & {
+      permissions: Omit<
+        AccessLevelPoliciesInterface,
+        'level' | 'createdAt' | 'updatedAt'
+      >
+    }
+  > {
     const user = await this.userRepository.getByEmail(email)
 
-    return user
+    const permissions = await this.getUserPermissions(user.id)
+
+    return { ...user, permissions }
   }
 
-  async getById(id: string): Promise<InterfaceUser> {
+  async getById(id: string): Promise<
+    InterfaceUser & {
+      permissions: Omit<
+        AccessLevelPoliciesInterface,
+        'level' | 'createdAt' | 'updatedAt'
+      >
+    }
+  > {
     const user = await this.userRepository.getById(id)
+
     if (!user) throw new NotFoundException()
-    return user
+
+    const permissions = await this.getUserPermissions(user.id)
+
+    return { ...user, permissions }
   }
 
   async deleteUser(id: string): Promise<void> {
