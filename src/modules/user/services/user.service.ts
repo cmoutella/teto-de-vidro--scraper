@@ -130,6 +130,8 @@ export class UserService {
   > {
     const user = await this.userRepository.getByEmail(email)
 
+    if (!user) return
+
     const permissions = await this.getUserPermissions(user.id)
 
     return { ...user, permissions }
