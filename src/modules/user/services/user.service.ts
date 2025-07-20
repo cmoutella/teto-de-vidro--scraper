@@ -8,8 +8,7 @@ import {
   UnauthorizedException
 } from '@nestjs/common'
 import { AccessLevelPoliciesInterface } from '@src/modules/accessLevelPolicies/schema/model/access-policies.interface'
-import { AccessLevelPoliciesService } from '@src/modules/accessLevelPolicies/services/access-level-policies.service'
-import { HuntService } from '@src/modules/hunt/services/hunt-collection.service'
+import { UserLimitService } from '@src/modules/accessLevelPolicies/services/user-limit.service'
 import { InvitationService } from '@src/modules/invitation/service/invitation.service'
 
 import { UserRepository } from '../repositories/user.repository'
@@ -26,10 +25,8 @@ export class UserService {
     private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => InvitationService))
     private readonly invitationService: InvitationService,
-    @Inject(forwardRef(() => AccessLevelPoliciesService))
-    private readonly accessLevelPoliciesService: AccessLevelPoliciesService,
-    @Inject(forwardRef(() => HuntService))
-    private readonly huntService: HuntService
+    @Inject(forwardRef(() => UserLimitService))
+    private readonly userLimitService: UserLimitService
   ) {}
 
   async createUser(user: CreateUser): Promise<PublicInterfaceUser> {
@@ -76,20 +73,9 @@ export class UserService {
       throw new UnauthorizedException('Host não encontrado')
     }
 
-    const levelPermissions = await this.accessLevelPoliciesService.getByLevel(
-      host.accessLevel
-    )
-    const sentInvitations =
-      await this.invitationService.countInvitationsSent(userId)
-    const currentActiveHunts =
-      await this.huntService.getAllActiveHuntsByUser(userId)
+    const currentLimits = await this.userLimitService.userAvailableLimits(host)
 
-    return {
-      invitationsLimit: levelPermissions.invitationsLimit - sentInvitations,
-      activeHuntsLimit:
-        levelPermissions.activeHuntsLimit - currentActiveHunts.totalItems,
-      targetsPerHuntLimit: levelPermissions.targetsPerHuntLimit
-    }
+    return currentLimits
   }
 
   async inviteUser(
