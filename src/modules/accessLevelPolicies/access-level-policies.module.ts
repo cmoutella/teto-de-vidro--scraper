@@ -30,6 +30,6 @@ import { UserLimitService } from './services/user-limit.service'
     UserLimitService
   ],
   controllers: [AccessLevelPoliciessController],
-  exports: [AccessLevelPoliciesService, UserLimitService]
+  exports: [UserLimitService]
 })
 export class AccessLevelPoliciesModule {}
