@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common'
@@ -184,7 +185,10 @@ export class HuntController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
-  async getOneHuntById(@Param('id') id: string) {
+  async getOneHuntById(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser
+  ) {
     if (!id) {
       throw new BadRequestException('É necessário informar a id da hunt')
     }
@@ -193,6 +197,12 @@ export class HuntController {
 
     if (!found) {
       throw new NotFoundException('Hunt não encontrada')
+    }
+
+    const validated = await this.huntService.validateUserAccess(user.id, id)
+
+    if (!validated) {
+      throw new UnauthorizedException('Usuário sem permissão nesta hunt')
     }
 
     return found
@@ -214,7 +224,8 @@ export class HuntController {
   async updateHunt(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateHuntSchema))
-    updateData: UpdateHunt
+    updateData: UpdateHunt,
+    @CurrentUser() user: AuthenticatedUser
   ) {
     if (!id) {
       throw new BadRequestException('É necessário informar a id da hunt')
@@ -224,6 +235,12 @@ export class HuntController {
 
     if (!found) {
       throw new NotFoundException('A hunt não existe')
+    }
+
+    const validated = await this.huntService.validateUserAccess(user.id, id)
+
+    if (!validated) {
+      throw new UnauthorizedException('Usuário sem permissão nesta hunt')
     }
 
     return await this.huntService.updateHunt(id, {
@@ -258,7 +275,10 @@ export class HuntController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteHunt(@Param('id') id: string) {
+  async deleteHunt(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser
+  ) {
     if (!id) {
       throw new BadRequestException('É necessário informar a id da hunt')
     }
@@ -267,6 +287,12 @@ export class HuntController {
 
     if (!toDelete) {
       throw new NotFoundException('Hunt não encontrada')
+    }
+
+    const validated = await this.huntService.validateUserAccess(user.id, id)
+
+    if (!validated) {
+      throw new UnauthorizedException('Usuário sem permissão nesta hunt')
     }
 
     const deleted = await this.huntService.deleteHunt(id)
