@@ -12,6 +12,12 @@ export abstract class HuntRepository {
     limit?: number
   ): Promise<PaginatedData<InterfaceHunt>>
 
+  abstract getAllActiveHuntsByUser(
+    userId: string,
+    page?: number,
+    limit?: number
+  ): Promise<PaginatedData<InterfaceHunt>>
+
   abstract getOneHuntById(id: string): Promise<InterfaceHunt>
 
   abstract createHunt(

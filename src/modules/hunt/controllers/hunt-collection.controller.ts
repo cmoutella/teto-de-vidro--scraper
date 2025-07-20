@@ -145,7 +145,7 @@ export class HuntController {
     )
 
     const invited = await Promise.all(
-      toInvite.map((inUser) => this.userService.inviteUser(inUser, user.email))
+      toInvite.map((inUser) => this.userService.inviteUser(inUser, user.id))
     )
 
     const merged = [

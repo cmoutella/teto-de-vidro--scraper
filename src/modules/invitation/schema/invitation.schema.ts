@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { ApiProperty } from '@nestjs/swagger'
 import mongoose, { HydratedDocument } from 'mongoose'
 
-import { InvitationInterface } from './model/invitation.model'
+import { InvitationInterface } from './model/invitation.interface'
 
 export type InvitationDocument = HydratedDocument<Invitation>
 

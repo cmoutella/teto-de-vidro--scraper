@@ -1,4 +1,4 @@
-import type { InvitationInterface } from '../schema/model/invitation.model'
+import type { InvitationInterface } from '../schema/model/invitation.interface'
 
 export abstract class InvitationRepository {
   abstract addInvitation(
@@ -7,6 +7,10 @@ export abstract class InvitationRepository {
   ): Promise<InvitationInterface>
 
   abstract listUserAcceptedInvitations(
+    userId: string
+  ): Promise<InvitationInterface[]>
+
+  abstract listUserSentInvitations(
     userId: string
   ): Promise<InvitationInterface[]>
 

@@ -39,6 +39,20 @@ export class HuntService {
     return await this.huntRepository.getAllHuntsByUser(userId, page, limit)
   }
 
+  async getAllActiveHuntsByUser(
+    userId: string,
+    page?: number,
+    limit?: number
+  ): Promise<PaginatedData<InterfaceHunt> | undefined> {
+    if (!userId) return undefined
+
+    return await this.huntRepository.getAllActiveHuntsByUser(
+      userId,
+      page,
+      limit
+    )
+  }
+
   async addTargetToHunt(huntId: string, targetId: string): Promise<boolean> {
     if (!huntId) return undefined
     if (!targetId) return undefined

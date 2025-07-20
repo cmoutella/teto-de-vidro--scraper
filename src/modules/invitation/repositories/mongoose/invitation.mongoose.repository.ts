@@ -4,7 +4,7 @@ import { LeanDoc } from '@src/shared/types/mongoose'
 import { Model } from 'mongoose'
 
 import { Invitation } from '../../schema/invitation.schema'
-import { InvitationInterface } from '../../schema/model/invitation.model'
+import { InvitationInterface } from '../../schema/model/invitation.interface'
 import { InvitationRepository } from '../invitation.repository'
 
 export class InvitationMongooseRepository implements InvitationRepository {
@@ -44,6 +44,18 @@ export class InvitationMongooseRepository implements InvitationRepository {
       .find({
         userId: userId,
         status: 'accepted'
+      })
+      .exec()
+
+    return acceptedInvites as InvitationInterface[]
+  }
+
+  async listUserSentInvitations(
+    userId: string
+  ): Promise<InvitationInterface[]> {
+    const acceptedInvites = await this.invitationModel
+      .find({
+        userId: userId
       })
       .exec()
 

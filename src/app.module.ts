@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { AccessLevelPoliciesModule } from './modules/accessLevelPolicies/access-level-policies.module'
 import { AddressModule } from './modules/address/address.module'
 import { AmenitiesCollectionModule } from './modules/amenity/amenity.module'
 import { AuthModule } from './modules/auth/auth.module'
@@ -22,6 +23,7 @@ import { UsersCollectionModule } from './modules/user/user.module'
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     UsersCollectionModule,
+    AccessLevelPoliciesModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,

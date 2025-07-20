@@ -53,7 +53,43 @@ export class HuntMongooseRepository implements HuntRepository {
       .exec()
 
     const totalItems = await this.huntModel.countDocuments({
-      creatorId: userId
+      'huntUsers.id': userId
+    })
+
+    const totalPages = Math.ceil(totalItems / limit)
+
+    const result: PaginatedData<InterfaceHunt> = {
+      list: foundHunts.map((hunt) => {
+        const { _id: id, __v, ...otherData } = hunt
+
+        return { id: id.toString(), ...otherData }
+      }),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      perPage: limit
+    }
+
+    return result
+  }
+
+  async getAllActiveHuntsByUser(
+    userId: string,
+    page = 1,
+    limit = DEFAULT_LIMIT
+  ): Promise<PaginatedData<InterfaceHunt>> {
+    const offset = (page - 1) * limit
+
+    const foundHunts = await this.huntModel
+      .find({ 'huntUsers.id': userId, isActive: true })
+      .skip(offset)
+      .limit(limit)
+      .lean<LeanDoc<InterfaceHunt>[]>()
+      .exec()
+
+    const totalItems = await this.huntModel.countDocuments({
+      'huntUsers.id': userId,
+      isActive: true
     })
 
     const totalPages = Math.ceil(totalItems / limit)
