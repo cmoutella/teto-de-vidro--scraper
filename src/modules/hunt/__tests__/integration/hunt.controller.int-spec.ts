@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import type { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { mockTargetPropertyService } from '@src/modules/targetProperty/__tests__/__mocks__'
 import {
   TargetProperty,
@@ -135,9 +136,9 @@ describe.only('HuntController | Integration Test', () => {
     it('should throw BadRequestException if id is missing', async () => {
       MockAuthGuard.allow = true
 
-      await expect(controller.getOneHuntById(undefined)).rejects.toThrow(
-        BadRequestException
-      )
+      await expect(
+        controller.getOneHuntById(undefined, mockedUser as AuthenticatedUser)
+      ).rejects.toThrow(BadRequestException)
     })
 
     it('should require authorization in request headers', async () => {
@@ -155,9 +156,13 @@ describe.only('HuntController | Integration Test', () => {
       MockAuthGuard.allow = true
 
       await expect(
-        controller.updateHunt(undefined, {
-          ...huntMock
-        } as InterfaceHunt)
+        controller.updateHunt(
+          undefined,
+          {
+            ...huntMock
+          } as InterfaceHunt,
+          mockedUser as AuthenticatedUser
+        )
       ).rejects.toThrow(BadRequestException)
     })
 
@@ -167,9 +172,13 @@ describe.only('HuntController | Integration Test', () => {
       mockHuntService.getOneHuntById(false)
 
       await expect(
-        controller.updateHunt('abc', {
-          ...huntMock
-        } as InterfaceHunt)
+        controller.updateHunt(
+          'abc',
+          {
+            ...huntMock
+          } as InterfaceHunt,
+          mockedUser as AuthenticatedUser
+        )
       ).rejects.toThrow(NotFoundException)
     })
 
@@ -187,17 +196,17 @@ describe.only('HuntController | Integration Test', () => {
 
   describe('deleteHunt', () => {
     it('should throw BadRequestException if id is missing', async () => {
-      await expect(controller.deleteHunt(undefined)).rejects.toThrow(
-        BadRequestException
-      )
+      await expect(
+        controller.deleteHunt(undefined, mockedUser as AuthenticatedUser)
+      ).rejects.toThrow(BadRequestException)
     })
 
     it('should throw NotFoundExceptions if no Target found for the id', async () => {
       mockHuntService.getOneHuntById.mockResolvedValue(false)
 
-      await expect(controller.deleteHunt('abc')).rejects.toThrow(
-        NotFoundException
-      )
+      await expect(
+        controller.deleteHunt('abc', mockedUser as AuthenticatedUser)
+      ).rejects.toThrow(NotFoundException)
     })
 
     it('should NOT remove hunt targets when hunt delete fails', async () => {
@@ -205,9 +214,10 @@ describe.only('HuntController | Integration Test', () => {
         targets: mockTargets
       })
 
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
       mockHuntService.deleteHunt.mockResolvedValue(false)
 
-      await controller.deleteHunt('abc')
+      await controller.deleteHunt('abc', mockedUser as AuthenticatedUser)
       expect(
         mockTargetPropertyService.deleteTargetProperty
       ).not.toHaveBeenCalled()
@@ -218,9 +228,10 @@ describe.only('HuntController | Integration Test', () => {
         targets: mockTargets
       })
 
+      mockHuntService.validateUserAccess.mockResolvedValue(true)
       mockHuntService.deleteHunt.mockResolvedValue(true)
 
-      await controller.deleteHunt('abc')
+      await controller.deleteHunt('abc', mockedUser as AuthenticatedUser)
       expect(
         mockTargetPropertyService.deleteTargetProperty
       ).toHaveBeenCalledTimes(mockTargets.length)
