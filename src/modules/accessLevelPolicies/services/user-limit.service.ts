@@ -39,7 +39,7 @@ export class UserLimitService {
     return levelPermissions.invitationsLimit - sentInvitations
   }
 
-  async targetPerHuntAvailableLimit(user: InterfaceUser): Promise<number> {
+  async targetPerHuntLimit(user: InterfaceUser): Promise<number> {
     const levelPermissions = await this.accessLevelPoliciesService.getByLevel(
       user.accessLevel
     )
@@ -51,7 +51,7 @@ export class UserLimitService {
     return {
       invitationsLimit: await this.invitesAvailableLimit(user),
       activeHuntsLimit: await this.huntAvailableLimit(user),
-      targetsPerHuntLimit: await this.targetPerHuntAvailableLimit(user)
+      targetsPerHuntLimit: await this.targetPerHuntLimit(user)
     }
   }
 }
