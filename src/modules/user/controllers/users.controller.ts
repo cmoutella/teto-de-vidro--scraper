@@ -154,6 +154,16 @@ export class UsersController {
     return { invitesSent: invites }
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UsePipes()
+  @Get(':id/permissions')
+  async getUserPermissions(@CurrentUser() user: AuthenticatedUser) {
+    const permissions = await this.userService.getUserPermissions(user.id)
+
+    return permissions
+  }
+
   // TODO: update user
 
   // TODO: update email
