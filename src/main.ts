@@ -17,13 +17,13 @@ async function bootstrap() {
   app.useGlobalInterceptors(new AuthInterceptor())
 
   const config = new DocumentBuilder()
-    .setTitle('Teto de Vidro - API')
+    .setTitle('Teto de Vidro - Scraper')
     .setDescription('Descrição dos endpoints disponíveis no projeto')
     .setVersion('1.0')
     .build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, documentFactory)
 
-  await app.listen(Number(process.env.PORT) || 3000)
+  await app.listen(3000, '0.0.0.0')
 }
 bootstrap()

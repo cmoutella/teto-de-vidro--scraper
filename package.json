@@ -1,5 +1,5 @@
 {
-  "name": "tetodevidro-backend",
+  "name": "tetodevidro-scraper",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -18,7 +18,7 @@
     "lint-staged": "lint-staged",
     "format:check": "prettier --check --cache \"src/**/*.{js,ts}\" ",
     "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.{js,ts}\"",
-    "prepare": "husky"
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",

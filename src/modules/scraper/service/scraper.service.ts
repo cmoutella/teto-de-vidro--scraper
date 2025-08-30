@@ -8,18 +8,11 @@ import { removeBrl } from '../utils/remove-currency.util'
 @Injectable()
 export class ScraperService {
   private readonly logger = new Logger(ScraperService.name)
-  chromePath = process.env.CHROME_EXEC_PATH
-
-  isAvailable() {
-    if (!this.chromePath) {
-      throw new Error('Caminho do Chrome não definido em CHROME_EXEC_PATH')
-    }
-  }
 
   async launchBrowser() {
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: this.chromePath,
+      executablePath: '/usr/bin/chromium',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -155,8 +148,6 @@ export class ScraperService {
   }
 
   async scrape(url: string) {
-    this.isAvailable()
-
     const host = new URL(url).hostname
 
     const getData = this.getHostScraperFunction(host)

@@ -1,62 +1,75 @@
-FROM node:18-slim
+# ---------------------------
+# STAGE 1 - Builder
+# ---------------------------
+FROM node:20-slim AS builder
 
-# Instala ferramentas essenciais
+ENV TZ=Etc/UTC
+
+WORKDIR /app
+
+# Copia package.json e package-lock.json
+COPY package*.json ./
+
+# Dependências necessárias para build
 RUN apt-get update && apt-get install -y \
-  wget \
-  curl \
-  gnupg \
-  ca-certificates
+  python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
 
-# Adiciona chave GPG e repositório do Google Chrome
-RUN curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+RUN npm install
 
-# Instala o Chrome e dependências necessárias para rodá-lo
+# Copia todo o código
+COPY . .
+
+# Gera build Nest.js
+RUN npm run build
+
+
+# ---------------------------
+# STAGE 2 - Runner
+# ---------------------------
+FROM node:20-slim AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Instala Chromium e dependências de runtime
 RUN apt-get update && apt-get install -y \
-  google-chrome-stable \
+  chromium \
+  fonts-liberation \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libatk1.0-0 \
+  libcups2 \
+  libdbus-1-3 \
+  libdrm2 \
+  libxkbcommon0 \
+  libgbm1 \
+  libgtk-3-0 \
+  libnss3 \
   libx11-6 \
   libx11-xcb1 \
   libxcb1 \
   libxcomposite1 \
+  libxcursor1 \
+  libxdamage1 \
   libxext6 \
-  libnss3 \
-  libnspr4 \
-  libatk-bridge2.0-0 \
-  libatk1.0-0 \
-  libpangocairo-1.0-0 \
-  libglib2.0-0 \
-  xdg-utils && \
-  rm -rf /var/lib/apt/lists/*
+  libxfixes3 \
+  libxi6 \
+  libxrandr2 \
+  libxrender1 \
+  xdg-utils \
+  && rm -rf /var/lib/apt/lists/*
 
-# Caminho do Chrome usado pelo puppeteer-core
-ENV CHROME_EXEC_PATH=/usr/bin/google-chrome
+# Copia apenas package.json para instalar deps de produção
+COPY package*.json ./
+RUN npm install --omit=dev
 
+# Copia o build pronto do estágio builder
+COPY --from=builder /app/dist/src ./dist/src
 
-WORKDIR /usr/app
-
-COPY package.json ./
-RUN npm install
-
-COPY src ./src
-COPY package.json package.json
-COPY tsconfig.json tsconfig.json
-COPY tsconfig.build.json tsconfig.build.json
-
-ARG MONGO_URI
-ENV MONGO_URI=$MONGO_URI
-
-ENV OPENCEP_API=https://opencep.com/v1
-
-
-RUN echo "\
-  MONGO_URI=${MONGO_URI}\n\
-  OPENCEP_API=${OPENCEP_API}\n\
-  CHROME_EXEC_PATH=${CHROME_EXEC_PATH}\n\
-  " > .env
-
-RUN npm i -g pnpm
-RUN pnpm build
-
+# Porta padrão NestJS
 EXPOSE 8080
 
-CMD ["node", "./dist/src/main"]
+# Inicia a aplicação
+CMD ["node", "dist/src/main.js"]

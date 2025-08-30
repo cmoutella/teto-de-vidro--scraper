@@ -5,10 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tdv-api
-    container_name: tdV-teste
+    image: tdv-scraper
+    container_name: TdV-scraper
     env_file:
       - .env
     ports:
-      - '8080:8080'
+      - '8080:3000'
     # restart: unless-stopped

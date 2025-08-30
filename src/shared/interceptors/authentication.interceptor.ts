@@ -4,9 +4,9 @@ import {
   ExecutionContext,
   CallHandler
 } from '@nestjs/common'
-import { AuthenticatedUser } from '@src/modules/auth/schemas/models/auth.interface'
 import { Observable } from 'rxjs'
 import { tap } from 'rxjs/operators'
+import { AuthenticatedUser } from '../types/auth.interface'
 
 @Injectable()
 export class AuthInterceptor implements NestInterceptor {
