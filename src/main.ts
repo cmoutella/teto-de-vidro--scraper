@@ -9,7 +9,7 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
   app.enableCors({
-    origin: ['*', 'http://localhost:3000'],
+    origin: ['*'],
     methods: ['POST', 'PUT', 'DELETE', 'GET']
   })
   app.useGlobalFilters(new HttpExceptionFilter())
@@ -24,6 +24,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, documentFactory)
 
-  await app.listen(3000, '0.0.0.0')
+  await app.listen(Number(process.env.PORT) || 8181)
 }
 bootstrap()
