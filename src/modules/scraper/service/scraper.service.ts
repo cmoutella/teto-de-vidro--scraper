@@ -187,6 +187,20 @@ export class ScraperService {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     )
 
+    // Intercepta requisições para bloquear recursos em produção
+    if (!process.env.BROWSER_EXEC_PATH) {
+      await page.setRequestInterception(true)
+      page.on('request', (request) => {
+        if (
+          ['image', 'stylesheet', 'font'].indexOf(request.resourceType()) !== -1
+        ) {
+          request.abort()
+        } else {
+          request.continue()
+        }
+      })
+    }
+
     const scrapedData = await getData(url, page)
 
     return scrapedData
