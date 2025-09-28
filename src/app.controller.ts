@@ -1,12 +1,14 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Query, UseGuards } from '@nestjs/common'
 
 import { AdScrapedData } from './modules/scraper/schema/scraped-data.interface'
 import { ScraperService } from './modules/scraper/service/scraper.service'
+import { AuthGuard } from './shared/guards/auth.guard'
 
 @Controller()
 export class AppController {
   constructor(private readonly scraperService: ScraperService) {}
 
+  @UseGuards(AuthGuard)
   @Get('/ad')
   async scrapePage(@Query('url') url: string): Promise<AdScrapedData> {
     if (!url) {
