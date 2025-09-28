@@ -4,6 +4,7 @@ export interface AdScrapedData
     string | string[] | number | undefined | Record<string, boolean>
   > {
   rentPrice?: number
+  sellPrice?: number
   condoPricing?: number
   iptu?: number
   size?: number

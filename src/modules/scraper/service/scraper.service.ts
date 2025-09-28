@@ -10,9 +10,12 @@ export class ScraperService {
   private readonly logger = new Logger(ScraperService.name)
 
   async launchBrowser() {
+    const executableBrowserPath =
+      process.env.BROWSER_EXEC_PATH || '/usr/bin/chromium'
+
     const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: '/usr/bin/chromium',
+      headless: !process.env.BROWSER_EXEC_PATH,
+      executablePath: executableBrowserPath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -43,53 +46,82 @@ export class ScraperService {
       await page.goto(url, { waitUntil: 'domcontentloaded' })
 
       /**
-       * PREÇO DE
-       * VENDA OU ALUGUEL
+       * PRICES
        */
-      const propertyValuesTypes = await page.$$eval(
-        '.price-value-wrapper #business-type-info',
+      // RENTAL
+      const rentalPrices = await page.$$eval(
+        '.price-info__values-rental > .value-item',
         (elements) =>
-          elements.map((el) => el.textContent?.trim().toLowerCase() || '')
+          elements.map((el) => {
+            const setData = el.querySelectorAll('p')
+
+            const set = []
+            setData.forEach((item) => {
+              set.push(item.textContent)
+            })
+
+            return set
+          })
       )
-      const propertyValues = await page.$$eval(
-        '.price-info-value',
+      if (rentalPrices) {
+        rentalPrices.forEach((item) => {
+          switch (item[0]) {
+            case 'Aluguel':
+              adData.rentPrice = removeBrl(item[1])
+              break
+
+            case 'Condomínio':
+              adData.condoPricing = removeBrl(item[1])
+              break
+
+            case 'IPTU':
+              adData.iptu = removeBrl(item[1])
+              break
+
+            default:
+              break
+          }
+        })
+      }
+
+      // SELL
+      const sellingPrices = await page.$$eval(
+        '.price-info__values-sale > .value-item',
         (elements) =>
-          elements.map((el) => el.textContent?.split('/')[0].trim() || '')
-      )
+          elements.map((el) => {
+            const setData = el.querySelectorAll('p')
 
-      if (propertyValuesTypes.includes('venda')) {
-        const index = propertyValuesTypes.indexOf('venda')
-        adData['sellPrice'] = removeBrl(propertyValues[index])
-      }
-      if (propertyValuesTypes.includes('aluguel')) {
-        const index = propertyValuesTypes.indexOf('aluguel')
-        adData['rentPrice'] = removeBrl(propertyValues[index])
+            const set = []
+            setData.forEach((item) => {
+              set.push(item.textContent)
+            })
+
+            return set
+          })
+      )
+      if (sellingPrices) {
+        rentalPrices.forEach((item) => {
+          switch (item[0]) {
+            case 'Venda':
+              adData.sellPrice = removeBrl(item[1])
+              break
+
+            case 'Condomínio':
+              adData.condoPricing = removeBrl(item[1])
+              break
+
+            case 'IPTU':
+              adData.iptu = removeBrl(item[1])
+              break
+
+            default:
+              break
+          }
+        })
       }
 
       /**
-       * CONDOMÍNIO
-       */
-      const condoPricing = await page.$eval(
-        '#condo-fee-price',
-        (elements) => elements.textContent?.trim() || ''
-      )
-      if (condoPricing) {
-        adData['condoPricing'] = removeBrl(condoPricing)
-      }
-
-      /**
-       * IPTU
-       */
-      const iptuPrice = await page.$eval(
-        '#iptu-price',
-        (elements) => elements.textContent?.trim() || ''
-      )
-      if (iptuPrice) {
-        adData['iptu'] = removeBrl(iptuPrice)
-      }
-
-      /**
-       * CONDOMÍNIO
+       * FACILIDADES
        */
       const amenities = await page.$$eval(
         '.amenities-container .amenities-list > .amenities-item',
@@ -113,8 +145,8 @@ export class ScraperService {
        * ENDEREÇO
        */
       const address = await page.$eval(
-        '.address-info-value',
-        (elements) => elements.textContent?.trim() || ''
+        '.location-address__text',
+        (element) => element.textContent?.trim() || ''
       )
       const addressData: Record<string, string | null> = extractAddress(address)
 
