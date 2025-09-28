@@ -8,10 +8,22 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
-  app.enableCors({
-    origin: ['*'],
-    methods: ['POST', 'PUT', 'DELETE', 'GET']
-  })
+
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',')
+  if (!allowedOrigins) {
+    console.warn('⚠️  ALLOWED_ORIGINS não definido, usando localhost:8080')
+    app.enableCors({
+      origin: ['http://localhost:8080'],
+      methods: ['POST', 'PUT', 'DELETE', 'GET'],
+      credentials: true
+    })
+  } else {
+    app.enableCors({
+      origin: allowedOrigins,
+      methods: ['POST', 'PUT', 'DELETE', 'GET'],
+      credentials: true
+    })
+  }
   app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalInterceptors(new ResponseInterceptor())
   app.useGlobalInterceptors(new AuthInterceptor())

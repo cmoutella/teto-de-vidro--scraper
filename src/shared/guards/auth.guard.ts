@@ -31,6 +31,10 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET
       })
 
+      if (payload && payload.role !== 'app') {
+        throw new UnauthorizedException('Apenas aplicações autorizadas')
+      }
+
       request['user'] = payload
     } catch (_err) {
       throw new UnauthorizedException()
