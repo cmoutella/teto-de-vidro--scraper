@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { tap } from 'rxjs/operators'
-import { AuthenticatedUser } from '../types/auth.interface'
 
 @Injectable()
 export class AuthInterceptor implements NestInterceptor {
@@ -16,12 +15,11 @@ export class AuthInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        const user = request.user as AuthenticatedUser
+        const user = request.user as { role: string; appName: string }
 
         if (user) {
-          response.setHeader('x-user-id', user.id)
           response.setHeader('x-user-role', user.role)
-          response.setHeader('x-user-level', user.accessLevel)
+          response.setHeader('x-user-client', user.appName)
         }
       })
     )
